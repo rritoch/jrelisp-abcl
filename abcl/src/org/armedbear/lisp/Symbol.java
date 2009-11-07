@@ -42,17 +42,9 @@ public class Symbol extends LispObject
 
   public static final Symbol addFunction(String name, LispObject obj)
   {
-    try
-      {
-        Symbol symbol = PACKAGE_CL.internAndExport(name);
-        symbol.function = obj;
-        return symbol;
-      }
-    catch (ConditionThrowable t)
-      {
-        Debug.trace(t); // Shouldn't happen.
-        return null;
-      }
+    Symbol symbol = PACKAGE_CL.internAndExport(name);
+    symbol.function = obj;
+    return symbol;
   }
 
   public final SimpleString name;
@@ -112,7 +104,7 @@ public class Symbol extends LispObject
   }
 
   @Override
-  public LispObject getDescription() throws ConditionThrowable
+  public LispObject getDescription()
   {
     final LispThread thread = LispThread.currentThread();
     SpecialBinding lastSpecialBinding = thread.lastSpecialBinding;
@@ -141,7 +133,7 @@ public class Symbol extends LispObject
   }
 
   @Override
-  public LispObject getParts() throws ConditionThrowable
+  public LispObject getParts()
   {
     LispObject parts = NIL;
     parts = parts.push(new Cons("name", name));
@@ -155,7 +147,7 @@ public class Symbol extends LispObject
   }
 
   @Override
-  public LispObject typep(LispObject type) throws ConditionThrowable
+  public LispObject typep(LispObject type)
   {
     if (type == Symbol.SYMBOL)
       return T;
@@ -314,13 +306,12 @@ public class Symbol extends LispObject
    * A lisp error is thrown if the symbol is unbound.
    *
    * @return The associated value
-   * @throws org.armedbear.lisp.ConditionThrowable
    *
    * @see LispThread#lookupSpecial
    * @see Symbol#getSymbolValue()
    *
    */
-  public final LispObject symbolValue() throws ConditionThrowable
+  public final LispObject symbolValue()
   {
     return symbolValue(LispThread.currentThread());
   }
@@ -331,13 +322,12 @@ public class Symbol extends LispObject
    * A lisp error is thrown if the symbol is unbound.
    *
    * @return The associated value
-   * @throws org.armedbear.lisp.ConditionThrowable
    *
    * @see LispThread#lookupSpecial
    * @see Symbol#getSymbolValue()
    *
    */
-  public final LispObject symbolValue(LispThread thread) throws ConditionThrowable
+  public final LispObject symbolValue(LispThread thread)
   {
     LispObject val = thread.lookupSpecial(this);
     if (val != null)
@@ -392,7 +382,7 @@ public class Symbol extends LispObject
   }
 
   @Override
-  public final LispObject getSymbolFunctionOrDie() throws ConditionThrowable
+  public final LispObject getSymbolFunctionOrDie()
   {
     if (function == null)
       return error(new UndefinedFunction(this));
@@ -405,7 +395,7 @@ public class Symbol extends LispObject
   }
 
   public final LispObject getSymbolSetfFunctionOrDie()
-    throws ConditionThrowable
+
   {
     LispObject obj = get(this, Symbol.SETF_FUNCTION, null);
     if (obj == null)
@@ -418,6 +408,13 @@ public class Symbol extends LispObject
   public final void setSymbolFunction(LispObject obj)
   {
     this.function = obj;
+  }
+
+  /** See LispObject.getStringValue() */
+  @Override
+  public String getStringValue()
+  {
+    return name.getStringValue();
   }
 
   @Override
@@ -437,7 +434,7 @@ public class Symbol extends LispObject
   }
 
   @Override
-  public String writeToString() throws ConditionThrowable
+  public String writeToString()
   {
     final String n = name.getStringValue();
     final LispThread thread = LispThread.currentThread();
@@ -631,7 +628,7 @@ public class Symbol extends LispObject
   private static final boolean needsEscape(String s,
                                            LispObject readtableCase,
                                            LispThread thread)
-    throws ConditionThrowable
+
   {
     boolean escape = false;
     final int length = s.length();
@@ -763,7 +760,7 @@ public class Symbol extends LispObject
   }
 
   @Override
-  final public LispObject execute() throws ConditionThrowable
+  final public LispObject execute()
   {
     LispObject fun;
     if ((fun = function) == null)
@@ -773,7 +770,7 @@ public class Symbol extends LispObject
   }
 
   @Override
-  final public LispObject execute(LispObject arg) throws ConditionThrowable
+  final public LispObject execute(LispObject arg)
   {
     LispObject fun;
     if ((fun = function) == null)
@@ -784,7 +781,7 @@ public class Symbol extends LispObject
 
   @Override
   final public LispObject execute(LispObject first, LispObject second)
-    throws ConditionThrowable
+
   {
     LispObject fun;
     if ((fun = function) == null)
@@ -796,7 +793,7 @@ public class Symbol extends LispObject
   @Override
   final public LispObject execute(LispObject first, LispObject second,
                             LispObject third)
-    throws ConditionThrowable
+
   {
     LispObject fun;
     if ((fun = function) == null)
@@ -808,7 +805,7 @@ public class Symbol extends LispObject
   @Override
   final public LispObject execute(LispObject first, LispObject second,
                             LispObject third, LispObject fourth)
-    throws ConditionThrowable
+
   {
     LispObject fun;
     if ((fun = function) == null)
@@ -821,7 +818,7 @@ public class Symbol extends LispObject
   final public LispObject execute(LispObject first, LispObject second,
                             LispObject third, LispObject fourth,
                             LispObject fifth)
-    throws ConditionThrowable
+
   {
     LispObject fun;
     if ((fun = function) == null)
@@ -836,7 +833,7 @@ public class Symbol extends LispObject
   final public LispObject execute(LispObject first, LispObject second,
                             LispObject third, LispObject fourth,
                             LispObject fifth, LispObject sixth)
-    throws ConditionThrowable
+
   {
     LispObject fun;
     if ((fun = function) == null)
@@ -852,7 +849,7 @@ public class Symbol extends LispObject
                             LispObject third, LispObject fourth,
                             LispObject fifth, LispObject sixth,
                             LispObject seventh)
-    throws ConditionThrowable
+
   {
     LispObject fun;
     if ((fun = function) == null)
@@ -868,7 +865,7 @@ public class Symbol extends LispObject
                             LispObject third, LispObject fourth,
                             LispObject fifth, LispObject sixth,
                             LispObject seventh, LispObject eighth)
-    throws ConditionThrowable
+
   {
     LispObject fun;
     if ((fun = function) == null)
@@ -880,7 +877,7 @@ public class Symbol extends LispObject
   }
 
   @Override
-  final public LispObject execute(LispObject[] args) throws ConditionThrowable
+  final public LispObject execute(LispObject[] args)
   {
     LispObject fun;
     if ((fun = function) == null) {
@@ -894,7 +891,7 @@ public class Symbol extends LispObject
   }
 
   private final LispObject undefinedFunction(LispObject args)
-    throws ConditionThrowable
+
   {
     return LispThread.currentThread().execute(Symbol.UNDEFINED_FUNCTION_CALLED,
                                               this, args);

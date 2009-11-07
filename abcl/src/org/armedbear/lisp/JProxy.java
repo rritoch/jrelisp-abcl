@@ -50,7 +50,7 @@ public final class JProxy extends Lisp
                   "interface &rest method-names-and-defs")
     {
       @Override
-      public LispObject execute(LispObject[] args) throws ConditionThrowable
+      public LispObject execute(LispObject[] args)
       {
         int length = args.length;
         if (length < 3 || length % 2 != 1)
@@ -94,22 +94,15 @@ public final class JProxy extends Lisp
           Function f = entry.getLispMethod(methodName);
           if (f != null)
             {
-              try
+              LispObject lispArgs = NIL;
+              if (args != null)
                 {
-                  LispObject lispArgs = NIL;
-                  if (args != null)
-                    {
-                      for (int i = args.length - 1 ; 0 <= i  ; i--)
-                        lispArgs = lispArgs.push(new JavaObject(args[i]));
-                    }
-                  LispObject result = evalCall(f, lispArgs, new Environment(),
-                                               LispThread.currentThread());
-                  return (method.getReturnType() == void.class ? null : result.javaInstance());
+                  for (int i = args.length - 1 ; 0 <= i  ; i--)
+                    lispArgs = lispArgs.push(new JavaObject(args[i]));
                 }
-              catch (ConditionThrowable t)
-                {
-                  t.printStackTrace();
-                }
+              LispObject result = evalCall(f, lispArgs, new Environment(),
+                                           LispThread.currentThread());
+              return (method.getReturnType() == void.class ? null : result.javaInstance());
             }
         }
       return null;
@@ -201,7 +194,7 @@ public final class JProxy extends Lisp
 	    new Primitive("%jmake-invocation-handler", PACKAGE_JAVA, false,
 	                  "function") {
 		
-	      	public LispObject execute(LispObject[] args) throws ConditionThrowable {
+	      	public LispObject execute(LispObject[] args) {
 	      		int length = args.length;
 	      		if (length != 1) {
 	      			return error(new WrongNumberOfArgumentsException(this));
@@ -217,7 +210,7 @@ public final class JProxy extends Lisp
 	    new Primitive("%jmake-proxy", PACKAGE_JAVA, false,
 	                  "interface invocation-handler") {
 		
-	      	public LispObject execute(final LispObject[] args) throws ConditionThrowable {
+	      	public LispObject execute(final LispObject[] args) {
 	      		int length = args.length;
 	      		if (length != 3) {
 	      			return error(new WrongNumberOfArgumentsException(this));

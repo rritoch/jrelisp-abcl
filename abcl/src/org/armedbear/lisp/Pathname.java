@@ -58,12 +58,12 @@ public class Pathname extends LispObject
     {
     }
 
-    public Pathname(String s) throws ConditionThrowable
+    public Pathname(String s)
     {
         init(s);
     }
 
-    public Pathname(URL url) throws ConditionThrowable
+    public Pathname(URL url)
     {
         String protocol = url.getProtocol();
         if ("jar".equals(protocol)) {
@@ -109,7 +109,7 @@ public class Pathname extends LispObject
         error(new LispError("Unsupported URL: \"" + url.toString() + '"'));
     }
 
-    private final void init(String s) throws ConditionThrowable
+    private final void init(String s)
     {
         if (s == null)
             return;
@@ -230,7 +230,7 @@ public class Pathname extends LispObject
     }
 
     private static final LispObject parseDirectory(String d)
-        throws ConditionThrowable
+
     {
         if (d.equals("/") || (Utilities.isPlatformWindows && d.equals("\\")))
             return new Cons(Keyword.ABSOLUTE);
@@ -261,7 +261,7 @@ public class Pathname extends LispObject
     }
 
     @Override
-    public LispObject getParts() throws ConditionThrowable
+    public LispObject getParts()
     {
         LispObject parts = NIL;
         parts = parts.push(new Cons("HOST", host));
@@ -286,7 +286,7 @@ public class Pathname extends LispObject
     }
 
     @Override
-    public LispObject typep(LispObject type) throws ConditionThrowable
+    public LispObject typep(LispObject type)
     {
         if (type == Symbol.PATHNAME)
             return T;
@@ -300,7 +300,7 @@ public class Pathname extends LispObject
         return device;
     }
 
-    public String getNamestring() throws ConditionThrowable
+    public String getNamestring()
     {
         if (namestring != null)
             return namestring;
@@ -378,7 +378,7 @@ public class Pathname extends LispObject
         return namestring = sb.toString();
     }
 
-    protected String getDirectoryNamestring() throws ConditionThrowable
+    protected String getDirectoryNamestring()
     {
         validateDirectory(true);
         FastStringBuffer sb = new FastStringBuffer();
@@ -430,7 +430,7 @@ public class Pathname extends LispObject
     }
 
     @Override
-    public boolean equal(LispObject obj) throws ConditionThrowable
+    public boolean equal(LispObject obj)
     {
         if (this == obj)
             return true;
@@ -472,7 +472,7 @@ public class Pathname extends LispObject
     }
 
     @Override
-    public boolean equalp(LispObject obj) throws ConditionThrowable
+    public boolean equalp(LispObject obj)
     {
         return equal(obj);
     }
@@ -488,91 +488,87 @@ public class Pathname extends LispObject
     }
 
     @Override
-    public String writeToString() throws ConditionThrowable
+    public String writeToString()
     {
+        final LispThread thread = LispThread.currentThread();
+        boolean printReadably = (Symbol.PRINT_READABLY.symbolValue(thread) != NIL);
+        boolean printEscape = (Symbol.PRINT_ESCAPE.symbolValue(thread) != NIL);
+        boolean useNamestring;
+        String s = null;
         try {
-            final LispThread thread = LispThread.currentThread();
-            boolean printReadably = (Symbol.PRINT_READABLY.symbolValue(thread) != NIL);
-            boolean printEscape = (Symbol.PRINT_ESCAPE.symbolValue(thread) != NIL);
-            boolean useNamestring;
-            String s = null;
-            try {
-                s = getNamestring();
-            }
-            catch (Throwable t) {}
-            if (s != null) {
-                useNamestring = true;
-                if (printReadably) {
-                    // We have a namestring. Check for pathname components that
-                    // can't be read from the namestring.
-                    if (host != NIL || version != NIL) {
+            s = getNamestring();
+        }
+        // ### FIXME exception
+        catch (Throwable t) {}
+        if (s != null) {
+            useNamestring = true;
+            if (printReadably) {
+                // We have a namestring. Check for pathname components that
+                // can't be read from the namestring.
+                if (host != NIL || version != NIL) {
+                    useNamestring = false;
+                } else if (name instanceof AbstractString) {
+                    String n = name.getStringValue();
+                    if (n.equals(".") || n.equals(".."))
                         useNamestring = false;
-                    } else if (name instanceof AbstractString) {
-                        String n = name.getStringValue();
-                        if (n.equals(".") || n.equals(".."))
-                            useNamestring = false;
-                        else if (n.indexOf(File.separatorChar) >= 0)
-                            useNamestring = false;
-                    }
+                    else if (n.indexOf(File.separatorChar) >= 0)
+                        useNamestring = false;
                 }
-            } else
-                useNamestring = false;
-            FastStringBuffer sb = new FastStringBuffer();
-            if (useNamestring) {
-                if (printReadably || printEscape)
-                    sb.append("#P\"");
-                final int limit = s.length();
-                for (int i = 0; i < limit; i++) {
-                    char c = s.charAt(i);
-                    if (printReadably || printEscape) {
-                        if (c == '\"' || c == '\\')
-                            sb.append('\\');
-                    }
-                    sb.append(c);
-                }
-                if (printReadably || printEscape)
-                    sb.append('"');
-            } else {
-                sb.append("#P(");
-                if (host != NIL) {
-                    sb.append(":HOST ");
-                    sb.append(host.writeToString());
-                    sb.append(' ');
-                }
-                if (device != NIL) {
-                    sb.append(":DEVICE ");
-                    sb.append(device.writeToString());
-                    sb.append(' ');
-                }
-                if (directory != NIL) {
-                    sb.append(":DIRECTORY ");
-                    sb.append(directory.writeToString());
-                    sb.append(" ");
-                }
-                if (name != NIL) {
-                    sb.append(":NAME ");
-                    sb.append(name.writeToString());
-                    sb.append(' ');
-                }
-                if (type != NIL) {
-                    sb.append(":TYPE ");
-                    sb.append(type.writeToString());
-                    sb.append(' ');
-                }
-                if (version != NIL) {
-                    sb.append(":VERSION ");
-                    sb.append(version.writeToString());
-                    sb.append(' ');
-                }
-                if (sb.charAt(sb.length() - 1) == ' ')
-                    sb.setLength(sb.length() - 1);
-                sb.append(')');
             }
-            return sb.toString();
-        }
-        catch (ConditionThrowable t) {
-            return unreadableString("PATHNAME");
-        }
+        } else
+           useNamestring = false;
+        FastStringBuffer sb = new FastStringBuffer();
+        if (useNamestring) {
+            if (printReadably || printEscape)
+                sb.append("#P\"");
+            final int limit = s.length();
+            for (int i = 0; i < limit; i++) {
+                char c = s.charAt(i);
+                if (printReadably || printEscape) {
+                    if (c == '\"' || c == '\\')
+                        sb.append('\\');
+                }
+                sb.append(c);
+            }
+            if (printReadably || printEscape)
+                sb.append('"');
+        } else {
+            sb.append("#P(");
+            if (host != NIL) {
+                sb.append(":HOST ");
+                sb.append(host.writeToString());
+                sb.append(' ');
+           }
+           if (device != NIL) {
+               sb.append(":DEVICE ");
+               sb.append(device.writeToString());
+               sb.append(' ');
+            }
+            if (directory != NIL) {
+                sb.append(":DIRECTORY ");
+                sb.append(directory.writeToString());
+                sb.append(" ");
+            }
+           if (name != NIL) {
+                sb.append(":NAME ");
+                sb.append(name.writeToString());
+                sb.append(' ');
+            }
+            if (type != NIL) {
+                sb.append(":TYPE ");
+                sb.append(type.writeToString());
+                sb.append(' ');
+            }
+            if (version != NIL) {
+                sb.append(":VERSION ");
+                sb.append(version.writeToString());
+                sb.append(' ');
+            }
+            if (sb.charAt(sb.length() - 1) == ' ')
+                sb.setLength(sb.length() - 1);
+            sb.append(')');
+         }
+         return sb.toString();
     }
 
     // A logical host is represented as the string that names it.
@@ -585,13 +581,13 @@ public class Pathname extends LispObject
                       LOGICAL_PATHNAME_TRANSLATIONS);
 
     public static Pathname parseNamestring(String s)
-        throws ConditionThrowable
+
     {
         return new Pathname(s);
     }
 
     public static Pathname parseNamestring(AbstractString namestring)
-        throws ConditionThrowable
+
     {
         // Check for a logical pathname host.
         String s = namestring.getStringValue();
@@ -605,7 +601,7 @@ public class Pathname extends LispObject
 
     public static Pathname parseNamestring(AbstractString namestring,
                                            AbstractString host)
-        throws ConditionThrowable
+
     {
         // Look for a logical pathname host in the namestring.
         String s = namestring.getStringValue();
@@ -641,7 +637,7 @@ public class Pathname extends LispObject
     }
 
     private static final void checkCaseArgument(LispObject arg)
-        throws ConditionThrowable
+
     {
         if (arg != Keyword.COMMON && arg != Keyword.LOCAL)
             type_error(arg, list(Symbol.MEMBER, Keyword.COMMON,
@@ -654,7 +650,7 @@ public class Pathname extends LispObject
     {
         @Override
         public LispObject execute(LispObject first, LispObject second)
-            throws ConditionThrowable
+
         {
             checkCaseArgument(second);
             return coerceToPathname(first).host;
@@ -667,7 +663,7 @@ public class Pathname extends LispObject
     {
         @Override
         public LispObject execute(LispObject first, LispObject second)
-            throws ConditionThrowable
+
         {
             checkCaseArgument(second);
             return coerceToPathname(first).device;
@@ -680,7 +676,7 @@ public class Pathname extends LispObject
     {
         @Override
         public LispObject execute(LispObject first, LispObject second)
-            throws ConditionThrowable
+
         {
             checkCaseArgument(second);
             return coerceToPathname(first).directory;
@@ -693,7 +689,7 @@ public class Pathname extends LispObject
     {
         @Override
         public LispObject execute(LispObject first, LispObject second)
-            throws ConditionThrowable
+
         {
             checkCaseArgument(second);
             return coerceToPathname(first).name;
@@ -706,7 +702,7 @@ public class Pathname extends LispObject
     {
         @Override
         public LispObject execute(LispObject first, LispObject second)
-            throws ConditionThrowable
+
         {
             checkCaseArgument(second);
             return coerceToPathname(first).type;
@@ -718,7 +714,7 @@ public class Pathname extends LispObject
         new Primitive("pathname-version", "pathname")
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
             return coerceToPathname(arg).version;
         }
@@ -730,7 +726,7 @@ public class Pathname extends LispObject
         new Primitive("namestring", "pathname")
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
             Pathname pathname = coerceToPathname(arg);
             String namestring = pathname.getNamestring();
@@ -747,7 +743,7 @@ public class Pathname extends LispObject
         new Primitive("directory-namestring", "pathname")
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
             return new SimpleString(coerceToPathname(arg).getDirectoryNamestring());
         }
@@ -758,7 +754,7 @@ public class Pathname extends LispObject
         new Primitive("pathname", "pathspec")
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
             return coerceToPathname(arg);
         }
@@ -772,7 +768,7 @@ public class Pathname extends LispObject
         @Override
         public LispObject execute(LispObject first, LispObject second,
                                   LispObject third)
-            throws ConditionThrowable
+
         {
             final LispThread thread = LispThread.currentThread();
             final AbstractString namestring = checkString(first);
@@ -804,7 +800,7 @@ public class Pathname extends LispObject
     {
         @Override
         public LispObject execute(LispObject[] args)
-            throws ConditionThrowable
+
         {
             return _makePathname(args);
         }
@@ -812,13 +808,13 @@ public class Pathname extends LispObject
 
     // Used by the #p reader.
     public static final Pathname makePathname(LispObject args)
-        throws ConditionThrowable
+
     {
         return _makePathname(args.copyToArray());
     }
 
     private static final Pathname _makePathname(LispObject[] args)
-        throws ConditionThrowable
+
     {
         if (args.length % 2 != 0)
             error(new ProgramError("Odd number of keyword arguments."));
@@ -936,7 +932,7 @@ public class Pathname extends LispObject
     }
 
     private static final AbstractString validateStringComponent(AbstractString s)
-        throws ConditionThrowable
+
     {
         final int limit = s.length();
         for (int i = 0; i < limit; i++) {
@@ -953,7 +949,7 @@ public class Pathname extends LispObject
     }
 
     private final boolean validateDirectory(boolean signalError)
-        throws ConditionThrowable
+
     {
         LispObject temp = directory;
         while (temp != NIL) {
@@ -982,7 +978,7 @@ public class Pathname extends LispObject
         new Primitive("pathnamep", "object")
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
             return arg instanceof Pathname ? T : NIL;
         }
@@ -993,7 +989,7 @@ public class Pathname extends LispObject
         new Primitive("logical-pathname-p", PACKAGE_SYS, true, "object")
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
             return arg instanceof LogicalPathname ? T : NIL;
         }
@@ -1004,7 +1000,7 @@ public class Pathname extends LispObject
         new Primitive("user-homedir-pathname", "&optional host")
     {
         @Override
-        public LispObject execute(LispObject[] args) throws ConditionThrowable
+        public LispObject execute(LispObject[] args)
         {
             switch (args.length) {
                 case 0: {
@@ -1026,7 +1022,7 @@ public class Pathname extends LispObject
         new Primitive("list-directory", PACKAGE_SYS, true)
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
             Pathname pathname = coerceToPathname(arg);
             if (pathname instanceof LogicalPathname)
@@ -1062,7 +1058,7 @@ public class Pathname extends LispObject
         }
     };
 
-    public boolean isWild() throws ConditionThrowable
+    public boolean isWild()
     {
         if (host == Keyword.WILD || host == Keyword.WILD_INFERIORS)
             return true;
@@ -1089,7 +1085,7 @@ public class Pathname extends LispObject
     {
         @Override
         public LispObject execute(LispObject first, LispObject second)
-            throws ConditionThrowable
+
         {
             Pathname pathname = coerceToPathname(first);
             if (second == NIL)
@@ -1130,7 +1126,7 @@ public class Pathname extends LispObject
                       "pathname &optional default-pathname default-version")
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
             Pathname pathname = coerceToPathname(arg);
             Pathname defaultPathname =
@@ -1140,7 +1136,7 @@ public class Pathname extends LispObject
         }
         @Override
         public LispObject execute(LispObject first, LispObject second)
-            throws ConditionThrowable
+
         {
             Pathname pathname = coerceToPathname(first);
             Pathname defaultPathname =
@@ -1151,7 +1147,7 @@ public class Pathname extends LispObject
         @Override
         public LispObject execute(LispObject first, LispObject second,
                                   LispObject third)
-            throws ConditionThrowable
+
         {
             Pathname pathname = coerceToPathname(first);
             Pathname defaultPathname =
@@ -1164,7 +1160,7 @@ public class Pathname extends LispObject
     public static final Pathname mergePathnames(Pathname pathname,
                                                 Pathname defaultPathname,
                                                 LispObject defaultVersion)
-        throws ConditionThrowable
+
     {
         Pathname p;
         if (pathname instanceof LogicalPathname)
@@ -1225,7 +1221,7 @@ public class Pathname extends LispObject
 
     private static final LispObject mergeDirectories(LispObject dir,
                                                      LispObject defaultDir)
-        throws ConditionThrowable
+
     {
         if (dir == NIL)
             return defaultDir;
@@ -1261,7 +1257,7 @@ public class Pathname extends LispObject
 
     public static final LispObject truename(LispObject arg,
                                             boolean errorIfDoesNotExist)
-        throws ConditionThrowable
+
     {
         Pathname pathname = coerceToPathname(arg);
         if (pathname instanceof LogicalPathname)
@@ -1302,7 +1298,7 @@ public class Pathname extends LispObject
         new Primitive("mkdir", PACKAGE_SYS, false)
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
             final Pathname pathname = coerceToPathname(arg);
             if (pathname.isWild())
@@ -1322,7 +1318,7 @@ public class Pathname extends LispObject
     {
         @Override
         public LispObject execute(LispObject first, LispObject second)
-            throws ConditionThrowable
+
         {
             final Pathname original = (Pathname) truename(first, true);
             final String originalNamestring = original.getNamestring();
@@ -1359,7 +1355,7 @@ public class Pathname extends LispObject
         new Primitive("file-namestring", "pathname")
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
             Pathname p = coerceToPathname(arg);
             FastStringBuffer sb = new FastStringBuffer();
@@ -1383,7 +1379,7 @@ public class Pathname extends LispObject
         new Primitive("host-namestring", "pathname")
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
             return coerceToPathname(arg).host;
         }

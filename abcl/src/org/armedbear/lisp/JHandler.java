@@ -81,12 +81,7 @@ public final class JHandler extends Lisp
                 LispObject lispAsVector = new SimpleVector(lispAs);
                 LispObject[] args = new LispObject[] //FIXME: count -> seq_num
                 { data, new JavaObject(o), lispAiVector, lispAsVector, Keyword.internKeyword(s), count };
-                try {
-                    f.execute(args);
-                }
-                catch (ConditionThrowable t) {
-                    t.printStackTrace();
-                }
+                f.execute(args);
             }
         }
     }
@@ -96,7 +91,7 @@ public final class JHandler extends Lisp
         new Primitive("%jregister-handler", PACKAGE_JAVA)
     {
         @Override
-        public LispObject execute(LispObject[] args) throws ConditionThrowable
+        public LispObject execute(LispObject[] args)
         {
             if (args.length != 5)
                 return error(new WrongNumberOfArgumentsException(this));

@@ -44,7 +44,7 @@ public final class StringFunctions extends Lisp
         public LispObject execute(LispObject first, LispObject second,
                                   LispObject third, LispObject fourth,
                                   LispObject fifth, LispObject sixth)
-            throws ConditionThrowable
+
         {
             char[] array1 = first.STRING().getStringChars();
             char[] array2 = second.STRING().getStringChars();
@@ -85,7 +85,7 @@ public final class StringFunctions extends Lisp
     {
         @Override
         public LispObject execute(LispObject first, LispObject second)
-            throws ConditionThrowable
+
         {
             char[] array1 = first.STRING().getStringChars();
             char[] array2 = second.STRING().getStringChars();
@@ -105,7 +105,7 @@ public final class StringFunctions extends Lisp
         new Primitive("%string/=", PACKAGE_SYS, true)
     {
         @Override
-        public LispObject execute(LispObject[] args) throws ConditionThrowable
+        public LispObject execute(LispObject[] args)
         {
             if (args.length != 6)
                 return error(new WrongNumberOfArgumentsException(this));
@@ -145,7 +145,7 @@ public final class StringFunctions extends Lisp
         public LispObject execute(LispObject first, LispObject second,
                                   LispObject third, LispObject fourth,
                                   LispObject fifth, LispObject sixth)
-            throws ConditionThrowable
+
         {
             char[] array1 = first.STRING().getStringChars();
             char[] array2 = second.STRING().getStringChars();
@@ -177,7 +177,7 @@ public final class StringFunctions extends Lisp
         new Primitive("%string-not-equal", PACKAGE_SYS, true)
     {
         @Override
-        public LispObject execute(LispObject[] args) throws ConditionThrowable
+        public LispObject execute(LispObject[] args)
         {
             if (args.length != 6)
                 return error(new WrongNumberOfArgumentsException(this));
@@ -221,7 +221,7 @@ public final class StringFunctions extends Lisp
         new Primitive("%string<", PACKAGE_SYS, true)
     {
         @Override
-        public LispObject execute(LispObject[] args) throws ConditionThrowable
+        public LispObject execute(LispObject[] args)
         {
             if (args.length != 6)
                 return error(new WrongNumberOfArgumentsException(this));
@@ -265,7 +265,7 @@ public final class StringFunctions extends Lisp
         new Primitive("%string>", PACKAGE_SYS, true)
     {
         @Override
-        public LispObject execute(LispObject[] args) throws ConditionThrowable
+        public LispObject execute(LispObject[] args)
         {
             if (args.length != 6)
                 return error(new WrongNumberOfArgumentsException(this));
@@ -307,7 +307,7 @@ public final class StringFunctions extends Lisp
         new Primitive("%string<=", PACKAGE_SYS, true)
     {
         @Override
-        public LispObject execute(LispObject[] args) throws ConditionThrowable
+        public LispObject execute(LispObject[] args)
         {
             if (args.length != 6)
                 return error(new WrongNumberOfArgumentsException(this));
@@ -349,7 +349,7 @@ public final class StringFunctions extends Lisp
         new Primitive("%string>=", PACKAGE_SYS, true)
     {
         @Override
-        public LispObject execute(LispObject[] args) throws ConditionThrowable
+        public LispObject execute(LispObject[] args)
         {
             if (args.length != 6)
                 return error(new WrongNumberOfArgumentsException(this));
@@ -393,7 +393,7 @@ public final class StringFunctions extends Lisp
         new Primitive("%string-lessp", PACKAGE_SYS, true)
     {
         @Override
-        public LispObject execute(LispObject[] args) throws ConditionThrowable
+        public LispObject execute(LispObject[] args)
         {
             if (args.length != 6)
                 return error(new WrongNumberOfArgumentsException(this));
@@ -437,7 +437,7 @@ public final class StringFunctions extends Lisp
         new Primitive("%string-greaterp", PACKAGE_SYS, true)
     {
         @Override
-        public LispObject execute(LispObject[] args) throws ConditionThrowable
+        public LispObject execute(LispObject[] args)
         {
             if (args.length != 6)
                 return error(new WrongNumberOfArgumentsException(this));
@@ -479,7 +479,7 @@ public final class StringFunctions extends Lisp
         new Primitive("%string-not-lessp", PACKAGE_SYS, true)
     {
         @Override
-        public LispObject execute(LispObject[] args) throws ConditionThrowable
+        public LispObject execute(LispObject[] args)
         {
             if (args.length != 6)
                 return error(new WrongNumberOfArgumentsException(this));
@@ -523,7 +523,7 @@ public final class StringFunctions extends Lisp
         new Primitive("%string-not-greaterp", PACKAGE_SYS, true)
     {
         @Override
-        public LispObject execute(LispObject[] args) throws ConditionThrowable
+        public LispObject execute(LispObject[] args)
         {
             if (args.length != 6)
                 return error(new WrongNumberOfArgumentsException(this));
@@ -566,7 +566,7 @@ public final class StringFunctions extends Lisp
         @Override
         public LispObject execute(LispObject first, LispObject second,
                                   LispObject third)
-            throws ConditionThrowable
+
         {
             LispObject s = first.STRING();
             final int length = s.length();
@@ -601,8 +601,7 @@ public final class StringFunctions extends Lisp
     {
         @Override
         public LispObject execute(LispObject first, LispObject second,
-                                  LispObject third) throws
-        ConditionThrowable
+                                  LispObject third)
         {
             LispObject s = first.STRING();
             final int length = s.length();
@@ -638,7 +637,7 @@ public final class StringFunctions extends Lisp
         @Override
         public LispObject execute(LispObject first, LispObject second,
                                   LispObject third)
-            throws ConditionThrowable
+
         {
             LispObject s = first.STRING();
             final int length = s.length();
@@ -686,7 +685,7 @@ public final class StringFunctions extends Lisp
         @Override
         public LispObject execute(LispObject first, LispObject second,
                                   LispObject third)
-            throws ConditionThrowable
+
         {
             final AbstractString string = checkString(first);
             final int length = string.length();
@@ -715,7 +714,7 @@ public final class StringFunctions extends Lisp
         @Override
         public LispObject execute(LispObject first, LispObject second,
                                   LispObject third)
-            throws ConditionThrowable
+
         {
             final AbstractString string = checkString(first);
             final int length = string.length();
@@ -744,7 +743,7 @@ public final class StringFunctions extends Lisp
         @Override
         public LispObject execute(LispObject first, LispObject second,
                                   LispObject third)
-            throws ConditionThrowable
+
         {
             AbstractString string = checkString(first);
             final int length = string.length();
@@ -782,7 +781,7 @@ public final class StringFunctions extends Lisp
     public static final Primitive STRINGP = new Primitive("stringp", "object")
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
             return arg.STRINGP();
         }
@@ -793,7 +792,7 @@ public final class StringFunctions extends Lisp
         new Primitive("simple-string-p", "object")
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
             return arg.SIMPLE_STRING_P();
         }
@@ -808,7 +807,7 @@ public final class StringFunctions extends Lisp
         @Override
         public LispObject execute(LispObject size, LispObject initialElement,
                                   LispObject elementType)
-            throws ConditionThrowable
+
         {
             final int n = Fixnum.getValue(size);
             if (n < 0 || n >= ARRAY_DIMENSION_MAX) {
@@ -841,7 +840,7 @@ public final class StringFunctions extends Lisp
     {
         @Override
         public LispObject execute(LispObject first, LispObject second)
-            throws ConditionThrowable
+
         {
                 return first.CHAR(Fixnum.getValue(second));
         }
@@ -853,7 +852,7 @@ public final class StringFunctions extends Lisp
     {
         @Override
         public LispObject execute(LispObject first, LispObject second)
-            throws ConditionThrowable
+
         {
             return first.SCHAR(Fixnum.getValue(second));
         }
@@ -866,7 +865,7 @@ public final class StringFunctions extends Lisp
         @Override
         public LispObject execute(LispObject first, LispObject second,
                                   LispObject third)
-            throws ConditionThrowable
+
         {
             checkString(first).setCharAt(Fixnum.getValue(second),
                     LispCharacter.getValue(third));
@@ -881,7 +880,7 @@ public final class StringFunctions extends Lisp
         @Override
         public LispObject execute(LispObject first, LispObject second,
                                   LispObject third)
-            throws ConditionThrowable
+
         {
             if (first instanceof SimpleString) {
                 ((SimpleString)first).setCharAt(Fixnum.getValue(second),
@@ -899,7 +898,7 @@ public final class StringFunctions extends Lisp
         @Override
         public LispObject execute(LispObject first, LispObject second,
                                   LispObject third)
-            throws ConditionThrowable
+
         {
             char c = LispCharacter.getValue(first);
             AbstractString string = checkString(second);
@@ -918,7 +917,7 @@ public final class StringFunctions extends Lisp
     {
         @Override
         public LispObject execute(LispObject first, LispObject second)
-            throws ConditionThrowable
+
         {
             if (first instanceof LispCharacter) {
                 final char c = ((LispCharacter)first).value;
@@ -940,7 +939,7 @@ public final class StringFunctions extends Lisp
     {
         @Override
         public LispObject execute(LispObject first, LispObject second)
-            throws ConditionThrowable
+
         {
             // FIXME Don't call getStringValue() here! (Just look at the chars.)
             int index = second.getStringValue().indexOf(first.getStringValue());
@@ -954,7 +953,7 @@ public final class StringFunctions extends Lisp
     {
         @Override
         public LispObject execute(LispObject first, LispObject second)
-            throws ConditionThrowable
+
         {
             if(first instanceof AbstractString) {
                 AbstractString s = (AbstractString) first;

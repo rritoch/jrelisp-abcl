@@ -33,7 +33,7 @@
 
 package org.armedbear.lisp;
 
-public final class Return extends ConditionThrowable
+public final class Return extends ControlTransfer
 {
     public final LispObject tag;
     public final LispObject block;
@@ -69,7 +69,7 @@ public final class Return extends ConditionThrowable
     }
 
     @Override
-    public LispObject getCondition() throws ConditionThrowable
+    public LispObject getCondition()
     {
         try {
             FastStringBuffer sb = new FastStringBuffer("No block named ");

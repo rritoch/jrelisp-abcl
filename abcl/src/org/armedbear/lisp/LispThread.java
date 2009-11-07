@@ -90,12 +90,7 @@ public final class LispThread extends LispObject
                 }
                 catch (Throwable t) {
                     if (isInterrupted()) {
-                        try {
-                            processThreadInterrupts();
-                        }
-                        catch (ConditionThrowable c) {
-                            Debug.trace(c);
-                        }
+                        processThreadInterrupts();
                     }
                 }
                 finally {
@@ -107,13 +102,8 @@ public final class LispThread extends LispObject
         javaThread = new Thread(r);
         this.name = name;
         map.put(javaThread, this);
-        try {
-            if (name != NIL)
-                javaThread.setName(name.getStringValue());
-        } catch (ConditionThrowable ex) {
-            Debug.trace("Failed to set thread name:");
-	    Debug.trace(ex);
-        }
+        if (name != NIL)
+            javaThread.setName(name.getStringValue());
         javaThread.setDaemon(true);
         javaThread.start();
     }
@@ -135,7 +125,7 @@ public final class LispThread extends LispObject
     }
 
     @Override
-    public LispObject typep(LispObject typeSpecifier) throws ConditionThrowable
+    public LispObject typep(LispObject typeSpecifier)
     {
         if (typeSpecifier == Symbol.THREAD)
             return T;
@@ -168,7 +158,7 @@ public final class LispThread extends LispObject
     }
 
     private final synchronized void processThreadInterrupts()
-        throws ConditionThrowable
+
     {
         while (pending != NIL) {
             LispObject function = pending.car();
@@ -385,7 +375,7 @@ public final class LispThread extends LispObject
     }
 
     public final LispObject pushSpecial(Symbol name, LispObject thing)
-        throws ConditionThrowable
+
     {
         SpecialBinding binding = lastSpecialBinding;
         while (binding != null) {
@@ -426,12 +416,12 @@ public final class LispThread extends LispObject
 
     private LispObject catchTags = NIL;
 
-    public void pushCatchTag(LispObject tag) throws ConditionThrowable
+    public void pushCatchTag(LispObject tag)
     {
         catchTags = new Cons(tag, catchTags);
     }
 
-    public void popCatchTag() throws ConditionThrowable
+    public void popCatchTag()
     {
         if (catchTags != NIL)
             catchTags = catchTags.cdr();
@@ -440,7 +430,7 @@ public final class LispThread extends LispObject
     }
 
     public void throwToTag(LispObject tag, LispObject result)
-        throws ConditionThrowable
+
     {
         LispObject rest = catchTags;
         while (rest != NIL) {
@@ -467,7 +457,6 @@ public final class LispThread extends LispObject
     }
 
     public final void pushStackFrame(StackFrame frame) 
-	throws ConditionThrowable
     {
 	frame.setNext(stack);
 	stack = frame;
@@ -486,7 +475,7 @@ public final class LispThread extends LispObject
     }
 
     @Override
-    public LispObject execute(LispObject function) throws ConditionThrowable
+    public LispObject execute(LispObject function)
     {
         if (use_fast_calls)
             return function.execute();
@@ -502,7 +491,7 @@ public final class LispThread extends LispObject
 
     @Override
     public LispObject execute(LispObject function, LispObject arg)
-        throws ConditionThrowable
+
     {
         if (use_fast_calls)
             return function.execute(arg);
@@ -519,7 +508,7 @@ public final class LispThread extends LispObject
     @Override
     public LispObject execute(LispObject function, LispObject first,
                               LispObject second)
-        throws ConditionThrowable
+
     {
         if (use_fast_calls)
             return function.execute(first, second);
@@ -536,7 +525,7 @@ public final class LispThread extends LispObject
     @Override
     public LispObject execute(LispObject function, LispObject first,
                               LispObject second, LispObject third)
-        throws ConditionThrowable
+
     {
         if (use_fast_calls)
             return function.execute(first, second, third);
@@ -554,7 +543,7 @@ public final class LispThread extends LispObject
     public LispObject execute(LispObject function, LispObject first,
                               LispObject second, LispObject third,
                               LispObject fourth)
-        throws ConditionThrowable
+
     {
         if (use_fast_calls)
             return function.execute(first, second, third, fourth);
@@ -572,7 +561,7 @@ public final class LispThread extends LispObject
     public LispObject execute(LispObject function, LispObject first,
                               LispObject second, LispObject third,
                               LispObject fourth, LispObject fifth)
-        throws ConditionThrowable
+
     {
         if (use_fast_calls)
             return function.execute(first, second, third, fourth, fifth);
@@ -591,7 +580,7 @@ public final class LispThread extends LispObject
                               LispObject second, LispObject third,
                               LispObject fourth, LispObject fifth,
                               LispObject sixth)
-        throws ConditionThrowable
+
     {
         if (use_fast_calls)
             return function.execute(first, second, third, fourth, fifth, sixth);
@@ -611,7 +600,7 @@ public final class LispThread extends LispObject
                               LispObject second, LispObject third,
                               LispObject fourth, LispObject fifth,
                               LispObject sixth, LispObject seventh)
-        throws ConditionThrowable
+
     {
         if (use_fast_calls)
             return function.execute(first, second, third, fourth, fifth, sixth,
@@ -633,7 +622,7 @@ public final class LispThread extends LispObject
                               LispObject fourth, LispObject fifth,
                               LispObject sixth, LispObject seventh,
                               LispObject eighth)
-        throws ConditionThrowable
+
     {
         if (use_fast_calls)
             return function.execute(first, second, third, fourth, fifth, sixth,
@@ -651,7 +640,7 @@ public final class LispThread extends LispObject
     }
 
     public LispObject execute(LispObject function, LispObject[] args)
-        throws ConditionThrowable
+
     {
         if (use_fast_calls)
             return function.execute(args);
@@ -700,7 +689,7 @@ public final class LispThread extends LispObject
         }
     }
 
-    public LispObject backtrace(int limit) throws ConditionThrowable
+    public LispObject backtrace(int limit)
     {
         LispObject result = NIL;
         if (stack != null) {
@@ -721,7 +710,7 @@ public final class LispThread extends LispObject
         return result.nreverse();
     }
 
-    public void incrementCallCounts() throws ConditionThrowable
+    public void incrementCallCounts()
     {
         StackFrame s = stack;
 
@@ -749,7 +738,7 @@ public final class LispThread extends LispObject
     }
 
     private static void pprint(LispObject obj, int indentBy, Stream stream)
-        throws ConditionThrowable
+
     {
         if (stream.getCharPos() == 0) {
             StringBuffer sb = new StringBuffer();
@@ -765,37 +754,32 @@ public final class LispThread extends LispObject
         }
         // Object doesn't fit.
         if (obj instanceof Cons) {
-            try {
-                boolean newlineBefore = false;
-                LispObject[] array = obj.copyToArray();
-                if (array.length > 0) {
-                    LispObject first = array[0];
-                    if (first == Symbol.LET) {
-                        newlineBefore = true;
-                    }
+            boolean newlineBefore = false;
+            LispObject[] array = obj.copyToArray();
+            if (array.length > 0) {
+                LispObject first = array[0];
+                if (first == Symbol.LET) {
+                    newlineBefore = true;
                 }
-                int charPos = stream.getCharPos();
-                if (newlineBefore && charPos != indentBy) {
-                    stream.terpri();
-                    charPos = stream.getCharPos();
-                }
-                if (charPos < indentBy) {
-                    StringBuffer sb = new StringBuffer();
-                    for (int i = charPos; i < indentBy; i++)
-                        sb.append(' ');
-                    stream._writeString(sb.toString());
-                }
-                stream.print('(');
-                for (int i = 0; i < array.length; i++) {
-                    pprint(array[i], indentBy + 2, stream);
-                    if (i < array.length - 1)
-                        stream.print(' ');
-                }
-                stream.print(')');
             }
-            catch (ConditionThrowable t) {
-                Debug.trace(t);
+            int charPos = stream.getCharPos();
+            if (newlineBefore && charPos != indentBy) {
+                stream.terpri();
+                charPos = stream.getCharPos();
             }
+            if (charPos < indentBy) {
+                StringBuffer sb = new StringBuffer();
+                for (int i = charPos; i < indentBy; i++)
+                    sb.append(' ');
+                stream._writeString(sb.toString());
+            }
+            stream.print('(');
+            for (int i = 0; i < array.length; i++) {
+                pprint(array[i], indentBy + 2, stream);
+                if (i < array.length - 1)
+                   stream.print(' ');
+            }
+            stream.print(')');
         } else {
             stream.terpri();
             StringBuffer sb = new StringBuffer();
@@ -808,7 +792,7 @@ public final class LispThread extends LispObject
     }
 
     @Override
-    public String writeToString() throws ConditionThrowable
+    public String writeToString()
     {
         StringBuffer sb = new StringBuffer("THREAD");
         if (name != NIL) {
@@ -824,7 +808,7 @@ public final class LispThread extends LispObject
         new Primitive("make-thread", PACKAGE_THREADS, true, "function &optional &key name")
     {
         @Override
-        public LispObject execute(LispObject[] args) throws ConditionThrowable
+        public LispObject execute(LispObject[] args)
         {
             final int length = args.length;
             if (length == 0)
@@ -851,7 +835,7 @@ public final class LispThread extends LispObject
 		      "Boolean predicate as whether OBJECT is a thread.")
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
             return arg instanceof LispThread ? T : NIL;
         }
@@ -863,7 +847,7 @@ public final class LispThread extends LispObject
 		      "Boolean predicate whether THREAD is alive.")
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
             final LispThread lispThread;
             if (arg instanceof LispThread) {
@@ -882,7 +866,7 @@ public final class LispThread extends LispObject
 		      "Return the name of THREAD if it has one.")
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
                 if (arg instanceof LispThread) {
                 return ((LispThread)arg).name;
@@ -892,7 +876,7 @@ public final class LispThread extends LispObject
     };
 
     public static final long javaSleepInterval(LispObject lispSleep)
-            throws ConditionThrowable
+
     {
         double d =
             checkDoubleFloat(lispSleep.multiplyBy(new DoubleFloat(1000))).getValue();
@@ -907,7 +891,7 @@ public final class LispThread extends LispObject
 							 "Causes the invoking thread to sleep for SECONDS seconds.\nSECONDS may be a value between 0 1and 1.")
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
 
             try {
@@ -926,7 +910,7 @@ public final class LispThread extends LispObject
 		      "Applies FUNCTION to all existing threads.")
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
             Function fun = checkFunction(arg);
             final LispThread thread = LispThread.currentThread();
@@ -947,7 +931,7 @@ public final class LispThread extends LispObject
 		      "Mark THREAD as destroyed.")
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
             final LispThread thread;
             if (arg instanceof LispThread) {
@@ -972,7 +956,7 @@ public final class LispThread extends LispObject
 		      "Interrupts THREAD and forces it to apply FUNCTION to ARGS.\nWhen the function returns, the thread's original computation continues. If  multiple interrupts are queued for a thread, they are all run, but the order is not guaranteed.")
     {
         @Override
-        public LispObject execute(LispObject[] args) throws ConditionThrowable
+        public LispObject execute(LispObject[] args)
         {
             if (args.length < 2)
                 return error(new WrongNumberOfArgumentsException(this));
@@ -998,7 +982,7 @@ public final class LispThread extends LispObject
 		      "Returns a reference to invoking thread.")
     {
         @Override
-        public LispObject execute() throws ConditionThrowable
+        public LispObject execute()
         {
             return currentThread();
         }
@@ -1011,7 +995,7 @@ public final class LispThread extends LispObject
     {
         @Override
         public LispObject execute(LispObject[] args)
-            throws ConditionThrowable
+
         {
             if (args.length > 1)
                 return error(new WrongNumberOfArgumentsException(this));
@@ -1025,7 +1009,7 @@ public final class LispThread extends LispObject
     {
         @Override
         public LispObject execute(LispObject[] args)
-            throws ConditionThrowable
+
         {
             if (args.length != 1)
                 return error(new WrongNumberOfArgumentsException(this));
@@ -1040,7 +1024,7 @@ public final class LispThread extends LispObject
     {
         @Override
         public LispObject execute(LispObject[] args)
-            throws ConditionThrowable
+
         {
             if (args.length != 1)
                 return error(new WrongNumberOfArgumentsException(this));
@@ -1053,17 +1037,14 @@ public final class LispThread extends LispObject
     static {
         //FIXME: this block has been added for pre-0.16 compatibility
         // and can be removed the latest at release 0.22
-        try {
-            PACKAGE_EXT.export(Symbol.intern("MAKE-THREAD", PACKAGE_THREADS));
-            PACKAGE_EXT.export(Symbol.intern("THREADP", PACKAGE_THREADS));
-            PACKAGE_EXT.export(Symbol.intern("THREAD-ALIVE-P", PACKAGE_THREADS));
-            PACKAGE_EXT.export(Symbol.intern("THREAD-NAME", PACKAGE_THREADS));
-            PACKAGE_EXT.export(Symbol.intern("MAPCAR-THREADS", PACKAGE_THREADS));
-            PACKAGE_EXT.export(Symbol.intern("DESTROY-THREAD", PACKAGE_THREADS));
-            PACKAGE_EXT.export(Symbol.intern("INTERRUPT-THREAD", PACKAGE_THREADS));
-            PACKAGE_EXT.export(Symbol.intern("CURRENT-THREAD", PACKAGE_THREADS));
-        }
-        catch (ConditionThrowable ct) { }
+        PACKAGE_EXT.export(Symbol.intern("MAKE-THREAD", PACKAGE_THREADS));
+        PACKAGE_EXT.export(Symbol.intern("THREADP", PACKAGE_THREADS));
+        PACKAGE_EXT.export(Symbol.intern("THREAD-ALIVE-P", PACKAGE_THREADS));
+        PACKAGE_EXT.export(Symbol.intern("THREAD-NAME", PACKAGE_THREADS));
+        PACKAGE_EXT.export(Symbol.intern("MAPCAR-THREADS", PACKAGE_THREADS));
+        PACKAGE_EXT.export(Symbol.intern("DESTROY-THREAD", PACKAGE_THREADS));
+        PACKAGE_EXT.export(Symbol.intern("INTERRUPT-THREAD", PACKAGE_THREADS));
+        PACKAGE_EXT.export(Symbol.intern("CURRENT-THREAD", PACKAGE_THREADS));
     }
 
     // ### use-fast-calls
@@ -1071,7 +1052,7 @@ public final class LispThread extends LispObject
         new Primitive("use-fast-calls", PACKAGE_SYS, true)
     {
         @Override
-        public LispObject execute(LispObject arg) throws ConditionThrowable
+        public LispObject execute(LispObject arg)
         {
             use_fast_calls = (arg != NIL);
             return use_fast_calls ? T : NIL;
@@ -1085,7 +1066,7 @@ public final class LispThread extends LispObject
     {
         @Override
         public LispObject execute(LispObject args, Environment env)
-            throws ConditionThrowable
+
         {
           if (args == NIL)
             return error(new WrongNumberOfArgumentsException(this));
@@ -1104,7 +1085,7 @@ public final class LispThread extends LispObject
     {
         @Override
         public LispObject execute(LispObject object)
-            throws ConditionThrowable
+
         {
             try {
                 object.lockableInstance().wait();
@@ -1120,7 +1101,7 @@ public final class LispThread extends LispObject
 
         @Override
         public LispObject execute(LispObject object, LispObject timeout)
-            throws ConditionThrowable
+
         {
             try {
                 object.lockableInstance().wait(javaSleepInterval(timeout));
@@ -1142,7 +1123,7 @@ public final class LispThread extends LispObject
     {
         @Override
         public LispObject execute(LispObject object)
-            throws ConditionThrowable
+
         {
             try {
                 object.lockableInstance().notify();
@@ -1161,7 +1142,7 @@ public final class LispThread extends LispObject
     {
         @Override
         public LispObject execute(LispObject object)
-            throws ConditionThrowable
+
         {
             try {
                 object.lockableInstance().notifyAll();

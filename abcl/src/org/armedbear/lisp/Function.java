@@ -68,13 +68,8 @@ public abstract class Function extends Operator
         setLambdaName(symbol);
         setLambdaList(new SimpleString(arglist));
         if (docstring != null) {
-            try {
-                symbol.setDocumentation(Symbol.FUNCTION,
-                                        new SimpleString(docstring));
-            }
-            catch (ConditionThrowable t) {
-                Debug.assertTrue(false);
-            }
+            symbol.setDocumentation(Symbol.FUNCTION,
+                                    new SimpleString(docstring));
         }
     }
 
@@ -106,23 +101,18 @@ public abstract class Function extends Operator
         if (arglist instanceof String)
             setLambdaList(new SimpleString(arglist));
         if (name != null) {
-            try {
-                Symbol symbol;
-                if (exported)
-                    symbol = pkg.internAndExport(name.toUpperCase());
-                else
-                    symbol = pkg.intern(name.toUpperCase());
-                symbol.setSymbolFunction(this);
-                if (cold)
-                    symbol.setBuiltInFunction(true);
-                setLambdaName(symbol);
-                if (docstring != null)
-                    symbol.setDocumentation(Symbol.FUNCTION,
-                                            new SimpleString(docstring));
-            }
-            catch (ConditionThrowable t) {
-                Debug.assertTrue(false);
-            }
+            Symbol symbol;
+            if (exported)
+                symbol = pkg.internAndExport(name.toUpperCase());
+            else
+                symbol = pkg.intern(name.toUpperCase());
+            symbol.setSymbolFunction(this);
+            if (cold)
+                symbol.setBuiltInFunction(true);
+            setLambdaName(symbol);
+            if (docstring != null)
+                symbol.setDocumentation(Symbol.FUNCTION,
+                                        new SimpleString(docstring));
         }
     }
 
@@ -150,7 +140,7 @@ public abstract class Function extends Operator
     }
 
     @Override
-    public LispObject typep(LispObject typeSpecifier) throws ConditionThrowable
+    public LispObject typep(LispObject typeSpecifier)
     {
         if (typeSpecifier == Symbol.FUNCTION)
             return T;
@@ -177,27 +167,27 @@ public abstract class Function extends Operator
         propertyList = obj;
     }
 
-    public final void setClassBytes(byte[] bytes) throws ConditionThrowable
+    public final void setClassBytes(byte[] bytes)
     {
         propertyList = putf(propertyList, Symbol.CLASS_BYTES,
                             new JavaObject(bytes));
     }
 
     @Override
-    public LispObject execute() throws ConditionThrowable
+    public LispObject execute()
     {
         return error(new WrongNumberOfArgumentsException(this));
     }
 
     @Override
-    public LispObject execute(LispObject arg) throws ConditionThrowable
+    public LispObject execute(LispObject arg)
     {
         return error(new WrongNumberOfArgumentsException(this));
     }
 
     @Override
     public LispObject execute(LispObject first, LispObject second)
-        throws ConditionThrowable
+
     {
         return error(new WrongNumberOfArgumentsException(this));
     }
@@ -205,7 +195,7 @@ public abstract class Function extends Operator
     @Override
     public LispObject execute(LispObject first, LispObject second,
                               LispObject third)
-        throws ConditionThrowable
+
     {
         return error(new WrongNumberOfArgumentsException(this));
     }
@@ -213,7 +203,7 @@ public abstract class Function extends Operator
     @Override
     public LispObject execute(LispObject first, LispObject second,
                               LispObject third, LispObject fourth)
-        throws ConditionThrowable
+
     {
         return error(new WrongNumberOfArgumentsException(this));
     }
@@ -222,7 +212,7 @@ public abstract class Function extends Operator
     public LispObject execute(LispObject first, LispObject second,
                               LispObject third, LispObject fourth,
                               LispObject fifth)
-        throws ConditionThrowable
+
     {
         return error(new WrongNumberOfArgumentsException(this));
     }
@@ -231,7 +221,7 @@ public abstract class Function extends Operator
     public LispObject execute(LispObject first, LispObject second,
                               LispObject third, LispObject fourth,
                               LispObject fifth, LispObject sixth)
-        throws ConditionThrowable
+
     {
         return error(new WrongNumberOfArgumentsException(this));
     }
@@ -241,7 +231,7 @@ public abstract class Function extends Operator
                               LispObject third, LispObject fourth,
                               LispObject fifth, LispObject sixth,
                               LispObject seventh)
-        throws ConditionThrowable
+
     {
         return error(new WrongNumberOfArgumentsException(this));
     }
@@ -251,19 +241,19 @@ public abstract class Function extends Operator
                               LispObject third, LispObject fourth,
                               LispObject fifth, LispObject sixth,
                               LispObject seventh, LispObject eighth)
-        throws ConditionThrowable
+
     {
         return error(new WrongNumberOfArgumentsException(this));
     }
 
     @Override
-    public LispObject execute(LispObject[] args) throws ConditionThrowable
+    public LispObject execute(LispObject[] args)
     {
         return error(new WrongNumberOfArgumentsException(this));
     }
 
     @Override
-    public String writeToString() throws ConditionThrowable
+    public String writeToString()
     {
         LispObject name = getLambdaName();
         if (name != null && name != NIL) {
@@ -302,7 +292,7 @@ public abstract class Function extends Operator
     }
 
     // Used by the JVM compiler.
-    public final void argCountError() throws ConditionThrowable
+    public final void argCountError()
     {
         error(new WrongNumberOfArgumentsException(this));
     }

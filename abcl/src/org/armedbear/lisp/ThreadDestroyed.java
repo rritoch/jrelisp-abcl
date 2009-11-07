@@ -33,7 +33,7 @@
 
 package org.armedbear.lisp;
 
-public class ThreadDestroyed extends ConditionThrowable
+public class ThreadDestroyed extends ControlTransfer
 {
     public ThreadDestroyed()
     {
@@ -42,5 +42,11 @@ public class ThreadDestroyed extends ConditionThrowable
     public ThreadDestroyed(String message)
     {
         super(message);
+    }
+
+    @Override
+    public LispObject getCondition()
+    {
+        return new ControlError("Thread destroyed.");
     }
 }

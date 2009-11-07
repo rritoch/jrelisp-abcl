@@ -54,22 +54,15 @@ public final class EqualpHashTable extends HashTable
     HashEntry e = buckets[index];
     while (e != null)
       {
-        try
-          {
-            if (key.equalp(e.key))
-              return e.value;
-          }
-        catch (ConditionThrowable t)
-          {
-            Debug.trace(t);
-          }
+        if (key.equalp(e.key))
+          return e.value;
         e = e.next;
       }
     return null;
   }
 
   @Override
-  public void put(LispObject key, LispObject value) throws ConditionThrowable
+  public void put(LispObject key, LispObject value)
   {
     int index = key.psxhash() % buckets.length;
     HashEntry e = buckets[index];
@@ -95,7 +88,7 @@ public final class EqualpHashTable extends HashTable
   }
 
   @Override
-  public LispObject remove(LispObject key) throws ConditionThrowable
+  public LispObject remove(LispObject key)
   {
     final int index = key.psxhash() % buckets.length;
     HashEntry e = buckets[index];

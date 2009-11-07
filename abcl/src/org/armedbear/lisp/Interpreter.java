@@ -151,7 +151,7 @@ public final class Interpreter extends Lisp
     }
 
     // Interface.
-    public LispObject eval(String s) throws ConditionThrowable
+    public LispObject eval(String s)
     {
         return eval(new StringInputStream(s).read(true, NIL, false,
                                                   LispThread.currentThread()));
@@ -160,15 +160,7 @@ public final class Interpreter extends Lisp
     public static synchronized void initializeLisp()
     {
         if (!initialized) {
-            try {
-                Load.loadSystemFile("boot.lisp", false, false, false);
-            }
-            catch (ConditionThrowable c) {
-                reportError(c, LispThread.currentThread());
-            }
-            catch (Throwable t) {
-                t.printStackTrace();
-            }
+            Load.loadSystemFile("boot.lisp", false, false, false);
             initialized = true;
         }
     }
@@ -183,10 +175,8 @@ public final class Interpreter extends Lisp
                 Class.forName("org.armedbear.j.LispAPI");
                 Load.loadSystemFile("j.lisp");
             }
-            catch (ConditionThrowable c) {
-                reportError(c, LispThread.currentThread());
-            }
             catch (Throwable t) {
+                // ### FIXME exception
                 t.printStackTrace();
             }
             initialized = true;
@@ -232,7 +222,7 @@ public final class Interpreter extends Lisp
     // Check for --noinit; verify that arguments are supplied for --load and
     // --eval options.
     private static void preprocessCommandLineArguments(String[] args)
-        throws ConditionThrowable
+
     {
         if (args != null) {
             for (int i = 0; i < args.length; ++i) {
@@ -265,7 +255,7 @@ public final class Interpreter extends Lisp
 
     // Do the --load and --eval actions.
     private static void postprocessCommandLineArguments(String[] args)
-        throws ConditionThrowable
+
     {
         if (args != null) {
             for (int i = 0; i < args.length; ++i) {
@@ -275,7 +265,7 @@ public final class Interpreter extends Lisp
                         try {
                             evaluate(args[i + 1]);
                         }
-                        catch (ConditionThrowable c) {
+                        catch (UnhandledCondition c) {
                             final String separator =
                                 System.getProperty("line.separator");
                             FastStringBuffer sb = new FastStringBuffer();
@@ -302,21 +292,12 @@ public final class Interpreter extends Lisp
                 } else if (arg.equals("--load") ||
                            arg.equals("--load-system-file")) {
                     if (i + 1 < args.length) {
-                        try {
-                            if (arg.equals("--load"))
-                                Load.load(new Pathname(args[i + 1]),
-                                          args[i + 1],
-                                          false, false, true);
-                            else
-                                Load.loadSystemFile(args[i + 1]);
-                        }
-                        catch (ConditionThrowable c) {
-                            System.err.println("Caught condition: " +
-                                               c.getCondition().writeToString() +
-                                               " while loading: " +
-                                               args[i+1]);
-                            System.exit(2);
-                        }
+                        if (arg.equals("--load"))
+                            Load.load(new Pathname(args[i + 1]),
+                                      args[i + 1],
+                                      false, false, true);
+                        else
+                            Load.loadSystemFile(args[i + 1]);
                         ++i;
                     } else {
                         // Shouldn't happen.
@@ -383,7 +364,9 @@ public final class Interpreter extends Lisp
                     getStandardInput().clearInput();
                     out._writeLine("Stack overflow");
                 }
-                catch (ConditionThrowable c) {
+                catch (ControlTransfer c) {
+                    // We're on the toplevel, if this occurs,
+                    // we're toast...
                     reportError(c, thread);
                 }
                 catch (Throwable t) {
@@ -398,7 +381,24 @@ public final class Interpreter extends Lisp
         }
     }
 
-    private static void reportError(ConditionThrowable c, LispThread thread)
+    private static void reportError(ControlTransfer c, LispThread thread)
+    {
+        try {
+            getStandardInput().clearInput();
+            Stream out = getStandardOutput();
+            out.freshLine();
+            Condition condition = (Condition) c.getCondition();
+            out._writeLine("Error: unhandled condition: " +
+                           condition.writeToString());
+            if (thread != null)
+                thread.printBacktrace();
+        }
+        catch (Throwable t) {
+            
+        }
+    }
+
+    private static void reportError(UnhandledCondition c, LispThread thread)
     {
         try {
             getStandardInput().clearInput();
@@ -452,12 +452,25 @@ public final class Interpreter extends Lisp
         System.err.println("Interpreter.finalize");
     }
 
+    public static final class UnhandledCondition extends Error
+    {
+        LispObject condition;
+
+        UnhandledCondition(LispObject condition) {
+            this.condition = condition;
+        }
+
+        public LispObject getCondition() {
+            return condition;
+        }
+    };
+
     private static final Primitive _DEBUGGER_HOOK_FUNCTION =
         new Primitive("%debugger-hook-function", PACKAGE_SYS, false)
     {
         @Override
         public LispObject execute(LispObject first, LispObject second)
-            throws ConditionThrowable
+            throws UnhandledCondition
         {
             final Condition condition = (Condition) first;
             if (interpreter == null) {
@@ -490,7 +503,7 @@ public final class Interpreter extends Lisp
                     thread.lastSpecialBinding = lastSpecialBinding;
                 }
             }
-            throw new ConditionThrowable(condition);
+            throw new UnhandledCondition(condition);
         }
     };
 
@@ -506,7 +519,14 @@ public final class Interpreter extends Lisp
     }
 
     // For j.
-    public static LispObject evaluate(String s) throws ConditionThrowable
+    /** Runs its input string through the lisp reader and evaluates the result.
+     *
+     * @param s A string with a valid Common Lisp expression
+     * @return The result of the evaluation
+     * @exception UnhandledCondition in case the an error occurs which
+     *      should be passed to the Lisp debugger
+     */
+    public static LispObject evaluate(String s)
     {
         if (!initialized)
             initializeJLisp();

@@ -1,5 +1,5 @@
 /*
- * ConditionThrowable.java
+ * ControlTransfer.java
  *
  * Copyright (C) 2003-2005 Peter Graves
  * $Id$
@@ -33,15 +33,13 @@
 
 package org.armedbear.lisp;
 
-public class ConditionThrowable extends Throwable
+abstract public class ControlTransfer extends RuntimeException
 {
-    public Condition condition;
-
-    public ConditionThrowable()
+    public ControlTransfer()
     {
     }
     /**
-     * Overridden in order to make ConditionThrowable construct
+     * Overridden in order to make ControlTransfer construct
      * faster. This avoids gathering stack trace information.
      */
     @Override
@@ -50,18 +48,10 @@ public class ConditionThrowable extends Throwable
 	return this;
     }
 
-    public ConditionThrowable(Condition condition)
-    {
-        this.condition = condition;
-    }
-
-    public ConditionThrowable(String message)
+    public ControlTransfer(String message)
     {
         super(message);
     }
 
-    public LispObject getCondition() throws ConditionThrowable
-    {
-        return condition != null ? condition : new Condition();
-    }
+    public abstract LispObject getCondition();
 }
