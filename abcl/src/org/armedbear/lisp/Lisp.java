@@ -2566,6 +2566,10 @@ public final class Lisp
   public static final Symbol _SAVED_BACKTRACE_ =
     exportSpecial("*SAVED-BACKTRACE*", PACKAGE_EXT, NIL);
 
+  // ### *command-line-argument-list*
+  public static final Symbol _COMMAND_LINE_ARGUMENT_LIST_ =
+    exportSpecial("*COMMAND-LINE-ARGUMENT-LIST*", PACKAGE_EXT, NIL);
+
   // ### *batch-mode*
   public static final Symbol _BATCH_MODE_ =
     exportSpecial("*BATCH-MODE*", PACKAGE_EXT, NIL);
@@ -2615,23 +2619,25 @@ public final class Lisp
   public static final Symbol _COMPILE_FILE_ENVIRONMENT_ =
     exportSpecial("*COMPILE-FILE-ENVIRONMENT*", PACKAGE_SYS, NIL);
 
-  public static final LispObject UNBOUND_VALUE = new LispObject()
+  public static final LispObject UNBOUND_VALUE = new unboundValue();
+  private static class unboundValue extends LispObject
+  {
+    @Override
+    public String writeToString()
     {
-      @Override
-      public String writeToString()
-      {
-        return "#<UNBOUND>";
-      }
-    };
+      return "#<UNBOUND>";
+    }
+  }
 
-  public static final LispObject NULL_VALUE = new LispObject()
+  public static final LispObject NULL_VALUE = new nullValue();
+  private static class nullValue extends LispObject
+  {
+    @Override
+    public String writeToString()
     {
-      @Override
-      public String writeToString()
-      {
-        return "null";
-      }
-    };
+      return "null";
+    }
+  }
 
   public static final Symbol _SLOT_UNBOUND_ =
     exportConstant("+SLOT-UNBOUND+", PACKAGE_SYS, UNBOUND_VALUE);
