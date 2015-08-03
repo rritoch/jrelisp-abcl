@@ -1,0 +1,4 @@
+PROJECT_ROOT=/home2/rritoch/opt/abcl/svn-mirror/svn
+SVN_REPO=http://abcl.org/svn
+SVN_LAYOUT="--trunk=trunk --branches=branches --tags=tags"
+GIT_REPO=git@github.com:rritoch/abcl.git
