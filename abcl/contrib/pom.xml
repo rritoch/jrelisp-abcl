@@ -30,10 +30,14 @@
 		<outputDirectory>../target/contrib/classes</outputDirectory>
 		<finalName>${project.artifactId}-${project.version}</finalName>
 		<testOutputDirectory>../target/contrib/test-classes</testOutputDirectory>
-		<sourceDirectory>../contrib</sourceDirectory>
+		<sourceDirectory>src/main/abcl</sourceDirectory>
 		<resources>
 			<resource>
-				<directory>../contrib</directory>
+				<directory>src/main/abcl</directory>
+			</resource>
+			<resource>
+				<directory>src/main/abcl-resources</directory>
+				<filtering>true</filtering>
 			</resource>
 		</resources>
 		<plugins>

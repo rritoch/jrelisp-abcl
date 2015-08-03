@@ -543,19 +543,30 @@ from ${abcl.home.dir}
     <property name="abcl-contrib.jar"
               value="${dist.dir}/abcl-contrib.jar"/>
     <condition property="abcl.contrib.uptodate.p">
-      <uptodate targetfile="${abcl-contrib.jar}">
-        <srcfiles dir="contrib">
-          <patternset refid="abcl.contrib.source"/>
-        </srcfiles>
-      </uptodate>
+      <and>
+        <uptodate targetfile="${abcl-contrib.jar}">
+          <srcfiles dir="contrib/src/main/abcl">
+            <patternset refid="abcl.contrib.source"/>
+          </srcfiles>
+        </uptodate>
+        <uptodate targetfile="${abcl-contrib.jar}">
+          <srcfiles dir="contrib/src/main/abcl-resources">
+            <patternset refid="abcl.contrib.source"/>
+          </srcfiles>
+        </uptodate>      
+      </and>
     </condition>
 
     <target name="abcl-contrib.jar" depends="abcl.contrib"/>
     <target name="abcl.contrib" unless="abcl.contrib.uptodate.p">
       <jar destfile="${abcl-contrib.jar}"
-           compress="true"
-           basedir="contrib">
-        <patternset refid="abcl.contrib.source"/>
+           compress="true">
+        <fileset dir="contrib/src/main/abcl">
+          <patternset refid="abcl.contrib.source"/>
+        </fileset>
+        <fileset dir="contrib/src/main/abcl-resources">
+          <patternset refid="abcl.contrib.source"/>
+        </fileset>
       </jar>
       <echo>
 Packaged contribs in ${abcl-contrib.jar}. To use contribs, ensure that
@@ -582,8 +593,13 @@ will compile (if necessary) and load JSS.
 
     <target name="abcl.contrib.source.jar">
       <mkdir dir="${dist.dir}"/>
-      <jar destfile="${dist.dir}/abcl-contrib-sources.jar" basedir="contrib">
-        <patternset refid="abcl.contrib.source" />
+      <jar destfile="${dist.dir}/abcl-contrib-sources.jar">
+        <fileset dir="contrib/src/main/abcl">
+          <patternset refid="abcl.contrib.source"/>
+        </fileset>
+        <fileset dir="contrib/src/main/abcl-resources">
+          <patternset refid="abcl.contrib.source"/>
+        </fileset>
       </jar>
     </target>
 
