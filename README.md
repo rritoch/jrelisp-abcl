@@ -1,13 +1,11 @@
 # abcl
 Armed Bear Common Lisp
 
-For the official release please see the [svn-master] (https://github.com/rritoch/abcl/tree/svn-master "Official subversion release") branch
-
 This branch is maintained and developed by Ralph Ritoch
 
 ## Purpose
 
-The purpose of this branch is to better integrate common lisp into existing JVM based enterprise applications.
+The purpose of this branch is to better integrate common lisp into existing JVM based enterprise applications. For the official release of Armed Bear Common Lisp please see the [svn-master] (https://github.com/rritoch/abcl/tree/svn-master "Official subversion release") branch.
 
 # Armed Bear Common Lisp
 
