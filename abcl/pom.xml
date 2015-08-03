@@ -1,61 +1,215 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-   xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>6</version>
+	</parent>
+	<groupId>com.vnetpublishing.abcl</groupId>
+	<artifactId>abcl-parent</artifactId>
+	<version>1.3.2</version>
+	<packaging>pom</packaging>
+	<name>ABCL - Armed Bear Common Lisp</name>
+	<description>Common Lisp implementation running on the JVM</description>
+	<url>http://abcl.org</url>
+	<properties> 
+		<abcl.version>1.3.2</abcl.version>
+		<additionalparam>-Xdoclint:none</additionalparam>
+	</properties>
+	<modules>
+		<module>main</module>
+		<module>contrib</module>
+	</modules>
+	<licenses>
+		<license>
+			<name>GNU General Public License with Classpath exception</name>
+			<url>http://www.gnu.org/software/classpath/license.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<build>
+		<directory>target</directory>
+		<outputDirectory>target/classes</outputDirectory>
+		<finalName>${project.artifactId}-${project.version}</finalName>
+		<testOutputDirectory>target/test-classes</testOutputDirectory>
+		<sourceDirectory>src</sourceDirectory>
+		<plugins>
 
-  <!-- NOT USABLE FOR BUILDS, only for installing into a repository! -->
-
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>6</version>
-  </parent>
-  <groupId>org.armedbear.lisp</groupId>
-  <artifactId>abcl</artifactId>
-  <version>1.3.0-rc-0</version>
-  <packaging>jar</packaging>
-  <name>ABCL - Armed Bear Common Lisp</name>
-  <description>Common Lisp implementation running on the JVM</description>
-  <url>http://abcl.org</url>
-  <licenses>
-    <license>
-      <name>GNU General Public License with Classpath exception</name>
-      <url>http://www.gnu.org/software/classpath/license.html</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-  <scm>
-    <connection>scm:svn:http://abcl.org/svn/trunk/</connection>
-    <developerConnection>scm:svn:svn+ssh://abcl.org/project/armedbear/svn/trunk/</developerConnection>
-    <url>http://abcl.org/trac/browser/trunk/abcl</url>
-  </scm>
-  <developers>
-    <developer>
-      <id>ehu</id>
-      <name>Erik Huelsmann</name>
-      <email>ehuels (at) gmail (dot) com</email>
-    </developer>
-    <developer>
-      <id>easyE</id>
-      <name>Mark Evenson</name>
-      <email>evenson (at) panix (dot) com</email>
-    </developer>
-    <developer>
-      <id>V-ille</id>
-      <name>Ville Voutilainen</name>
-      <email>ville.voutilainen (at) gmail (dot) com</email>
-    </developer>
-    <developer>
-      <id>astalla</id>
-      <name>Alessio Stalla</name>
-      <email>alessiostalla (at) gmail (dot) com</email>
-    </developer>
-    <developer>
-      <id>rudi</id>
-      <name>Rudi Schlatte</name>
-      <email>rudi (at) constantly (dot) at</email>
-    </developer>
-  </developers>
-  <dependencies />
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.3</version>
+					<configuration>
+						<source>1.5</source>
+						<target>1.5</target>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-shade-plugin</artifactId>
+					<version>2.4.1</version>
+					<executions>
+						<execution>
+							<phase>package</phase>
+							<goals>
+								<goal>shade</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.9.1</version>
+					<!-- 
+					<executions>
+						<execution>
+							<id>aggregate</id>
+							<goals>
+								<goal>aggregate</goal>
+							</goals>
+							<phase>site</phase>
+						</execution>
+					</executions>
+					 -->
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+	<scm>
+		<connection>scm:svn:http://abcl.org/svn/trunk/</connection>
+		<developerConnection>scm:svn:svn+ssh://abcl.org/project/armedbear/svn/trunk/</developerConnection>
+		<url>http://abcl.org/trac/browser/trunk/abcl</url>
+	</scm>
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository> 
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
+	
+	<profiles>
+		<!--  Deployment Profile  -->
+		<profile>
+			<id>full-build</id>
+			<activation>
+				<property>
+					<name>build</name>
+					<value>full</value>
+				</property>
+			</activation>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.sonatype.plugins</groupId>
+							<artifactId>nexus-staging-maven-plugin</artifactId>
+							<version>1.6.3</version>
+							<extensions>true</extensions>
+							<inherited>false</inherited>
+							<configuration>
+								<serverId>ossrh</serverId>
+								<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+								<autoReleaseAfterClose>true</autoReleaseAfterClose>
+							</configuration>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-gpg-plugin</artifactId>
+							<version>1.5</version>
+							<executions>
+								<execution>
+									<id>sign-artifacts</id>
+									<phase>verify</phase>
+									<goals>
+										<goal>sign</goal>
+									</goals>
+								</execution>
+							</executions>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-source-plugin</artifactId>
+							<version>2.2.1</version>
+							<executions>
+								<execution>
+									<id>attach-sources</id>
+									<goals>
+										<goal>jar-no-fork</goal>
+									</goals>
+								</execution>
+							</executions>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-javadoc-plugin</artifactId>
+							<version>2.9.1</version>
+							<executions>
+								<execution>
+									<id>attach-javadocs</id>
+									<goals>
+										<goal>jar</goal>
+									</goals>
+									<configuration>
+										<additionalparam>-Xdoclint:none</additionalparam>
+										<failOnError>false</failOnError>
+									</configuration>
+								</execution>
+							</executions>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+					</plugin>
+				
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-deploy-plugin</artifactId>
+						<configuration>
+							<skip>false</skip>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	<developers>
+		<developer>
+			<id>ehu</id>
+			<name>Erik Huelsmann</name>
+			<email>ehuels (at) gmail (dot) com</email>
+		</developer>
+		<developer>
+			<id>easyE</id>
+			<name>Mark Evenson</name>
+			<email>evenson (at) panix (dot) com</email>
+		</developer>
+		<developer>
+			<id>V-ille</id>
+			<name>Ville Voutilainen</name>
+			<email>ville.voutilainen (at) gmail (dot) com</email>
+		</developer>
+		<developer>
+			<id>astalla</id>
+			<name>Alessio Stalla</name>
+			<email>alessiostalla (at) gmail (dot) com</email>
+		</developer>
+		<developer>
+			<id>rudi</id>
+			<name>Rudi Schlatte</name>
+			<email>rudi (at) constantly (dot) at</email>
+		</developer>
+	</developers>
 </project>
