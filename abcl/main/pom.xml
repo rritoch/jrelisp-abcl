@@ -8,10 +8,10 @@
 		<version>1.4.0-SNAPSHOT</version>
 		<relativePath>..</relativePath>    
 	</parent>
-	<artifactId>abcl-contrib</artifactId>
+	<artifactId>abcl</artifactId>
 	<packaging>jar</packaging>
-	<name>Armed Bear Common Lisp (ABCL) Contribs</name>
-	<description>Extra packages--contribs--for ABCL</description>
+	<name>Armed Bear Common Lisp (Main)</name>
+	<description>Common Lisp implementation running on the JVM</description>
 	<url>http://abcl.org</url>
 	<licenses>
 		<license>
@@ -20,38 +20,13 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-	<scm>
-		<connection>scm:svn:http://abcl.org/svn/trunk/abcl</connection>
-		<developerConnection>scm:svn:svn+ssh://abcl.org/project/armedbear/svn</developerConnection>
-		<url>http://abcl.org/trac/browser/trunk/abcl/contrib</url>
-	</scm>
 	<build>
-		<directory>../target/contrib</directory>
-		<outputDirectory>../target/contrib/classes</outputDirectory>
+		<directory>../target</directory>
+		<outputDirectory>../target/classes</outputDirectory>
 		<finalName>${project.artifactId}-${project.version}</finalName>
-		<testOutputDirectory>../target/contrib/test-classes</testOutputDirectory>
-		<sourceDirectory>../contrib</sourceDirectory>
-		<resources>
-			<resource>
-				<directory>../contrib</directory>
-			</resource>
-		</resources>
+		<testOutputDirectory>../target/test-classes</testOutputDirectory>
+		<sourceDirectory>../src</sourceDirectory>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>2.4.1</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
@@ -74,15 +49,40 @@
 								<property name="build.dir" value="${project.build.directory}" />
 								<property name="build.classes.dir" value="${project.build.directory}/classes" />
 								<property name="abcl.build.incremental" value="true" />
-								<property name="dist.dir" value="${basedir}/../target" />
 								<ant antfile="${basedir}/../build.xml" dir="../">
-									<target name="abcl.contrib"/>
+									<target name="abcl.compile"/>
 								</ant>
 							</target>
 						</configuration>
 						<goals>
 							<goal>run</goal>
 						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.4.1</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<manifestEntries>
+										<Main-Class>org.armedbear.lisp.Main</Main-Class>
+									</manifestEntries>
+								</transformer>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+									<resource>META-INF/services/javax.script.ScriptEngineFactory</resource>
+									<file>src/META-INF/services/javax.script.ScriptEngineFactory</file>
+								</transformer>
+							</transformers>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -113,6 +113,11 @@
 			</plugin>
 		</plugins>
 	</build>
+	<scm>
+		<connection>scm:svn:http://abcl.org/svn/trunk/</connection>
+		<developerConnection>scm:svn:svn+ssh://abcl.org/project/armedbear/svn/trunk/</developerConnection>
+		<url>http://abcl.org/trac/browser/trunk/abcl</url>
+	</scm>
 	<developers>
 		<developer>
 			<id>ehu</id>
