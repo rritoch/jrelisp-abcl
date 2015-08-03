@@ -99,7 +99,9 @@ Returns the pathname of the contrib if it can be found."
          (let ((r (java:jcall "getResource" 
                               (boot-classloader) 
                               "META-INF/abcl/abcl-contrib/version.lisp")))
-              (when r (truename (java:jcall "toString" r)))))
+              (when r (if (string= "jar" (java:jcall "getProtocol" r))
+                          (car (pathname-device (truename (java:jcall "toString" r))))
+                          (truename (concatenate 'string (java:jcall "toString" r) "/../../../../"))))))
       (ignore-errors
         (find-contrib-jar))
       (ignore-errors
