@@ -86,6 +86,20 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<configuration>
+					<skip>false</skip>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<configuration>
+					<skip>false</skip>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 	<profiles>
@@ -113,19 +127,12 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>attach-javadocs</id>
-								<phase>package</phase>
-								<goals>
-									<goal>jar</goal>
-								</goals>
-								<configuration>
-									<additionalparam>-Xdoclint:none</additionalparam>
-									<failOnError>false</failOnError>
-								</configuration>
-							</execution>
-						</executions>
+						<configuration>
+							<additionalparam>-Xdoclint:none</additionalparam>
+							<failOnError>false</failOnError>
+							<javadocDirectory>../contrib</javadocDirectory>
+							<sourcepath>../src</sourcepath>
+						</configuration>
 					</plugin>
 				</plugins>
 			</build>

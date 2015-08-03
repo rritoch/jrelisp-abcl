@@ -36,23 +36,6 @@
 		<testOutputDirectory>target/test-classes</testOutputDirectory>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9.1</version>
-				<executions>
-					<execution>
-						<id>aggregate</id>
-						<goals>
-							<goal>aggregate</goal>
-						</goals>
-						<phase>site</phase>
-						<configuration>
-							<!-- Specific configuration for the aggregate report -->
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -64,6 +47,24 @@
 						<source>1.5</source>
 						<target>1.5</target>
 					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-shade-plugin</artifactId>
+					<version>2.4.1</version>
+					<executions>
+						<execution>
+							<phase>package</phase>
+							<goals>
+								<goal>shade</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.9.1</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -85,7 +86,9 @@
 	</distributionManagement>
 	
 	<profiles>
-		<!--  Deployment Profile  -->
+		
+		<!--  Deployment Profile  : mvn deploy -Dbuild=full -->
+		
 		<profile>
 			<id>full-build</id>
 			<activation>
@@ -155,6 +158,20 @@
 						</plugin>
 					</plugins>
 				</pluginManagement>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+					</plugin>
+				
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-deploy-plugin</artifactId>
+						<configuration>
+							<skip>false</skip>
+						</configuration>
+					</plugin>
+				</plugins>
 			</build>
 		</profile>
 	</profiles>
@@ -185,6 +202,4 @@
 			<email>rudi (at) constantly (dot) at</email>
 		</developer>
 	</developers>
-
-	<dependencies />
 </project>
