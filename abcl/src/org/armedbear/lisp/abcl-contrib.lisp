@@ -96,15 +96,10 @@ Returns the pathname of the contrib if it can be found."
 (defun find-contrib ()
   "Introspect runtime classpaths to find a loadable ABCL-CONTRIB."
   (or (ignore-errors
-       (first (let ((urls (java:jcall "getURLs" (boot-classloader))))
-                   (loop for i from 0 to (- (length urls) 1)
-	                     collect (let* ((base (java:jcall "toString" (svref (java:jcall "getURLs" (boot-classloader)) i)))
-                                        (chk (when (java:jcall "endsWith" base ".jar") 
-                                                   (probe-file (make-pathname :device (list (make-pathname :defaults base)) 
-                                                                              :directory "META-INF/abcl/abcl-contrib" 
-                                                                              :name "version.lisp")))))
-                                       (when chk
-                                             (make-pathname :defaults base)))))))
+         (let ((r (java:jcall "getResource" 
+                              (boot-classloader) 
+                              "META-INF/abcl/abcl-contrib/version.lisp")))
+              (when r (truename (java:jcall "toString" r)))))
       (ignore-errors
         (find-contrib-jar))
       (ignore-errors
