@@ -2218,90 +2218,23 @@ public class Pathname extends LispObject {
               }
               return pathname;
             }
-        } else
-        jarfile: {
-            // Possibly canonicalize jar file directory
-            Cons jars = (Cons) pathname.device;
-            LispObject o = jars.car();
-            
-            if (!(o instanceof Pathname)) {
-              return doTruenameExit(pathname, errorIfDoesNotExist);
-            }
-            if (!(((Pathname)o).isURL())
-                // XXX Silently fail to call truename() if the default
-                // pathname defaults exist within a jar, as that will
-                // (probably) not succeed.  The better solution would
-                // probably be to parametize the value of
-                // *DEFAULT-PATHNAME-DEFAULTS* on invocations of
-                // truename().
-                && !coerceToPathname(Symbol.DEFAULT_PATHNAME_DEFAULTS.symbolValue()).isJar()) 
-                {
-                LispObject truename = Pathname.truename((Pathname)o, errorIfDoesNotExist);
-                if (truename instanceof Pathname) {
-                    Pathname truePathname = (Pathname)truename;
-                    // A jar that is a directory makes no sense, so exit
-                    if (truePathname.getNamestring().endsWith("/")) {
-                        break jarfile;
-                    }
-                    jars.car = truePathname;
-                } else {
-                    break jarfile;
-                }
-            }
-
-            // Check for existence of a JAR file and/or JarEntry
-            //
-            // Cases:
-            // 1.  JAR
-            // 2.  JAR in JAR
-            // 3.  JAR with Entry
-            // 4.  JAR in JAR with Entry
-
-            ZipFile jarFile = ZipCache.get((Pathname)jars.car());
-            String entryPath = pathname.asEntryPath();
-            if (jarFile != null) {
-                if (jars.cdr() instanceof Cons) {
-                  Pathname inner = (Pathname) jars.cdr().car();
-                  InputStream inputStream = Utilities.getInputStream(jarFile, inner);
-                  if (inputStream != null) {
-                      if (entryPath.length() == 0) {
-                          return pathname; // Case 2
-                      } else {
-                          ZipInputStream zipInputStream
-                              = new ZipInputStream(inputStream);
-                          ZipEntry entry = Utilities.getEntry(zipInputStream,
-                                                              entryPath,
-                                                              false);
-                          if (entry != null) {
-                              // XXX this could possibly be a directory?
-                              return pathname; // Case 4
-                         }
-                      }
-                  }
-                } else {
-                    if (entryPath.length() == 0) {
-                        return pathname; // Case 1
-                    } else {
-                        ZipEntry entry = jarFile.getEntry(entryPath);
-                        if (entry != null) {
-                            // ensure this isn't a directory
-                            if (entry.isDirectory()) {
-                                break jarfile;
-                            }
-                            try {
-                                InputStream input = jarFile.getInputStream(entry);
-                                if (input != null) {
-                                    return pathname; // Case 3
-                                }
-                            } catch (IOException e) {
-                                break jarfile;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        error:
+        } else {
+        	
+        	URL qurl = null;
+        	
+        	try {
+        		qurl = pathname.toURL().toURI().normalize().toURL();
+        		if (null == qurl.openConnection()) {
+        			return doTruenameExit(null, errorIfDoesNotExist);
+        		}
+        		pathname = new Pathname(qurl.toString());
+        	} catch (IOException e) {
+        		return doTruenameExit(null, errorIfDoesNotExist);
+        	} catch (URISyntaxException e) {
+        		return doTruenameExit(null, errorIfDoesNotExist);
+			}
+      }
+        
       return doTruenameExit(pathname, errorIfDoesNotExist);
     }
     
