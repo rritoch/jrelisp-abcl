@@ -2160,10 +2160,6 @@ public class Pathname extends LispObject {
         return truename(pathname, errorIfDoesNotExist);
     }
 
-    public Pathname translateLogicalPathname(Pathname pathname) {
-    	return pathname;
-    }
-    
     public Pathname translatePathname() {
     	return this;
     }
