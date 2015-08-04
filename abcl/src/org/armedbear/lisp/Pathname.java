@@ -2160,6 +2160,15 @@ public class Pathname extends LispObject {
         return truename(pathname, errorIfDoesNotExist);
     }
 
+    public Pathname translateLogicalPathname(Pathname pathname) {
+    	return pathname;
+    }
+    
+    public Pathname translatePathname() {
+    	return this;
+    }
+    
+    
     /** @return The canonical TRUENAME as a Pathname if the pathname
      * exists, otherwise returns NIL or possibly a subtype of
      * LispError if there are logical problems with the input.
@@ -2170,9 +2179,9 @@ public class Pathname extends LispObject {
         if (pathname == null || pathname.equals(NIL)) {  
            return doTruenameExit(pathname, errorIfDoesNotExist); 
         }
-        if (pathname instanceof LogicalPathname) {
-            pathname = LogicalPathname.translateLogicalPathname((LogicalPathname) pathname);
-        }
+
+        pathname = pathname.translatePathname();
+        
         if (pathname.isWild()) {
             return error(new FileError("Bad place for a wild pathname.",
                                        pathname));
@@ -2218,11 +2227,11 @@ public class Pathname extends LispObject {
             // Possibly canonicalize jar file directory
             Cons jars = (Cons) pathname.device;
             LispObject o = jars.car();
-        if (!(o instanceof Pathname)) {
-           return doTruenameExit(pathname, errorIfDoesNotExist);
-        }
-            if (o instanceof Pathname 
-                && !(((Pathname)o).isURL())
+            
+            if (!(o instanceof Pathname)) {
+              return doTruenameExit(pathname, errorIfDoesNotExist);
+            }
+            if (!(((Pathname)o).isURL())
                 // XXX Silently fail to call truename() if the default
                 // pathname defaults exist within a jar, as that will
                 // (probably) not succeed.  The better solution would
@@ -2232,8 +2241,7 @@ public class Pathname extends LispObject {
                 && !coerceToPathname(Symbol.DEFAULT_PATHNAME_DEFAULTS.symbolValue()).isJar()) 
                 {
                 LispObject truename = Pathname.truename((Pathname)o, errorIfDoesNotExist);
-                if (truename != null && truename != NIL
-                    && truename instanceof Pathname) {
+                if (truename instanceof Pathname) {
                     Pathname truePathname = (Pathname)truename;
                     // A jar that is a directory makes no sense, so exit
                     if (truePathname.getNamestring().endsWith("/")) {

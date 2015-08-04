@@ -143,7 +143,6 @@ public final class LogicalPathname extends Pathname
     }
 
     public static Pathname translateLogicalPathname(LogicalPathname pathname)
-
     {
         return (Pathname) Symbol.TRANSLATE_LOGICAL_PATHNAME.execute(pathname);
     }
@@ -301,6 +300,11 @@ public final class LogicalPathname extends Pathname
         }
     }
 
+    @Override
+    public Pathname translatePathname() {
+    	return LogicalPathname.translateLogicalPathname(this);
+    }
+    
     // ### %make-logical-pathname namestring => logical-pathname
     private static final Primitive _MAKE_LOGICAL_PATHNAME = new _make_logical_pathname();
     private static class _make_logical_pathname extends Primitive {
