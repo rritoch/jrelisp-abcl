@@ -674,7 +674,10 @@ public class Pathname extends LispObject {
                   return null; // If DEVICE is a CONS, it should only contain Pathname 
                 }
                 if (! ((Pathname)component).isURL() && i == 0) {
-                  sb.append("file:");
+                  sb.append("file:"); 
+                  if (Utilities.isPlatformWindows) {
+                     sb.append("/");
+                  }
                   uriEncoded = true;
                 }
                 Pathname jar = (Pathname) component;
@@ -2220,14 +2223,16 @@ public class Pathname extends LispObject {
             }
         } else {
         	
-        	URL qurl = null;
-        	
         	try {
-        		qurl = pathname.toURL().toURI().normalize().toURL();
-        		if (null == qurl.openConnection()) {
+        		Pathname qpath = new Pathname(pathname.toURL().toURI().normalize().toURL());
+        		URL qurl = qpath.toURL();
+        		InputStream is = qurl.openStream();
+        		if (null == is) {
         			return doTruenameExit(null, errorIfDoesNotExist);
         		}
-        		pathname = new Pathname(qurl.toString());
+        		is.close();
+        		return qpath;
+        		
         	} catch (IOException e) {
         		return doTruenameExit(null, errorIfDoesNotExist);
         	} catch (URISyntaxException e) {
@@ -2550,7 +2555,7 @@ public class Pathname extends LispObject {
     
     public URL toURL() {
         try {
-            if (isURL()) {
+            if (isURL() || isJar()) {
                 return new URL(getNamestring());
             } else {
                 return toFile().toURI().toURL();
