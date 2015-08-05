@@ -66,7 +66,7 @@ public class Pathname extends LispObject {
     // A positive integer, or NIL, :WILD, :UNSPECIFIC, or :NEWEST.
     protected LispObject version = NIL;
 
-    private volatile String namestring;
+    private String namestring;
 
     /** The protocol for changing any instance field (i.e. 'host',
      *  'type', etc.)  is to call this method after changing the field
@@ -697,6 +697,11 @@ public class Pathname extends LispObject {
                 || host == NIL) {
               sb.append(':'); // non-UNC paths
             }
+            
+            if (Utilities.isPlatformWindows && host == NIL) {
+                sb.append("/");
+            }
+            
         } else {
             Debug.assertTrue(false);
         }
@@ -1599,7 +1604,6 @@ public class Pathname extends LispObject {
             if (pathname instanceof LogicalPathname) {
                 pathname = LogicalPathname.translateLogicalPathname((LogicalPathname) pathname);
             }
-
             LispObject result = NIL;
             if (pathname.isJar()) {
                 String directory = pathname.asEntryPath();
@@ -2223,20 +2227,48 @@ public class Pathname extends LispObject {
             }
         } else {
         	
+        	URL normalURL = null;
         	try {
-        		Pathname qpath = new Pathname(pathname.toURL().toURI().normalize().toURL());
+        		
+        		// Normalize
+        		normalURL = pathname.toURL().toURI().normalize().toURL();
+        		String normalURLString = normalURL.toString();
+        		
+        		// Resolve root path to jar
+        		if (normalURLString.endsWith(jarSeparator)) {
+        			// Allow failback if device is not usable
+        			if (pathname.device != null && pathname.device != NIL) {
+        				LispObject rootDevice = pathname.device.car();
+        				if (rootDevice instanceof Pathname) {
+        					Pathname rootPathname = (Pathname)rootDevice;
+        					rootPathname.invalidateNamestring(); // Init broken?
+        					
+        					try {
+        						if (rootPathname.isURL() || rootPathname.isJar()) {
+        							normalURL = rootPathname.toURL().toURI().normalize().toURL();
+        						} else {
+        							normalURL = rootPathname.toFile().getCanonicalFile().toURI().toURL();
+        						}
+        		        	} catch (IOException e) {
+        		        	} catch (URISyntaxException e) {
+        					} 
+        				}
+        			}
+        		}
+        		
+        		Pathname qpath = new Pathname(normalURL);
         		URL qurl = qpath.toURL();
         		InputStream is = qurl.openStream();
         		if (null == is) {
-        			return doTruenameExit(null, errorIfDoesNotExist);
+        			return doTruenameExit(pathname, errorIfDoesNotExist);
         		}
         		is.close();
         		return qpath;
         		
         	} catch (IOException e) {
-        		return doTruenameExit(null, errorIfDoesNotExist);
+        		return doTruenameExit(pathname, errorIfDoesNotExist);
         	} catch (URISyntaxException e) {
-        		return doTruenameExit(null, errorIfDoesNotExist);
+        		return doTruenameExit(pathname, errorIfDoesNotExist);
 			}
       }
         
