@@ -2228,11 +2228,17 @@ public class Pathname extends LispObject {
         } else {
         	
         	URL normalURL = null;
+        	String normalURLString = null;
+    		Pathname qpath = null;
+    		URL qurl = null;
+    		InputStream is = null;
+    		InputStream isd = null;
+    		
         	try {
         		
         		// Normalize
         		normalURL = pathname.toURL().toURI().normalize().toURL();
-        		String normalURLString = normalURL.toString();
+        		normalURLString = normalURL.toString();
         		
         		// Resolve root path to jar
         		if (normalURLString.endsWith(jarSeparator)) {
@@ -2249,31 +2255,45 @@ public class Pathname extends LispObject {
         						} else {
         							normalURL = rootPathname.toFile().getCanonicalFile().toURI().toURL();
         						}
-        		        	} catch (IOException e) {
-        		        	} catch (URISyntaxException e) {
+        					} catch (IOException e) {
+        					} catch (URISyntaxException e) {
         					} 
         				}
         			}
         		}
         		
-        		Pathname qpath = new Pathname(normalURL);
-        		URL qurl = qpath.toURL();
-        		InputStream is = qurl.openStream();
-        		if (null == is) {
-        			return doTruenameExit(pathname, errorIfDoesNotExist);
+        		qpath = new Pathname(normalURL);
+        		qurl = qpath.toURL();
+        		is = qurl.openStream();
+        		if (null != is) {
+
+        			if (!normalURLString.endsWith("/")) {
+        				// If directory, just fail for backwards compatibility
+        				qurl = new URL(qpath.toURL().toString() + "/");
+        				try {
+        					isd = qurl.openStream();
+        					if (isd != null) {
+        						return doTruenameExit(pathname, errorIfDoesNotExist);
+        					}
+        	        	} catch (IOException e) {
+        				}
+        			}
+            		/*
+            		try {
+            			is.close();
+            		} catch (Throwable t) {
+            			// see: http://bugs.java.com/bugdatabase/view_bug.do?bug_id=5041014
+            		}
+            		*/
+        			return qpath;
         		}
-        		try {
-        			is.close();
-        		} catch (Throwable t) {
-        			// see: http://bugs.java.com/bugdatabase/view_bug.do?bug_id=5041014
-        		}
-        		return qpath;
-        		
         	} catch (IOException e) {
-        		return doTruenameExit(pathname, errorIfDoesNotExist);
         	} catch (URISyntaxException e) {
-        		return doTruenameExit(pathname, errorIfDoesNotExist);
 			}
+        	
+
+        	
+        	
       }
         
       return doTruenameExit(pathname, errorIfDoesNotExist);
@@ -2590,16 +2610,19 @@ public class Pathname extends LispObject {
     }
     
     public URL toURL() {
+    	URL ret = null;
         try {
+        	
             if (isURL() || isJar()) {
-                return new URL(getNamestring());
+                ret = new URL(getNamestring());
             } else {
-                return toFile().toURI().toURL();
+                ret = toFile().toURI().toURL();
             }
         } catch (MalformedURLException e) {
             error(new LispError(getNamestring() + " is not a valid URL"));
-            return null; // not reached
         }
+        
+        return ret;
     }
 
     public File toFile() {
@@ -2711,5 +2734,18 @@ public class Pathname extends LispObject {
         }
     }
 
+    private void dump(String msg) {
+    	
+    	System.out.println(String.format("%s\n host: %s\n device: %s\n directory: %s\n name: %s\n type %s\n, version: %s\n, namestring: %s\n",
+    		String.valueOf(msg),
+    		String.valueOf(host),
+    		String.valueOf(device),
+    		String.valueOf(directory),
+    		String.valueOf(name),
+    		String.valueOf(type),
+    		String.valueOf(version),
+    		String.valueOf(namestring)
+    	));
+    }
 }
 
