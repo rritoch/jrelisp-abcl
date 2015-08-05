@@ -2262,7 +2262,11 @@ public class Pathname extends LispObject {
         		if (null == is) {
         			return doTruenameExit(pathname, errorIfDoesNotExist);
         		}
-        		is.close();
+        		try {
+        			is.close();
+        		} catch (Throwable t) {
+        			// see: http://bugs.java.com/bugdatabase/view_bug.do?bug_id=5041014
+        		}
         		return qpath;
         		
         	} catch (IOException e) {
