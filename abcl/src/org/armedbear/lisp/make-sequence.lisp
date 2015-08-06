@@ -80,6 +80,14 @@
 	  (t
            (let ((name (%car type))
                  (args (%cdr type)))
+             (when (and (eq name 'OR) (subtypep type (list 'vector (upgraded-array-element-type type))))
+                (let ((pname name) (pargs args) (ptype (upgraded-array-element-type type)))
+                  (dolist (i args)
+                     (when (eq (car (cdr (cdr i))) size)
+                        (setq pname 'vector)
+                        (setq pargs (list ptype size))))
+                  (setq name pname)
+                  (setq args pargs)))
              (when (eq name 'LIST)
                (return-from make-sequence
                             (if iesp
