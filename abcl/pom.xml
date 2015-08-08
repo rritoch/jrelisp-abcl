@@ -7,15 +7,15 @@
 		<artifactId>oss-parent</artifactId>
 		<version>6</version>
 	</parent>
-	<groupId>org.armedbear.lisp</groupId>
+	<groupId>com.vnetpublishing.abcl</groupId>
 	<artifactId>abcl-parent</artifactId>
-	<version>1.4.0-SNAPSHOT</version>
+	<version>2.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>ABCL - Armed Bear Common Lisp</name>
 	<description>Common Lisp implementation running on the JVM</description>
 	<url>http://abcl.org</url>
 	<properties> 
-		<abcl.version>1.4.0-SNAPSHOT</abcl.version>
+		<abcl.version>2.0.0-SNAPSHOT</abcl.version>
 		<additionalparam>-Xdoclint:none</additionalparam>
 	</properties>
 	<modules>

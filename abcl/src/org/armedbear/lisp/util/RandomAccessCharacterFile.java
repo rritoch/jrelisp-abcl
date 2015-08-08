@@ -174,7 +174,7 @@ public class RandomAccessCharacterFile {
     // because a null value won't work
     static Reader staticReader = new StringReader("");
 
-    private class RandomAccessReader extends PushbackReader {
+    private class RandomAccessReader extends SafePushbackReader {
 
         RandomAccessReader() {
                 // because we override all methods of Pushbackreader,

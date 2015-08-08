@@ -56,7 +56,7 @@ import org.armedbear.lisp.Debug;
  * all methods are overridden.
  */
 public class DecodingReader
-    extends PushbackReader {
+    extends SafePushbackReader {
 
     // dummy reader which we need to call the Pushback constructor
     // because a null value won't work
@@ -74,10 +74,14 @@ public class DecodingReader
     // Encoder, used to put characters back on the input stream when unreading
     private CharsetEncoder ce;
 
+    private InputStream is;
+    
     public DecodingReader(InputStream stream, int size, Charset cs) {
+    	
         super(staticReader); // pass a dummy stream value into the constructor
 
           // we need to be able to unread the byte buffer
+        this.is = stream;
         this.stream = new PushbackInputStream(stream, size);
         this.cd = cs.newDecoder();
         this.cd.onUnmappableCharacter(CodingErrorAction.REPLACE);
@@ -104,9 +108,31 @@ public class DecodingReader
 
     @Override
     public final void close() throws IOException {
-        stream.close();
+    	if (stream != null) {
+    		stream.close();
+    	}
+    	if (is != null) {
+    		is.close();
+    	}
     }
 
+    public void finalize() throws Throwable {
+    	//System.out.println("Finalizing DecodingReader");
+    	try {
+			close();
+		} catch (IOException e) {
+			
+		} finally {
+			stream = null;
+			is = null;
+		}
+    	
+    	try {
+    		super.finalize();
+    	} catch (Throwable t) {
+    	}
+    }
+    
     @Override
     public final void mark(int readAheadLimit) throws IOException {
         throw new IOException("mark/reset not supported.");

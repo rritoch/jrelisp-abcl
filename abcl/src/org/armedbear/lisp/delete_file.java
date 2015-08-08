@@ -37,6 +37,7 @@ import static org.armedbear.lisp.Lisp.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 
 public final class delete_file extends Primitive
 {
@@ -68,14 +69,26 @@ public final class delete_file extends Primitive
             return error(new FileError("Pathname has no namestring: " + defaultedPathname.princToString(),
                                         defaultedPathname));
         final File file = new File(namestring);
-	ZipCache.remove(file);
+        defaultedPathname.removeZipCacheEntry();
+        
         if (file.exists()) {
+        	try {
+        		file.setWritable(true);
+        	} catch (Throwable t) {
+        	}
             // File exists.
             for (int i = 0; i < 5; i++) {
+            	System.gc();
                 if (file.delete())
                     return T;
                 System.gc();
                 Thread.yield();
+                if (i > 2) {
+                	try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+					}
+                }
             }
             Pathname truename = new Pathname(file.getAbsolutePath());
             StringBuilder sb = new StringBuilder("Unable to delete ");

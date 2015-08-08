@@ -59,6 +59,7 @@ For help on the automatic tests available, use the Ant target 'help.test'.
                classname="javax.script.ScriptEngine"/>
 
     <patternset id="abcl.source.java">
+      <include name="org/armedbear/lisp/io/*.java"/>
       <include name="org/armedbear/lisp/*.java"/>
       <include name="org/armedbear/lisp/util/*.java"/>
       <include name="org/armedbear/lisp/protocol/*.java"/>
@@ -149,14 +150,6 @@ For help on the automatic tests available, use the Ant target 'help.test'.
       <condition property="abcl.java.version.p">
         <or>
           <matches string="${java.version}" 
-                   pattern="1\.5"/>
-          <!-- Don't use 1.6.0_09 or earlier. -->
-          <matches string="${java.version}" 
-                   pattern="1\.6\.0_[1-9][0-9]"/>
-          <!-- 1.7.0_04 works much better. -->
-          <matches string="${java.version}" 
-                   pattern="1\.7\.0_(0[4-9])|([1-9][0-9])"/>
-          <matches string="${java.version}" 
                    pattern="1\.8\.0"/>
         </or>  
       </condition>
@@ -183,11 +176,11 @@ For help on the automatic tests available, use the Ant target 'help.test'.
             depends="abcl.init,abcl.java.warning,abcl.jsr-223.notice">
       <mkdir dir="${build.dir}"/>
       <mkdir dir="${build.classes.dir}"/>
-      <!-- Stock build for Java 1.5 (aka Java 2) container -->
+      <!-- Stock build for Java 1.8 (aka Java 8) container -->
       <javac destdir="${build.classes.dir}"
              debug="true"
-             target="1.5"
-             source="1.5"
+             target="1.8"
+             source="1.8"
              includeantruntime="false"
              failonerror="true">
         <src path="${src.dir}"/>
@@ -942,7 +935,7 @@ ${basedir}/../cl-bench
       <javac destdir="${abcl.test.classes.dir}"
              classpathref="abcl.test.compile.classpath"
              debug="true"
-             target="1.5">
+             target="1.8">
         <src path="${abcl.test.src.dir}"/>
         <patternset refid="abcl.test.source.java"/>
       </javac>

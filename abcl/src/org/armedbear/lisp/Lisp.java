@@ -45,6 +45,8 @@ import java.nio.charset.Charset;
 import java.util.Hashtable;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.armedbear.lisp.io.InputStreamFacade;
+
 public final class Lisp
 {
   public static final boolean debug = true;
@@ -1359,7 +1361,13 @@ public final class Lisp
           URL url = null;
           try {
               url = Lisp.class.getResource(name.getNamestring());
-              input = url.openStream();
+              InputStreamFacade inf = new InputStreamFacade(url);
+              if (inf.getInputStream() == null) {
+            	  input = null;
+            	  throw new IOException("File not found");
+              } else {
+            	  input = inf;
+              }
           } catch (IOException e) {
 	      System.err.println("Failed to read class bytes from boot class " + url);
               error(new LispError("Failed to read class bytes from boot class " + url));
@@ -1393,6 +1401,8 @@ public final class Lisp
       } finally {
           try {
               input.close();
+              //input = null; too slow
+              //System.gc();
           } catch (IOException e) {
               Debug.trace("Failed to close InputStream: " + e);
           }

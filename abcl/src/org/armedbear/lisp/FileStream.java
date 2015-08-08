@@ -44,293 +44,338 @@ import java.io.Writer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.UUID;
+
 import org.armedbear.lisp.util.RandomAccessCharacterFile;
 
 public final class FileStream extends Stream
 {
-    private final RandomAccessCharacterFile racf;
-    private final Pathname pathname;
-    private final int bytesPerUnit;
+	private final RandomAccessCharacterFile racf;
+	private final Pathname pathname;
+	private final int bytesPerUnit;
 
-    public FileStream(Pathname pathname, String namestring,
-                      LispObject elementType, LispObject direction,
-                      LispObject ifExists, LispObject format)
-        throws IOException
-    {
-        /* externalFormat is a LispObject of which the first char is a
-         * name of a character encoding (such as :UTF-8 or :ISO-8859-1), used
-         * by ABCL as a string designator, unless the name is :CODE-PAGE.
-         * A real string is (thus) also allowed.
-         * 
-         * Then, a property list follows with 3 possible keys:
-         *   :ID (values: code page numbers supported by MS-DOS/IBM-DOS/MS-Windows
-         *   :EOL-STYLE (values: :CR / :LF / :CRLF [none means native])
-         *   :LITTLE-ENDIAN (values: NIL / T)
-         * 
-         * These definitions have been taken from FLEXI-STREAMS:
-         *    http://www.weitz.de/flexi-streams/#make-external-format
-         */
-        super(Symbol.FILE_STREAM);
-        final File file = new File(namestring);
-        String mode = null;
-        if (direction == Keyword.INPUT) {
-            mode = "r";
-            isInputStream = true;
-        } else if (direction == Keyword.OUTPUT) {
-            mode = "rw";
-            isOutputStream = true;
-        } else if (direction == Keyword.IO) {
-            mode = "rw";
-            isInputStream = true;
-            isOutputStream = true;
-        }
-        
-        Debug.assertTrue(mode != null);
-        RandomAccessFile raf = new RandomAccessFile(file, mode);
+	private RandomAccessFile raf;
 	
-        // ifExists is ignored unless we have an output stream.
-        if (isOutputStream) {
-            final long length = file.isFile() ? file.length() : 0;
-            if (length > 0) {
-                if (ifExists == Keyword.OVERWRITE)
-                    raf.seek(0);
-                else if (ifExists == Keyword.APPEND)
-                    raf.seek(raf.length());
-                else
-                    raf.setLength(0);
-            }
-        }
-        setExternalFormat(format);
-        
-	// don't touch raf directly after passing it to racf.
-	// the state will become inconsistent if you do that.
-        racf = new RandomAccessCharacterFile(raf, encoding);
+	private String filename;
+	private File file;
+	
+	public FileStream(Pathname pathname, String namestring,
+					  LispObject elementType, LispObject direction,
+					  LispObject ifExists, LispObject format)
+		throws IOException
+	{
+		/* externalFormat is a LispObject of which the first char is a
+		 * name of a character encoding (such as :UTF-8 or :ISO-8859-1), used
+		 * by ABCL as a string designator, unless the name is :CODE-PAGE.
+		 * A real string is (thus) also allowed.
+		 * 
+		 * Then, a property list follows with 3 possible keys:
+		 *   :ID (values: code page numbers supported by MS-DOS/IBM-DOS/MS-Windows
+		 *   :EOL-STYLE (values: :CR / :LF / :CRLF [none means native])
+		 *   :LITTLE-ENDIAN (values: NIL / T)
+		 * 
+		 * These definitions have been taken from FLEXI-STREAMS:
+		 *	http://www.weitz.de/flexi-streams/#make-external-format
+		 */
+		super(Symbol.FILE_STREAM);
+		
+		filename = namestring;
+		file = new File(namestring);
+		String mode = null;
+		if (direction == Keyword.INPUT) {
+			mode = "r";
+			isInputStream = true;
+		} else if (direction == Keyword.OUTPUT) {
+			mode = "rw";
+			isOutputStream = true;
+		} else if (direction == Keyword.IO) {
+			mode = "rw";
+			isInputStream = true;
+			isOutputStream = true;
+		}
+		
+		Debug.assertTrue(mode != null);
+		raf = new RandomAccessFile(file, mode);
+		
+		//System.out.println(String.format("FILESTREAM OPENED %s#%s",String.valueOf(filename),uuid.toString()));
+		
+		// ifExists is ignored unless we have an output stream.
+		if (isOutputStream) {
+			final long length = file.isFile() ? file.length() : 0;
+			if (length > 0) {
+				if (ifExists == Keyword.OVERWRITE)
+					raf.seek(0);
+				else if (ifExists == Keyword.APPEND)
+					raf.seek(raf.length());
+				else
+					raf.setLength(0);
+			}
+		}
+		setExternalFormat(format);
+		
+		// don't touch raf directly after passing it to racf.
+		// the state will become inconsistent if you do that.
+		racf = new RandomAccessCharacterFile(raf, encoding);
 
-        this.pathname = pathname;
-        this.elementType = elementType;
-        if (elementType == Symbol.CHARACTER || elementType == Symbol.BASE_CHAR) {
-            isCharacterStream = true;
-            bytesPerUnit = 1;
-	    if (isInputStream) {
-		initAsCharacterInputStream(racf.getReader());
-	    }
-	    if (isOutputStream) {
-		initAsCharacterOutputStream(racf.getWriter());
-	    }
-        } else {
-            isBinaryStream = true;
-            int width = Fixnum.getValue(elementType.cadr());
-            bytesPerUnit = width / 8;
-	    if (isInputStream) {
-		initAsBinaryInputStream(racf.getInputStream());
-	    }
-	    if (isOutputStream) {
-		initAsBinaryOutputStream(racf.getOutputStream());
-	    }
-        }
-    }
+		this.pathname = pathname;
+		this.elementType = elementType;
+		if (elementType == Symbol.CHARACTER || elementType == Symbol.BASE_CHAR) {
+			isCharacterStream = true;
+			bytesPerUnit = 1;
+			if (isInputStream) {
+				initAsCharacterInputStream(racf.getReader());
+			}
+			if (isOutputStream) {
+				initAsCharacterOutputStream(racf.getWriter());
+			}
+		} else {
+			isBinaryStream = true;
+			int width = Fixnum.getValue(elementType.cadr());
+			bytesPerUnit = width / 8;
+			if (isInputStream) {
+				initAsBinaryInputStream(racf.getInputStream());
+			}
+			if (isOutputStream) {
+				initAsBinaryOutputStream(racf.getOutputStream());
+			}
+		}
+	}
 
-    @Override
-    public LispObject typeOf()
-    {
-        return Symbol.FILE_STREAM;
-    }
+	@Override
+	public LispObject typeOf()
+	{
+		return Symbol.FILE_STREAM;
+	}
 
-    @Override
-    public LispObject classOf()
-    {
-        return BuiltInClass.FILE_STREAM;
-    }
+	@Override
+	public LispObject classOf()
+	{
+		return BuiltInClass.FILE_STREAM;
+	}
 
-    @Override
-    public LispObject typep(LispObject typeSpecifier)
-    {
-        if (typeSpecifier == Symbol.FILE_STREAM)
-            return T;
-        if (typeSpecifier == BuiltInClass.FILE_STREAM)
-            return T;
-        return super.typep(typeSpecifier);
-    }
+	@Override
+	public LispObject typep(LispObject typeSpecifier)
+	{
+		if (typeSpecifier == Symbol.FILE_STREAM)
+			return T;
+		if (typeSpecifier == BuiltInClass.FILE_STREAM)
+			return T;
+		return super.typep(typeSpecifier);
+	}
 
-    @Override
-    public void setExternalFormat(LispObject format) {
-        super.setExternalFormat(format);
+	@Override
+	public void setExternalFormat(LispObject format) {
+		super.setExternalFormat(format);
 
-        if (racf != null)
-            // setExternalFormat also called before 'racf' is set up
-            racf.setEncoding(encoding);
-    }
+		if (racf != null)
+			// setExternalFormat also called before 'racf' is set up
+			racf.setEncoding(encoding);
+	}
 
-    public Pathname getPathname()
-    {
-        return pathname;
-    }
+	public Pathname getPathname()
+	{
+		return pathname;
+	}
 
-    @Override
-    public LispObject fileLength()
-    {
-        final long length;
-        if (isOpen()) {
-            try {
-                length = racf.length();
-            }
-            catch (IOException e) {
-                error(new StreamError(this, e));
-                // Not reached.
-                return NIL;
-            }
-        } else {
-            String namestring = pathname.getNamestring();
-            if (namestring == null)
-                return error(new SimpleError("Pathname has no namestring: " +
-                                              pathname.princToString()));
-            File file = new File(namestring);
-            length = file.length(); // in 8-bit bytes
-        }
-        if (isCharacterStream)
-            return number(length);
-        // "For a binary file, the length is measured in units of the
-        // element type of the stream."
-        return number(length / bytesPerUnit);
-    }
+	@Override
+	public LispObject fileLength()
+	{
+		final long length;
+		if (isOpen()) {
+			try {
+				length = racf.length();
+			}
+			catch (IOException e) {
+				error(new StreamError(this, e));
+				// Not reached.
+				return NIL;
+			}
+		} else {
+			String namestring = pathname.getNamestring();
+			if (namestring == null)
+				return error(new SimpleError("Pathname has no namestring: " +
+											  pathname.princToString()));
+			File file = new File(namestring);
+			length = file.length(); // in 8-bit bytes
+		}
+		if (isCharacterStream)
+			return number(length);
+		// "For a binary file, the length is measured in units of the
+		// element type of the stream."
+		return number(length / bytesPerUnit);
+	}
 
-    @Override
-    protected boolean _charReady()
-    {
-        return true;
-    }
+	@Override
+	protected boolean _charReady()
+	{
+		return true;
+	}
 
-    @Override
-    public void _clearInput()
-    {
-        try {
-	    if (isInputStream) {
+	@Override
+	public void _clearInput()
+	{
+		try {
+		if (isInputStream) {
 		racf.position(racf.length());
-	    } else {
+		} else {
 		streamNotInputStream();
-	    }
-        }
-        catch (IOException e) {
-            error(new StreamError(this, e));
-        }
-    }
+		}
+		}
+		catch (IOException e) {
+			error(new StreamError(this, e));
+		}
+	}
 
-    @Override
-    protected long _getFilePosition()
-    {
-        try {
-            long pos = racf.position();
-            return pos / bytesPerUnit;
-        }
-        catch (IOException e) {
-            error(new StreamError(this, e));
-            // Not reached.
-            return -1;
-        }
-    }
+	@Override
+	protected long _getFilePosition()
+	{
+		try {
+			long pos = racf.position();
+			return pos / bytesPerUnit;
+		}
+		catch (IOException e) {
+			error(new StreamError(this, e));
+			// Not reached.
+			return -1;
+		}
+	}
 
-    @Override
-    protected boolean _setFilePosition(LispObject arg)
-    {
-        try {
-            long pos;
-            if (arg == Keyword.START)
-                pos = 0;
-            else if (arg == Keyword.END)
-                pos = racf.length();
-            else {
-                long n = Fixnum.getValue(arg); // FIXME arg might be a bignum
-                pos = n * bytesPerUnit;
-            }
-            racf.position(pos);
-        }
-        catch (IOException e) {
-            error(new StreamError(this, e));
-        }
-        return true;
-    }
+	@Override
+	protected boolean _setFilePosition(LispObject arg)
+	{
+		try {
+			long pos;
+			if (arg == Keyword.START)
+				pos = 0;
+			else if (arg == Keyword.END)
+				pos = racf.length();
+			else {
+				long n = Fixnum.getValue(arg); // FIXME arg might be a bignum
+				pos = n * bytesPerUnit;
+			}
+			racf.position(pos);
+		}
+		catch (IOException e) {
+			error(new StreamError(this, e));
+		}
+		return true;
+	}
 
-    @Override
-    public void _close()
-    {
-        try {
-            racf.close();
-            setOpen(false);
-        }
-        catch (IOException e) {
-            error(new StreamError(this, e));
-        }
-    }
+	@Override
+	public void _close()
+	{
+		try {
+			racf.flush();
+			try {
+				raf.getFD().sync();
+			} catch (Throwable t) {
+			}
+			racf.close();
+			setOpen(false);
+			//System.out.println(String.format("FILESTREAM CLOSED %s#%s",String.valueOf(filename),uuid.toString()));
+			
+			try {
+				raf.close();
+			} catch (Throwable t) {
+			}
+		} catch (IOException e) {
+			error(new StreamError(this, e));
+		}
+	}
 
-    @Override
-    public String printObject()
-    {
-        return unreadableString("FILE-STREAM");
-    }
+	public void finalize() throws Throwable {
+		//System.out.println("Finalizing FileStream");
+		
+		// Close all grabbed resources
+		try {
+			super.finalize();
+		} catch (Throwable t) {
+		}
+		
+		try {
+			racf.flush();
+			raf.getFD().sync();
+		} catch (Throwable t) {
+		}
+		
+		try {
+			racf.close();
+			setOpen(false);
+			raf.close();
+		} catch (Throwable t) {
+		}
+		//System.out.println(String.format("FILESTREAM FINALIZED %s#%s",String.valueOf(filename),uuid.toString()));
+	}
+	
+	@Override
+	public String printObject()
+	{
+		return unreadableString("FILE-STREAM");
+	}
 
-    // ### make-file-stream pathname namestring element-type direction if-exists external-format => stream
-    private static final Primitive MAKE_FILE_STREAM =
-        new Primitive("make-file-stream", PACKAGE_SYS, true,
-                      "pathname namestring element-type direction if-exists external-format")
-    {
-        @Override
-        public LispObject execute(LispObject first, LispObject second,
-                                  LispObject third, LispObject fourth,
-                                  LispObject fifth, LispObject sixth)
+	// ### make-file-stream pathname namestring element-type direction if-exists external-format => stream
+	private static final Primitive MAKE_FILE_STREAM =
+		new Primitive("make-file-stream", PACKAGE_SYS, true,
+					  "pathname namestring element-type direction if-exists external-format")
+	{
+		@Override
+		public LispObject execute(LispObject first, LispObject second,
+								  LispObject third, LispObject fourth,
+								  LispObject fifth, LispObject sixth)
 
-        {
-            final Pathname pathname;
-            if (first instanceof Pathname) {
-                pathname = (Pathname) first;
-            }
-            else {
-                return type_error(first, Symbol.PATHNAME);
-            }
-            final LispObject namestring = checkString(second);
-            LispObject elementType = third;
-            LispObject direction = fourth;
-            LispObject ifExists = fifth;
-            LispObject externalFormat = sixth;
-            
-            if (direction != Keyword.INPUT && direction != Keyword.OUTPUT &&
-                direction != Keyword.IO)
-                error(new LispError("Direction must be :INPUT, :OUTPUT, or :IO."));
+		{
+			final Pathname pathname;
+			if (first instanceof Pathname) {
+				pathname = (Pathname) first;
+			}
+			else {
+				return type_error(first, Symbol.PATHNAME);
+			}
+			final LispObject namestring = checkString(second);
+			LispObject elementType = third;
+			LispObject direction = fourth;
+			LispObject ifExists = fifth;
+			LispObject externalFormat = sixth;
+			
+			if (direction != Keyword.INPUT && direction != Keyword.OUTPUT &&
+				direction != Keyword.IO)
+				error(new LispError("Direction must be :INPUT, :OUTPUT, or :IO."));
 
-            if (pathname.isJar())  {
-                if (direction != Keyword.INPUT) {
-                    error(new FileError("Only direction :INPUT is supported for jar files.", pathname));
-                }
-                try { 
-                    return new JarStream(pathname, namestring.getStringValue(),
-                                         elementType, direction, ifExists,
-                                         externalFormat);
-                } catch (IOException e) {
-                    return error(new StreamError(null, e));
-                }
-            } else if (pathname.isURL()) {
-                if (direction != Keyword.INPUT) {
-                    error(new FileError("Only direction :INPUT is supported for URLs.", pathname));
-                }
-                try { 
-                    return new URLStream(pathname, namestring.getStringValue(),
-                                         elementType, direction, ifExists,
-                                         externalFormat);
-                } catch (IOException e) {
-                    return error(new StreamError(null, e));
-                }
-            } else {
-                try {
-                    return new FileStream(pathname, namestring.getStringValue(),
-                                          elementType, direction, ifExists,
-                                          externalFormat);
-                }
-                catch (FileNotFoundException e) {
-                    return NIL;
-                }
-                catch (IOException e) {
-                    return error(new StreamError(null, e));
-                }
-            }
-        }
-    };
+			if (pathname.isJar())  {
+				if (direction != Keyword.INPUT) {
+					error(new FileError("Only direction :INPUT is supported for jar files.", pathname));
+				}
+				try { 
+					return new JarStream(pathname, namestring.getStringValue(),
+										 elementType, direction, ifExists,
+										 externalFormat);
+				} catch (IOException e) {
+					return error(new StreamError(null, e));
+				}
+			} else if (pathname.isURL()) {
+				if (direction != Keyword.INPUT) {
+					error(new FileError("Only direction :INPUT is supported for URLs.", pathname));
+				}
+				try { 
+					return new URLStream(pathname, namestring.getStringValue(),
+										 elementType, direction, ifExists,
+										 externalFormat);
+				} catch (IOException e) {
+					return error(new StreamError(null, e));
+				}
+			} else {
+				try {
+					return new FileStream(pathname, namestring.getStringValue(),
+										  elementType, direction, ifExists,
+										  externalFormat);
+				}
+				catch (FileNotFoundException e) {
+					return NIL;
+				}
+				catch (IOException e) {
+					return error(new StreamError(null, e));
+				}
+			}
+		}
+	};
 }

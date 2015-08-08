@@ -35,10 +35,8 @@ package org.armedbear.lisp;
 
 import static org.armedbear.lisp.Lisp.*;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.Reader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
@@ -50,101 +48,123 @@ import java.io.BufferedReader;
  */
 public final class JarStream extends Stream
 {
-    private final Pathname pathname;
-    private final InputStream input;
-    private final Reader reader;
-    private final int bytesPerUnit;
+	private final Pathname pathname;
+	private InputStream input;
+	private Reader reader;
+	private final int bytesPerUnit;
 
-    public JarStream(Pathname pathname, String namestring,
-                          LispObject elementType, LispObject direction,
-                          LispObject ifExists, LispObject format)
-        throws IOException
-    {
-        super(Symbol.JAR_STREAM);
-        Debug.assertTrue(direction == Keyword.INPUT);
-        Debug.assertTrue(pathname.name != NIL);
-        isInputStream = true;
+	public JarStream(Pathname pathname, String namestring,
+						  LispObject elementType, LispObject direction,
+						  LispObject ifExists, LispObject format)
+		throws IOException
+	{
+		super(Symbol.JAR_STREAM);
+		Debug.assertTrue(direction == Keyword.INPUT);
+		Debug.assertTrue(pathname.name != NIL);
+		isInputStream = true;
 
-        super.setExternalFormat(format);
-        
-        this.pathname = pathname;
-        this.elementType = elementType;
+		super.setExternalFormat(format);
+		
+		this.pathname = pathname;
+		this.elementType = elementType;
 
-        this.input = pathname.getInputStream();
-        if (elementType == Symbol.CHARACTER || elementType == Symbol.BASE_CHAR) {
-            isCharacterStream = true;
-            bytesPerUnit = 1;
-            InputStreamReader isr = new InputStreamReader(input);
-            this.reader = (Reader) new BufferedReader(isr);
-            initAsCharacterInputStream(this.reader);
-        } else {
-            isBinaryStream = true;
-            int width = Fixnum.getValue(elementType.cadr());
-            bytesPerUnit = width / 8;
-            this.reader = null;
-            initAsBinaryInputStream(this.input);
-        }
-    }
+		this.input = pathname.getInputStream();
+		if (elementType == Symbol.CHARACTER || elementType == Symbol.BASE_CHAR) {
+			isCharacterStream = true;
+			bytesPerUnit = 1;
+			InputStreamReader isr = new InputStreamReader(input);
+			this.reader = (Reader) new BufferedReader(isr);
+			initAsCharacterInputStream(this.reader);
+		} else {
+			isBinaryStream = true;
+			int width = Fixnum.getValue(elementType.cadr());
+			bytesPerUnit = width / 8;
+			this.reader = null;
+			initAsBinaryInputStream(this.input);
+		}
+	}
 
-    @Override
-    public LispObject typeOf()
-    {
-        return Symbol.JAR_STREAM;
-    }
+	@Override
+	public LispObject typeOf()
+	{
+		return Symbol.JAR_STREAM;
+	}
 
-    @Override
-    public LispObject classOf()
-    {
-        return BuiltInClass.JAR_STREAM;
-    }
+	@Override
+	public LispObject classOf()
+	{
+		return BuiltInClass.JAR_STREAM;
+	}
 
-    @Override
-    public LispObject typep(LispObject typeSpecifier)
-    {
-        if (typeSpecifier == Symbol.JAR_STREAM)
-            return T;
-        if (typeSpecifier == BuiltInClass.JAR_STREAM)
-            return T;
-        return super.typep(typeSpecifier);
-    }
+	@Override
+	public LispObject typep(LispObject typeSpecifier)
+	{
+		if (typeSpecifier == Symbol.JAR_STREAM)
+			return T;
+		if (typeSpecifier == BuiltInClass.JAR_STREAM)
+			return T;
+		return super.typep(typeSpecifier);
+	}
 
-    @Override
-    public void setExternalFormat(LispObject format) {
-        super.setExternalFormat(format);
-    }
+	@Override
+	public void setExternalFormat(LispObject format) {
+		super.setExternalFormat(format);
+	}
 
-    public Pathname getPathname()
-    {
-        return pathname;
-    }
+	public Pathname getPathname()
+	{
+		return pathname;
+	}
 
-    @Override
-    public void _close()
-    {
-        try {
-            if (input != null) {
-                input.close();
-            }
-            if (reader != null) {
-                reader.close();
-            }
-            setOpen(false);
-        }
-        catch (IOException e) {
-            error(new StreamError(this, e));
-        }
-    }
+	@Override
+	public void _close()
+	{
+		try {
+			if (input != null) {
+				input.close();
+			}
+			if (reader != null) {
+				reader.close();
+			}
+			setOpen(false);
+		}
+		catch (IOException e) {
+			error(new StreamError(this, e));
+		}
+	}
 
-    @Override
-    public String printObject()
-    {
-        StringBuffer sb = new StringBuffer();
-        sb.append(Symbol.JAR_STREAM.princToString());
-        String namestring = pathname.getNamestring();
-        if (namestring != null) {
-            sb.append(" ");
-            sb.append(namestring);
-        }
-        return unreadableString(sb.toString());
-    }
+	@Override
+	public String printObject()
+	{
+		StringBuffer sb = new StringBuffer();
+		sb.append(Symbol.JAR_STREAM.princToString());
+		String namestring = pathname.getNamestring();
+		if (namestring != null) {
+			sb.append(" ");
+			sb.append(namestring);
+		}
+		return unreadableString(sb.toString());
+	}
+	
+	public void finalize() throws Throwable {
+		//System.out.println("Finalized JarStream");
+		
+		if (reader != null) {
+			try {
+				reader.close();
+			} catch (Throwable t) {
+			}
+			reader = null;
+		}
+		
+		if (input != null) {
+			try {
+				input.close();
+			} catch (Throwable t) {
+			}
+			input = null;
+		}
+		
+		super.finalize();
+	}
 }

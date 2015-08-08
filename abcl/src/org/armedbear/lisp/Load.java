@@ -40,6 +40,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.text.MessageFormat;
 
+import org.armedbear.lisp.io.InputStreamFacade;
+
 /* This file holds ABCL's (FASL and non-FASL) loading behaviours.
  *
  * The loading process works like this:
@@ -60,7 +62,9 @@ public final class Load
         return load(new Pathname(filename),
                     Symbol.LOAD_VERBOSE.symbolValue(thread) != NIL,
                     Symbol.LOAD_PRINT.symbolValue(thread) != NIL,
-                    true);
+                    true,
+                    false, 
+                    Keyword.DEFAULT);
     }
   
     /** @return Pathname of loadable file based on NAME, or null if
@@ -170,7 +174,8 @@ public final class Load
                 return NIL;
             }
         }
-
+        // This is where things get wierd!
+        
         if (Utilities.checkZipFile(truename)) {
             String n = truename.getNamestring();
             String name = Pathname.uriEncode(truename.name.getStringValue());
@@ -180,10 +185,10 @@ public final class Load
 	    } else if (n.startsWith("zip:")) {
                 n = "zip:" + n + "!/" + name + "."
                     + COMPILE_FILE_INIT_FASL_TYPE;
-            } else {
+        } else {
                 n = "jar:file:" + Pathname.uriEncode(n) + "!/" + name + "."
                     + COMPILE_FILE_INIT_FASL_TYPE;
-            }
+        }
             if (!((mergedPathname = new Pathname(n)) instanceof Pathname)) {
               return error(new FileError((MessageFormat.format("Failed to address JAR-PATHNAME truename {0} for name {1}", truename.princToString(), name)), truename));
             }
@@ -219,20 +224,28 @@ public final class Load
 				
         InputStream in = truename.getInputStream();
         Debug.assertTrue(in != null);
-    
+        Stream sin = null;
+        
         try {
+        	sin = new Stream(Symbol.SYSTEM_STREAM, truename.getInputStream(), Symbol.CHARACTER, externalFormat);
             return loadFileFromStream(pathname, truename,
-                                      new Stream(Symbol.SYSTEM_STREAM, in, Symbol.CHARACTER, externalFormat),
+                                      sin,
                                       verbose, print, false, returnLastResult);
         }
         finally {
-            if (in != null) {
-                try {
-                   in.close();
-                }
-                catch (IOException e) {
-                    return error(new LispError(e.getMessage()));
-                }
+            if (sin != null) {
+            	try {
+            		sin.close(NIL);
+            	} finally {
+            		if (in != null) {
+            			try {
+							in.close();
+						} catch (IOException e) {
+							// This should never happen with a facade!
+							e.printStackTrace();
+						}
+            		}
+            	}
             }
         }
     }
@@ -356,13 +369,18 @@ public final class Load
         } else { 
             try {
                 Debug.assertTrue(url != null);
-                in = url.openStream();
+                InputStreamFacade inf = new InputStreamFacade(url);
+                if (inf.getInputStream() == null) {
+                	throw new IOException("File not found!");
+                } else {
+                	in = inf;
+                }
             } catch (IOException e) {
                 error(new FileError("Failed to load system file: " 
                                     + "'" + filename + "'"
                                     + " from URL: " 
                                     + "'" + url + "'"));
-            } 
+            }
         }
 
         if (in != null) {
@@ -378,6 +396,8 @@ public final class Load
                 thread.resetSpecialBindings(mark);
                 try {
                     in.close();
+                    //in = null; too slow
+                    //System.gc(); 
                 }
                 catch (IOException e) {
                     return error(new LispError(e.getMessage()));
