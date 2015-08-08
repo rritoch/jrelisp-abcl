@@ -285,10 +285,14 @@ public class RandomAccessCharacterFile {
     private boolean bbufIsReadable; /* whether bbuf.remaining() contains readable content. */
     private long bbufpos; /* where the beginning of bbuf is pointing in the file now. */
 
+    private boolean open = false;
+    
     public RandomAccessCharacterFile(RandomAccessFile raf, String encoding) throws IOException {
 
         fcn = raf.getChannel();
 
+        open = true;
+        
         setEncoding(encoding);
         bbuf = ByteBuffer.allocate(BUFSIZ);
 
@@ -325,28 +329,34 @@ public class RandomAccessCharacterFile {
     }
 
     public Writer getWriter() {
-        return writer;
+        return open ? writer : null;
     }
 
     public PushbackReader getReader() {
-        return reader;
+        return open ? reader : null;
     }
 
     public PushbackInputStream getInputStream() {
-        return inputStream;
+        return open ? inputStream : null;
     }
 
     public OutputStream getOutputStream() {
-        return outputStream;
+        return open ? outputStream : null;
     }
 
     public final void close() throws IOException {
-        internalFlush(true);
-        fcn.close();
+    	if (open) {
+    		try {
+    			internalFlush(true);
+    			fcn.close();
+    		} finally {
+    			open = false;
+    		}
+    	}
     }
 
     public final void flush() throws IOException {
-        internalFlush(false);
+        if (open) internalFlush(false);
     }
 
     private final boolean ensureReadBbuf(boolean force) throws IOException {
@@ -450,6 +460,9 @@ public class RandomAccessCharacterFile {
     }
 
     public final void position(long newPosition) throws IOException {
+    	if (!open) {
+    		throw new IOException("File closed");
+    	}
         flushBbuf(true);
         long bbufend = bbufpos // in case bbuf is readable, its contents is valid
             + (bbufIsReadable ? bbuf.limit() : bbuf.position()); // beyond position()
@@ -466,10 +479,14 @@ public class RandomAccessCharacterFile {
     }
 
     public final long position() throws IOException {
+    	if (!open) {
+    		throw new IOException("File closed");
+    	}
         return bbufpos + bbuf.position(); // the logical position within the file.
     }
 
     public final long length() throws IOException {
+    	if (!open) return -1;
         flushBbuf(false);
         return fcn.size();
     }
@@ -500,6 +517,9 @@ public class RandomAccessCharacterFile {
     }
 
     public final int read(byte[] b, int off, int len) throws IOException {
+    	if (!open) {
+    		throw new IOException("File closed");
+    	}
         int pos = off;
         boolean atEof = false;
         while (pos - off < len && ! atEof) {
@@ -524,6 +544,10 @@ public class RandomAccessCharacterFile {
     private CharBuffer singleCharBuf;
     private ByteBuffer shortByteBuf;
     public final void unreadChar(char c) throws IOException {
+    	if (!open) {
+    		throw new IOException("File closed");
+    	}
+    	
         // algorithm :
         //  1. encode c into bytes, to find out how many bytes it corresponds to
         //  2. move the position backwards that many bytes.
@@ -551,6 +575,10 @@ public class RandomAccessCharacterFile {
     }
 
     public final void unreadByte(byte b) throws IOException {
+    	if (!open) {
+    		throw new IOException("File closed");
+    	}
+    	
         long pos = position() - 1;
         position(pos);
     }

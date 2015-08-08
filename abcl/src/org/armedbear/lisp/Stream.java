@@ -382,12 +382,13 @@ public class Stream extends StructureObject {
 			 returns="encodings",
 			 doc="Returns all charset encodings suitable for passing to a stream constructor available at runtime.")
 	private static final class pf_available_encodings extends Primitive {
-	pf_available_encodings() {
-	  super("available-encodings", PACKAGE_SYS, true);
-	}
-	public LispObject execute() {
-	  LispObject result = NIL;
-	  for (Symbol encoding : availableEncodings()) {
+		pf_available_encodings() {
+			super("available-encodings", PACKAGE_SYS, true);
+		}
+	
+		public LispObject execute() {
+			LispObject result = NIL;
+			for (Symbol encoding : availableEncodings()) {
 		result = result.push(encoding);
 	  }
 	  return result.nreverse();
