@@ -821,9 +821,11 @@ public class Pathname extends LispObject implements IPathname {
 			  sb.append(':'); // non-UNC paths
 			}
 			
+			/* Non compliant
 			if (Utilities.isPlatformWindows && host == NIL) {
 				sb.append("/");
 			}
+			*/
 			
 		} else {
 			Debug.assertTrue(false);
@@ -838,15 +840,10 @@ public class Pathname extends LispObject implements IPathname {
 			} else {
 				sb.append(directoryNamestring);
 			}
-		} else if (Utilities.isPlatformWindows && host == NIL && device instanceof AbstractString ) {
-			if (directoryNamestring.startsWith("/")) {
-				sb.append(directoryNamestring.substring(1));
-			} else {
-				sb.append(directoryNamestring);
-			}
 		} else {
 			sb.append(directoryNamestring);
 		}
+		
 		if (name instanceof AbstractString) {
 			String n = name.getStringValue();
 			if (n.indexOf('/') >= 0) {
@@ -1524,7 +1521,18 @@ public class Pathname extends LispObject implements IPathname {
 			if (host == NIL) {
 				host = defaults.host;
 			}
-			if (!directorySupplied) {
+			if (directorySupplied) {
+				
+				
+				if (directory.car() == Keyword.RELATIVE && defaults.directory != NIL) {
+					directory = directory.cdr();
+					LispObject[] pth = ((Cons)defaults.directory).copyToArray();
+					for (int idx = pth.length - 1; idx >= 0; idx--) {
+						directory = new Cons(pth[idx],directory);
+					}
+				}
+				
+			} else {
 				directory = defaults.directory;
 			}
 			if (!deviceSupplied) {
