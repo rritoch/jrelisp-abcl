@@ -111,6 +111,7 @@ public final class make_array extends Primitive
           }
         return new ComplexArray(dimv, array, displacement);
       }
+    
     LispObject upgradedType = getUpgradedArrayElementType(elementType);
     if (rank == 0)
       {
@@ -193,6 +194,7 @@ public final class make_array extends Primitive
               v = new SimpleVector(size);
             defaultInitialElement = NIL;
           }
+        
         if (initialElementProvided != NIL)
           {
             // Initial element was specified.

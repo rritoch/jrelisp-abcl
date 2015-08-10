@@ -69,23 +69,40 @@ public final class delete_file extends Primitive
             return error(new FileError("Pathname has no namestring: " + defaultedPathname.princToString(),
                                         defaultedPathname));
         final File file = new File(namestring);
-        defaultedPathname.removeZipCacheEntry();
+        
         
         if (file.exists()) {
+        	if (file.delete())
+        		return T;
+        	
+        	
         	try {
         		file.setWritable(true);
         	} catch (Throwable t) {
         	}
+        	
+        	if (file.delete())
+        		return T;
+        	
+        	defaultedPathname.removeZipCacheEntry();
+        	Thread.yield();
+        	
+        	if (file.delete())
+        		return T;
+        	
             // File exists.
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 7; i++) {
+            	if (!file.exists()) {
+            		return T;
+            	}
+            	
             	System.gc();
+            	Thread.yield();
                 if (file.delete())
                     return T;
-                System.gc();
-                Thread.yield();
                 if (i > 2) {
                 	try {
-						Thread.sleep(1000);
+						Thread.sleep(100);
 					} catch (InterruptedException e) {
 					}
                 }

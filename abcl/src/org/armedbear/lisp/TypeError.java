@@ -64,6 +64,7 @@ public class TypeError extends LispError
     @Override
     protected void initialize(LispObject initArgs)
     {
+    	
         super.initialize(initArgs);
         LispObject datum = null;
         LispObject expectedType = null;
@@ -87,6 +88,8 @@ public class TypeError extends LispError
             setExpectedType(expectedType);
     }
 
+
+    //TODO: Remove this constructor!!!
     public TypeError(String message)
     {
         super(StandardClass.TYPE_ERROR);
@@ -96,7 +99,6 @@ public class TypeError extends LispError
     }
 
     public TypeError(String message, LispObject datum, LispObject expectedType)
-
     {
         super(StandardClass.TYPE_ERROR);
         setFormatControl(message);

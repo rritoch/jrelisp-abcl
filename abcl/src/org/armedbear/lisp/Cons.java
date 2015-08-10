@@ -605,4 +605,49 @@ public final class Cons extends LispObject implements java.io.Serializable
   {
     count = n;
   }
+  
+  @Override
+  public LispObject evalImpl(
+		  final Environment env,
+          final LispThread thread) {
+      LispObject first = car;
+      if (first.isSymbol()) {
+          LispObject fun = env.lookupFunction(first);
+          if (fun != null && fun.isASpecialOperator())
+            {
+              if (profiling)
+                if (!sampling)
+                  fun.incrementCallCount();
+              // Don't eval args!
+              return fun.execute(cdr, env);
+            }
+          if (fun instanceof MacroObject)
+            return eval(macroexpand(this, env, thread), env, thread);
+          if (fun instanceof Autoload)
+            {
+              Autoload autoload = (Autoload) fun;
+              autoload.load();
+              return eval(this, env, thread);
+            }
+          return evalCall(fun != null ? fun : first,
+                          cdr, env, thread);
+        }
+      else
+        {
+          if (first != null && first.isCons() && first.car() == Symbol.LAMBDA)
+            {
+              Closure closure = new Closure(first, env);
+              return evalCall(closure, cdr, env, thread);
+            }
+          else
+            return program_error("Illegal function object: "
+                                 + first.princToString() + ".");
+        }
+  }
+  
+  @Override
+  public final boolean isCons() {
+	  return true;
+  }
+  
 }

@@ -51,29 +51,29 @@ public final class StringFunctions {
         checkParams(StringIndicesAndChars indicesAndChars) {
         if (indicesAndChars.start1 < 0 
             || indicesAndChars.start1 > indicesAndChars.array1.length)
-            error(new TypeError("Invalid start position " 
+            error(new ArrayIndexTypeError("Invalid start position " 
                                 + indicesAndChars.start1 + "."));
         if (indicesAndChars.end1 < 0 
             || indicesAndChars.end1 > indicesAndChars.array1.length)
-            error(new TypeError("Invalid end position " 
+            error(new ArrayIndexTypeError("Invalid end position " 
                                 + indicesAndChars.end1 + "."));
         
         if (indicesAndChars.start1 > indicesAndChars.end1) 
-            error(new TypeError("Start (" 
+            error(new ArrayIndexTypeError("Start (" 
                                 + indicesAndChars.start1 
                                 + ") is greater than end (" 
                                 + indicesAndChars.end1 + ")."));
         if (indicesAndChars.array2 != null) {
             if (indicesAndChars.start2 < 0 
                 || indicesAndChars.start2 > indicesAndChars.array2.length)
-                error(new TypeError("Invalid start2 position " 
+                error(new ArrayIndexTypeError("Invalid start2 position " 
                                     + indicesAndChars.start2 + "."));
             if (indicesAndChars.end2 < 0 
                 || indicesAndChars.end2 > indicesAndChars.array2.length)
-                error(new TypeError("Invalid end2 position " 
+                error(new ArrayIndexTypeError("Invalid end2 position " 
                                     + indicesAndChars.end2 + "."));
             if (indicesAndChars.start2 > indicesAndChars.end2)
-                error(new TypeError("Start2 (" 
+                error(new ArrayIndexTypeError("Start2 (" 
                                     + indicesAndChars.start2 
                                     + ") is greater than end2 (" 
                                     + indicesAndChars.end2 + ")."));

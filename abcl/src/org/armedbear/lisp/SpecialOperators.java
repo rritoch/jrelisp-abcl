@@ -137,7 +137,7 @@ public final class SpecialOperators {
                 final Symbol symbol;
                 LispObject value;
                 LispObject obj = varList.car();
-                if (obj instanceof Cons) {
+                if (obj != null && obj.isCons()) {
                     if (obj.length() > 2)
                         return error(new LispError("The " + (sequential ? "LET*" : "LET")
                                                    + " binding specification " +
@@ -195,7 +195,7 @@ for (Cons x : nonSequentialVars)
                 for (int i = varList.length(); i-- > 0;) {
                     LispObject obj = varList.car();
                     varList = varList.cdr();
-                    if (obj instanceof Cons && obj.length() == 2) {
+                    if (obj != null && obj.isCons() && obj.length() == 2) {
                         Symbol symbol = checkSymbol(obj.car());
                         if (symbol.isSpecialVariable()
                                 || ext.isDeclaredSpecial(symbol)) {
@@ -562,4 +562,6 @@ for (Cons x : nonSequentialVars)
             return value;
         }
     };
+    
+
 }

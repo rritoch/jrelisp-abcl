@@ -34,6 +34,7 @@
 package org.armedbear.lisp;
 
 import static org.armedbear.lisp.Lisp.*;
+
 import java.util.WeakHashMap;
 
 public class LispObject //extends Lisp
@@ -148,7 +149,7 @@ public class LispObject //extends Lisp
 
   public final LispObject car()
   {
-    if (this instanceof Cons) {
+    if (this.isCons()) {
       return ((Cons)this).car;
     } else if (this instanceof Nil) {
       return NIL;
@@ -158,7 +159,7 @@ public class LispObject //extends Lisp
 
   public final void setCar(LispObject obj)
   {
-      if (this instanceof Cons) {
+      if (this.isCons()) {
           ((Cons)this).car = obj;
           return;
       }
@@ -172,7 +173,7 @@ public class LispObject //extends Lisp
 
   public final LispObject cdr()
   {
-    if (this instanceof Cons) {
+    if (this.isCons()) {
       return ((Cons)this).cdr;
     } else if (this instanceof Nil) {
       return NIL;
@@ -182,7 +183,7 @@ public class LispObject //extends Lisp
 
   public final void setCdr(LispObject obj)
   {
-      if (this instanceof Cons) {
+      if (this.isCons()) {
           ((Cons)this).cdr = obj;
           return;
       }
@@ -227,7 +228,7 @@ public class LispObject //extends Lisp
     if (n < 0)
       return type_error(Fixnum.getInstance(n),
                              list(Symbol.INTEGER, Fixnum.ZERO));
-    if (this instanceof Cons) {
+    if (this.isCons()) {
       LispObject result = this;
       for (int i = n; i-- > 0;) {
           result = result.cdr();
@@ -243,7 +244,7 @@ public class LispObject //extends Lisp
 
   public final LispObject push(LispObject obj)
   {
-    if (this instanceof Cons) {
+    if (this.isCons()) {
       return new Cons(obj, this);
     } else if (this instanceof Nil) {
       return new Cons(obj);
@@ -600,7 +601,7 @@ public class LispObject //extends Lisp
 
   public final boolean listp()
   {
-    return (this instanceof Cons) || (this instanceof Nil);
+    return (this.isCons()) || (this instanceof Nil);
   }
 
   public final LispObject LISTP()
@@ -610,7 +611,7 @@ public class LispObject //extends Lisp
 
   public final boolean endp()
   {
-    if (this instanceof Cons)
+    if (this.isCons())
         return false;
     else if (this instanceof Nil)
         return true;
@@ -654,7 +655,7 @@ public class LispObject //extends Lisp
     if (alist != null)
       {
         LispObject entry = assq(docType, alist);
-        if (entry instanceof Cons)
+        if (entry != null && entry.isCons())
           return ((Cons)entry).cdr;
       }
     if(docType == Symbol.FUNCTION && this instanceof Symbol) {
@@ -687,7 +688,7 @@ public class LispObject //extends Lisp
       if (alist == null)
         alist = NIL;
       LispObject entry = assq(docType, alist);
-      if (entry instanceof Cons)
+      if (entry != null && entry.isCons())
         {
           ((Cons)entry).cdr = documentation;
         }
@@ -1319,5 +1320,23 @@ public class LispObject //extends Lisp
 
   public void incrementHotCount()
   {
+  }
+  
+  public LispObject evalImpl(
+		  final Environment env,
+          final LispThread thread) {
+	return this;
+  }
+  
+  public boolean isSymbol() {
+	  return false;
+  }
+  
+  public boolean isCons() {
+	  return false;
+  }
+  
+  public boolean isASpecialOperator() {
+  	return false;
   }
 }

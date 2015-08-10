@@ -139,8 +139,7 @@ public final class StringInputStream extends Stream
         {
             if (arg instanceof StringInputStream)
                 return Fixnum.getInstance(((StringInputStream)arg).getOffset());
-            return error(new TypeError(String.valueOf(arg) +
-                                        " is not a string input stream."));
+            return error(new TypeError(arg,Symbol.STRING_INPUT_STREAM));
         }
     };
 }

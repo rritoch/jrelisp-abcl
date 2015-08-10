@@ -155,10 +155,10 @@
            (return-from %typep nil)))
        t)
       (OR
-       (dolist (type i)
-         (when (%typep object type)
-           (return-from %typep t)))
-       nil)
+        (or (dolist (type i)
+             (when (%typep object type)
+             (return-from %typep t)))
+       nil))
       (NOT
        (not (%typep object (car i))))
       (MEMBER

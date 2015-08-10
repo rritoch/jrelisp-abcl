@@ -191,4 +191,7 @@ public final class ZeroRankArray extends AbstractArray
       error(new TypeError("Displacement not supported for array of rank 0."));
       return null;
   }
+  
+
+  
 }

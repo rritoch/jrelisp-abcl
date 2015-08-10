@@ -48,6 +48,8 @@ public final class make_condition extends Primitive
     public LispObject execute(LispObject type, LispObject initArgs)
 
     {
+    	//System.out.println(String.format("Make Condition %s : %s",type.princToString(),initArgs.princToString()));
+    	
         final Symbol symbol;
         if (type instanceof Symbol)
             symbol = (Symbol) type;

@@ -3257,4 +3257,41 @@ public class Symbol extends LispObject implements java.io.Serializable
   public static final Symbol THREAD =
     PACKAGE_THREADS.addExternalSymbol("THREAD");
 
+  @Override 
+  public final boolean isSymbol() {
+	  return true;
+  }
+  
+  @Override
+  public LispObject evalImpl(
+		  final Environment env,
+          final LispThread thread) {
+      //Symbol symbol = (Symbol)obj;
+      LispObject result;
+      if (this.isSpecialVariable())
+        {
+          if (this.constantp())
+            return this.getSymbolValue();
+          else
+            result = thread.lookupSpecial(this);
+        }
+      else if (env.isDeclaredSpecial(this))
+        result = thread.lookupSpecial(this);
+      else
+        result = env.lookup(this);
+      if (result == null)
+        {
+          result = this.getSymbolMacro();
+          if (result == null) {
+              result = this.getSymbolValue();
+          }
+          if(result == null) {
+            return error(new UnboundVariable(this));
+          }
+        }
+      if (result instanceof SymbolMacro)
+        return eval(((SymbolMacro)result).getExpansion(), env, thread);
+      return result;
+  }
+  
 }

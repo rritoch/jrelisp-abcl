@@ -153,7 +153,7 @@ public final class ComplexArray_UnsignedByte8 extends AbstractArray
             return dimv[n];
         }
         catch (ArrayIndexOutOfBoundsException e) {
-            error(new TypeError("Bad array dimension " + n + "."));
+            error(new ArrayIndexTypeError("Bad array dimension " + n + "."));
             return -1;
         }
     }
@@ -192,7 +192,7 @@ public final class ComplexArray_UnsignedByte8 extends AbstractArray
                 return coerceJavaByteToLispObject(data[index]);
             }
             catch (ArrayIndexOutOfBoundsException e) {
-                return error(new TypeError("Bad row major index " + index + "."));
+                return error(new ArrayIndexTypeError("Bad row major index " + index + "."));
             }
         } else
             return array.AREF(index + displacement);
@@ -206,7 +206,7 @@ public final class ComplexArray_UnsignedByte8 extends AbstractArray
                 data[index] = coerceLispObjectToJavaByte(newValue);
             }
             catch (ArrayIndexOutOfBoundsException e) {
-                error(new TypeError("Bad row major index " + index + "."));
+                error(new ArrayIndexTypeError("Bad row major index " + index + "."));
             }
         } else
             array.aset(index + displacement, newValue);

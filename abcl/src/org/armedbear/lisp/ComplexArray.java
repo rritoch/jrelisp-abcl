@@ -161,7 +161,7 @@ public final class ComplexArray extends AbstractArray
             return dimv[n];
         }
         catch (ArrayIndexOutOfBoundsException e) {
-            error(new TypeError("Bad array dimension " + n + "."));
+            error(new ArrayIndexTypeError("Bad array dimension " + n + "."));
             return -1;
         }
     }
@@ -200,7 +200,7 @@ public final class ComplexArray extends AbstractArray
                 return data[index];
             }
             catch (ArrayIndexOutOfBoundsException e) {
-                return error(new TypeError("Bad row major index " + index + "."));
+                return error(new ArrayIndexTypeError("Bad row major index " + index + "."));
             }
         } else
             return array.AREF(index + displacement);
@@ -214,7 +214,7 @@ public final class ComplexArray extends AbstractArray
                 data[index] = newValue;
             }
             catch (ArrayIndexOutOfBoundsException e) {
-                error(new TypeError("Bad row major index " + index + "."));
+                error(new ArrayIndexTypeError("Bad row major index " + index + "."));
             }
         } else
             array.aset(index + displacement, newValue);

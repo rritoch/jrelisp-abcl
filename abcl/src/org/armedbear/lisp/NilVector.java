@@ -39,9 +39,14 @@ public final class NilVector extends AbstractString
 {
     private int capacity;
 
+    char[] chars = null;
+    
     public NilVector(int capacity)
     {
         this.capacity = capacity;
+        if (capacity >= 0) {
+        	chars = new char[capacity];
+        }
     }
 
     @Override
@@ -49,7 +54,7 @@ public final class NilVector extends AbstractString
     {
         if (capacity != 0)
             accessError();
-        return new char[0];
+        return chars;
     }
 
     @Override
@@ -57,7 +62,7 @@ public final class NilVector extends AbstractString
     {
         if (capacity != 0)
             accessError();
-        return new char[0];
+        return chars;
     }
 
     @Override
@@ -65,7 +70,7 @@ public final class NilVector extends AbstractString
     {
         if (capacity != 0)
             accessError();
-        return "";
+        return new String(chars);
     }
 
     @Override
@@ -237,12 +242,6 @@ public final class NilVector extends AbstractString
     }
 
     @Override
-    public int sxhash()
-    {
-        return 0;
-    }
-
-    @Override
     public AbstractVector adjustArray(int newCapacity,
                                        LispObject initialElement,
                                        LispObject initialContents)
@@ -262,4 +261,37 @@ public final class NilVector extends AbstractString
         // Not reached.
         return null;
     }
+    
+    
+    @Override
+    public int sxhash()
+    {
+        int hashCode = randomStringHashBase;
+        for (int i = 0; i < capacity; i++) {
+            hashCode += chars[i];
+            hashCode += (hashCode << 10);
+            hashCode ^= (hashCode >> 6);
+        }
+        hashCode += (hashCode << 3);
+        hashCode ^= (hashCode >> 11);
+        hashCode += (hashCode << 15);
+        return (hashCode & 0x7fffffff);
+        }
+
+    // For EQUALP hash tables.
+    @Override
+    public int psxhash()
+    {
+        int hashCode = randomStringHashBase;
+        for (int i = 0; i < capacity; i++) {
+            hashCode += Character.toUpperCase(chars[i]);
+            hashCode += (hashCode << 10);
+            hashCode ^= (hashCode >> 6);
+        }
+        hashCode += (hashCode << 3);
+        hashCode ^= (hashCode >> 11);
+        hashCode += (hashCode << 15);
+        return (hashCode & 0x7fffffff);
+    }
+    
 }

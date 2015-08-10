@@ -167,7 +167,7 @@ public final class SimpleArray_UnsignedByte16 extends AbstractArray
             return dimv[n];
         }
         catch (ArrayIndexOutOfBoundsException e) {
-            error(new TypeError("Bad array dimension " + n + "."));
+            error(new ArrayIndexTypeError("Bad array dimension " + n + "."));
             return -1;
         }
     }
@@ -197,7 +197,7 @@ public final class SimpleArray_UnsignedByte16 extends AbstractArray
             return data[index];
         }
         catch (ArrayIndexOutOfBoundsException e) {
-            error(new TypeError("Bad row major index " + index + "."));
+            error(new ArrayIndexTypeError("Bad row major index " + index + "."));
             // Not reached.
             return 0;
         }
@@ -210,7 +210,7 @@ public final class SimpleArray_UnsignedByte16 extends AbstractArray
             return Fixnum.getInstance(data[index]);
         }
         catch (ArrayIndexOutOfBoundsException e) {
-            return error(new TypeError("Bad row major index " + index + "."));
+            return error(new ArrayIndexTypeError("Bad row major index " + index + "."));
         }
     }
 
@@ -221,7 +221,7 @@ public final class SimpleArray_UnsignedByte16 extends AbstractArray
             data[index] = Fixnum.getValue(obj);
         }
         catch (ArrayIndexOutOfBoundsException e) {
-            error(new TypeError("Bad row major index " + index + "."));
+            error(new ArrayIndexTypeError("Bad row major index " + index + "."));
         }
     }
 
@@ -264,7 +264,7 @@ public final class SimpleArray_UnsignedByte16 extends AbstractArray
             return Fixnum.getInstance(data[getRowMajorIndex(subscripts)]);
         }
         catch (ArrayIndexOutOfBoundsException e) {
-            return error(new TypeError("Bad row major index " +
+            return error(new ArrayIndexTypeError("Bad row major index " +
                                         getRowMajorIndex(subscripts) + "."));
         }
     }
@@ -277,7 +277,7 @@ public final class SimpleArray_UnsignedByte16 extends AbstractArray
             data[getRowMajorIndex(subscripts)] = Fixnum.getValue(obj);
         }
         catch (ArrayIndexOutOfBoundsException e) {
-            error(new TypeError("Bad row major index " +
+            error(new ArrayIndexTypeError("Bad row major index " +
                                  getRowMajorIndex(subscripts) + "."));
         }
     }

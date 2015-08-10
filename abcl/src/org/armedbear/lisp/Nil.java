@@ -116,15 +116,14 @@ public final class Nil extends Symbol
     public LispObject NTH(int index)
     {
         if (index < 0)
-            error(new TypeError(String.valueOf(index) +
-                                 " is not of type UNSIGNED-BYTE."));
+            error(new TypeError(LispInteger.getInstance(index),Symbol.UNSIGNED_BYTE));
         return NIL;
     }
 
     @Override
     public LispObject elt(int index)
     {
-        return error(new TypeError("ELT: invalid index " + index + " for " + this + "."));
+        return error(new TypeError(this,NIL)); // No proper-sequence, use NIL
     }
 
     @Override

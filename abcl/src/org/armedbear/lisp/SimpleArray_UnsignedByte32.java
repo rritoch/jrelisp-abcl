@@ -171,7 +171,7 @@ public final class SimpleArray_UnsignedByte32 extends AbstractArray
             return dimv[n];
         }
         catch (ArrayIndexOutOfBoundsException e) {
-            error(new TypeError("Bad array dimension " + n + "."));
+            error(new ArrayIndexTypeError("Bad array dimension " + n + "."));
             return -1;
         }
     }
@@ -201,7 +201,7 @@ public final class SimpleArray_UnsignedByte32 extends AbstractArray
             return data[index];
         }
         catch (ArrayIndexOutOfBoundsException e) {
-            return error(new TypeError("Bad row major index " + index + "."));
+            return error(new ArrayIndexTypeError("Bad row major index " + index + "."));
         }
     }
 
@@ -212,7 +212,7 @@ public final class SimpleArray_UnsignedByte32 extends AbstractArray
             data[index] = newValue;
         }
         catch (ArrayIndexOutOfBoundsException e) {
-            error(new TypeError("Bad row major index " + index + "."));
+            error(new ArrayIndexTypeError("Bad row major index " + index + "."));
         }
     }
 
@@ -255,7 +255,7 @@ public final class SimpleArray_UnsignedByte32 extends AbstractArray
             return data[getRowMajorIndex(subscripts)];
         }
         catch (ArrayIndexOutOfBoundsException e) {
-            return error(new TypeError("Bad row major index " +
+            return error(new ArrayIndexTypeError("Bad row major index " +
                                         getRowMajorIndex(subscripts) + "."));
         }
     }
@@ -268,7 +268,7 @@ public final class SimpleArray_UnsignedByte32 extends AbstractArray
             data[getRowMajorIndex(subscripts)] = newValue;
         }
         catch (ArrayIndexOutOfBoundsException e) {
-            error(new TypeError("Bad row major index " +
+            error(new ArrayIndexTypeError("Bad row major index " +
                                  getRowMajorIndex(subscripts) + "."));
         }
     }

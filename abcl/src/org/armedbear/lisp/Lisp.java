@@ -488,74 +488,11 @@ public final class Lisp
       handleInterrupt();
     if (thread.isDestroyed())
       throw new ThreadDestroyed();
-    if (obj instanceof Symbol)
-      {
-        Symbol symbol = (Symbol)obj;
-        LispObject result;
-        if (symbol.isSpecialVariable())
-          {
-            if (symbol.constantp())
-              return symbol.getSymbolValue();
-            else
-              result = thread.lookupSpecial(symbol);
-          }
-        else if (env.isDeclaredSpecial(symbol))
-          result = thread.lookupSpecial(symbol);
-        else
-          result = env.lookup(symbol);
-        if (result == null)
-          {
-            result = symbol.getSymbolMacro();
-            if (result == null) {
-                result = symbol.getSymbolValue();
-            }
-            if(result == null) {
-              return error(new UnboundVariable(obj));
-            }
-          }
-        if (result instanceof SymbolMacro)
-          return eval(((SymbolMacro)result).getExpansion(), env, thread);
-        return result;
-      }
-    else if (obj instanceof Cons)
-      {
-        LispObject first = ((Cons)obj).car;
-        if (first instanceof Symbol)
-          {
-            LispObject fun = env.lookupFunction(first);
-            if (fun instanceof SpecialOperator)
-              {
-                if (profiling)
-                  if (!sampling)
-                    fun.incrementCallCount();
-                // Don't eval args!
-                return fun.execute(((Cons)obj).cdr, env);
-              }
-            if (fun instanceof MacroObject)
-              return eval(macroexpand(obj, env, thread), env, thread);
-            if (fun instanceof Autoload)
-              {
-                Autoload autoload = (Autoload) fun;
-                autoload.load();
-                return eval(obj, env, thread);
-              }
-            return evalCall(fun != null ? fun : first,
-                            ((Cons)obj).cdr, env, thread);
-          }
-        else
-          {
-            if (first instanceof Cons && first.car() == Symbol.LAMBDA)
-              {
-                Closure closure = new Closure(first, env);
-                return evalCall(closure, ((Cons)obj).cdr, env, thread);
-              }
-            else
-              return program_error("Illegal function object: "
-                                   + first.princToString() + ".");
-          }
-      }
-    else
-      return obj;
+
+    if (obj != null) {
+    	return obj.evalImpl(env, thread);
+    }
+    return obj;
   }
 
   public static final int CALL_REGISTERS_MAX = 8;
@@ -1960,8 +1897,7 @@ public final class Lisp
         if (list.cdr() instanceof Cons)
           list = list.cddr();
         else
-          return error(new TypeError("Malformed property list: " +
-                                      plist.princToString()));
+          return error(new TypeError(list.cdr(),Symbol.CONS));
       }
     return defaultValue;
   }

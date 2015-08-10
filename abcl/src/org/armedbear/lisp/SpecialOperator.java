@@ -189,4 +189,9 @@ public class SpecialOperator extends Operator
     {
         ++hotCount;
     }
+    
+    @Override 
+    public final boolean isASpecialOperator() {
+    	return true;
+    }
 }
