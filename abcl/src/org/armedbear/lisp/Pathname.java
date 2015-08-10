@@ -1765,7 +1765,7 @@ public class Pathname extends LispObject implements IPathname {
 				
 				LispObject matches;
 				
-				ZipInputStream jar = new ZipInputStream(pathname.getInputStream());
+				ZipInputStream jar = new ZipInputStream(pathname.getInputStream(true));
 				ZipEntry entry = null;
 				
 				try {
@@ -1883,7 +1883,7 @@ public class Pathname extends LispObject implements IPathname {
 			final SimpleString wildcard = new SimpleString(wild);
 
 			if (pathname.device.cdr() instanceof Cons) {
-				ZipInputStream outerJar = new ZipInputStream(((Pathname)pathname.device.car()).getInputStream());
+				ZipInputStream outerJar = new ZipInputStream(((Pathname)pathname.device.car()).getInputStream(true));
 				
 				String entryPath = ((Pathname)pathname.device.cdr().car()).getNamestring(); //???
 				if (entryPath.startsWith("/")) {
@@ -1955,7 +1955,7 @@ public class Pathname extends LispObject implements IPathname {
 				}
 			} else {
 				
-				ZipInputStream jar = new ZipInputStream(((Pathname)pathname.device.car()).getInputStream());
+				ZipInputStream jar = new ZipInputStream(((Pathname)pathname.device.car()).getInputStream(true));
 				ZipEntry entry = null;
 				
 				try {
@@ -2563,6 +2563,13 @@ public class Pathname extends LispObject implements IPathname {
 		if (is.getInputStream() == null) return null;
 		return is;
 	}
+	
+	public InputStream getInputStream(boolean b) 
+	{
+		InputStreamFacade is =  new InputStreamFacade(this,b);
+		if (is.getInputStream() == null) return null;
+		return is;
+	}
 
 	/** @return Time in milliseconds since the UNIX epoch at which the
 	 * resource was last modified, or 0 if the time is unknown.
@@ -2592,7 +2599,7 @@ public class Pathname extends LispObject implements IPathname {
 					// 3. Entry in JAR
 					
 					
-					InputStream jaris = ((Pathname)d.car()).getInputStream();
+					InputStream jaris = ((Pathname)d.car()).getInputStream(true);
 					
 					if (jaris == null) {
 						return 0;
@@ -2646,7 +2653,7 @@ public class Pathname extends LispObject implements IPathname {
 				
 				if (entryPath.length() == 0) {
 					// 4.  JAR in JAR
-					ZipInputStream outerJar = new ZipInputStream(((Pathname)d.car()).getInputStream());
+					ZipInputStream outerJar = new ZipInputStream(((Pathname)d.car()).getInputStream(true));
 					String jarPath = ((Pathname)d.cdr()).asEntryPath();
 					
 					ZipEntry entry = null;

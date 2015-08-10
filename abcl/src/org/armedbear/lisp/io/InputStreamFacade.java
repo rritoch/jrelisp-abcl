@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.UUID;
@@ -19,7 +21,7 @@ public class InputStreamFacade extends InputStream {
 	
 	public static boolean debug = false;
 	
-	public InputStreamFacade(IPathname path) {
+	public InputStreamFacade(IPathname path, boolean do_cache) {
 		
 		if (debug) {
 			try {
@@ -40,6 +42,18 @@ public class InputStreamFacade extends InputStream {
 			
 			//logDebug("OPENED");
 			
+			if (do_cache) {
+				try {
+					preload();
+				} catch (IOException e) {
+					try {
+						close();
+					} catch (IOException e1) {
+						// Ok, this is bad.
+					}
+				}
+			}
+			
 		} catch (URISyntaxException e) {
 			// Must be a bug somewhere
 			e.printStackTrace();
@@ -49,9 +63,15 @@ public class InputStreamFacade extends InputStream {
 		} catch (IOException e) {
 			is = null;
 		}
+		
+		
+
 	}
 	
-	public InputStreamFacade(URL url) {
+	
+
+	
+	public InputStreamFacade(URL url, boolean do_cache) {
 		
 		try {
 			throw new Exception("Trace");
@@ -67,6 +87,19 @@ public class InputStreamFacade extends InputStream {
 			} else {
 				is = url.openStream();
 			}
+			
+			if (do_cache) {
+				try {
+					preload();
+				} catch (IOException e) {
+					try {
+						close();
+					} catch (IOException e1) {
+						// Ok, this is bad.
+					}
+				}
+			}
+			
 			//logDebug("OPENED");
 		} catch (URISyntaxException e) {
 			// Must be a bug somewhere
@@ -78,7 +111,37 @@ public class InputStreamFacade extends InputStream {
 			is = null;
 		}
 		
+		
+
+		
 	}
+	
+	
+	public InputStreamFacade(IPathname path) 
+	{
+		this(path,false);
+	}
+	
+	
+	public InputStreamFacade(URL url) 
+	{
+		this(url,false);
+	}
+	
+	private void preload() throws IOException {
+		
+		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		int nRead;
+		byte[] data = new byte[16384];
+		while ((nRead = is.read(data, 0, data.length)) != -1) {
+			buffer.write(data, 0, nRead);
+		}
+		buffer.flush();
+		is.close();
+		is = new ByteArrayInputStream(buffer.toByteArray());
+	}
+	
+	
 	
 	private void logDebug(String msg) 
 	{

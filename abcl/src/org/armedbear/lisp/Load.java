@@ -227,7 +227,7 @@ public final class Load
         Stream sin = null;
         
         try {
-        	sin = new Stream(Symbol.SYSTEM_STREAM, truename.getInputStream(), Symbol.CHARACTER, externalFormat);
+        	sin = new Stream(Symbol.SYSTEM_STREAM, truename.getInputStream(true), Symbol.CHARACTER, externalFormat);
             return loadFileFromStream(pathname, truename,
                                       sin,
                                       verbose, print, false, returnLastResult);
@@ -365,11 +365,11 @@ public final class Load
         }
 
         if (truename != null) {
-            in = truename.getInputStream();
+            in = truename.getInputStream(true);
         } else { 
             try {
                 Debug.assertTrue(url != null);
-                InputStreamFacade inf = new InputStreamFacade(url);
+                InputStreamFacade inf = new InputStreamFacade(url,true);
                 if (inf.getInputStream() == null) {
                 	throw new IOException("File not found!");
                 } else {
