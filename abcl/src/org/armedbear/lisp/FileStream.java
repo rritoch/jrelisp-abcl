@@ -265,11 +265,13 @@ public final class FileStream extends Stream
 	public void _close()
 	{
 		try {
+			/*
 			racf.flush();
 			try {
 				raf.getFD().sync();
 			} catch (Throwable t) {
 			}
+			*/
 			racf.close();
 			setOpen(false);
 			//System.out.println(String.format("FILESTREAM CLOSED %s#%s",String.valueOf(filename),uuid.toString()));
@@ -292,11 +294,13 @@ public final class FileStream extends Stream
 		} catch (Throwable t) {
 		}
 		
+		/*
 		try {
 			racf.flush();
 			raf.getFD().sync();
 		} catch (Throwable t) {
 		}
+		*/
 		
 		try {
 			racf.close();

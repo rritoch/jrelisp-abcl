@@ -42,10 +42,12 @@ public class SafePushbackReader
 	public void finalize()
 		throws Throwable
 	{
+/*
 		//System.out.println("Finalizing SafePushbackReader");
 		if ((in instanceof PushbackReader) && !(in instanceof SafePushbackReader)) {
 			throw new Exception("Use SafePushbackReader instead of PushbackReader");
 		}
+*/
 		if (in != NULLREADER) {
 			close();
 		}
