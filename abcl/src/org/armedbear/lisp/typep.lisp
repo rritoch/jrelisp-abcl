@@ -74,6 +74,8 @@
   (setf type (normalize-type type))
   (when (atom type)
     (return-from %typep (simple-typep object type)))
+  (when (equal (type-of object) type)
+    (return-from %typep T))
   (let ((tp (%car type))
         (i (%cdr type)))
     (case tp

@@ -650,4 +650,10 @@ public final class Cons extends LispObject implements java.io.Serializable
 	  return true;
   }
   
+  @Override
+  public int hashCode() {
+	return (car == null ? 0 : car.hashCode()) ^
+			(cdr == null ? 0 : cdr.hashCode());
+  }
+  
 }

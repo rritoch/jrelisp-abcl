@@ -48,14 +48,35 @@ public final class make_condition extends Primitive
     public LispObject execute(LispObject type, LispObject initArgs)
 
     {
-    	//System.out.println(String.format("Make Condition %s : %s",type.princToString(),initArgs.princToString()));
     	
         final Symbol symbol;
-        if (type instanceof Symbol)
+        if (type.isSymbol())
             symbol = (Symbol) type;
         else if (type instanceof LispClass)
             symbol = checkSymbol(((LispClass)type).getName());
+        else if (type.isCons()) {
+        	LispObject typeC = ((Cons)type).car();
+        	
+        	
+        	if (typeC == Symbol.AND ||
+        		typeC == Symbol.MEMBER ||
+        		typeC ==Symbol.MOD ||
+        		typeC == Symbol.NOT ||
+        		typeC == Symbol.OR ||
+        		typeC == Symbol.EQL ||
+        		typeC == Symbol.SATISFIES ||
+        		typeC == Symbol.VALUES) {
+        		
+        		return new Condition(type,initArgs);
+        	}
+        	
+        	return NIL;
+        }
         else {
+        	
+        	
+
+        	
             // This function only works on symbols and classes.
             return NIL;
         }

@@ -39,6 +39,10 @@ public class Condition extends StandardObject
 {
   protected String message;
 
+  boolean is_complex_type = false;
+  
+  protected LispObject myType;
+  
   public Condition()
   {
     super(StandardClass.CONDITION);
@@ -62,6 +66,15 @@ public class Condition extends StandardObject
   {
     super(StandardClass.CONDITION);
     Debug.assertTrue(slots.length == 2);
+    initialize(initArgs);
+  }
+  
+  public Condition(LispObject type, LispObject initArgs)
+  {
+    super(StandardClass.CONDITION);
+    Debug.assertTrue(slots.length == 2);
+    is_complex_type = true;
+    myType = type;
     initialize(initArgs);
   }
 
@@ -141,6 +154,10 @@ public class Condition extends StandardObject
   @Override
   public LispObject typeOf()
   {
+
+	  if (is_complex_type){
+		  return myType;
+	  }
     LispObject c = getLispClass();
     if (c instanceof LispClass)
         return ((LispClass)c).getName();
@@ -161,6 +178,10 @@ public class Condition extends StandardObject
   @Override
   public LispObject typep(LispObject type)
   {
+	if (is_complex_type && myType.equals(type)) {
+		return T;
+	}
+	
     if (type == Symbol.CONDITION)
       return T;
     if (type == StandardClass.CONDITION)
@@ -218,4 +239,22 @@ public class Condition extends StandardObject
       return "#";
     return unreadableString(typeOf().princToString());
   }
+  
+  @Override
+  public int sxhash()
+  {
+	if (is_complex_type) {
+		return myType.sxhash();
+	}
+    return hashCode() & 0x7fffffff;
+  }
+  
+  @Override
+  public int hashCode() {
+	  if (is_complex_type) {
+		  return myType.sxhash();
+	  }
+	  return super.hashCode();
+  }
+  
 }
