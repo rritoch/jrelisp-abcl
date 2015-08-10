@@ -72,6 +72,8 @@ public class Pathname extends LispObject implements IPathname {
 	private static Method jarFileFactory_getCachedJarFile;
 	private static Method jarFileFactory_close;
 	
+	public static boolean asdf_broken = true;
+	
 	static {
 		try {
 			Class<?> jarFileFactoryClass = Class.forName("sun.net.www.protocol.jar.JarFileFactory");
@@ -1517,18 +1519,32 @@ public class Pathname extends LispObject implements IPathname {
 				// Ignored.
 			}
 		}
-		if (defaults != null) {
+		
+		if (defaults == null) {
+			defaults = new Pathname();
+			Pathname defaultPathname =
+					coerceToPathname(Symbol.DEFAULT_PATHNAME_DEFAULTS.symbolValue());
+			defaults.host = defaultPathname.host;
+			defaults.version = NIL;
+			defaults.device = NIL;
+			defaults.directory = NIL;
+			defaults.name = NIL;
+			defaults.type = NIL;
+		}
+		
+		//if (defaults != null) {
 			if (host == NIL) {
 				host = defaults.host;
 			}
 			if (directorySupplied) {
 				
-				
-				if (directory.car() == Keyword.RELATIVE && defaults.directory != NIL) {
-					directory = directory.cdr();
-					LispObject[] pth = ((Cons)defaults.directory).copyToArray();
-					for (int idx = pth.length - 1; idx >= 0; idx--) {
-						directory = new Cons(pth[idx],directory);
+				if (!asdf_broken) {
+					if (directory.car() == Keyword.RELATIVE && defaults.directory != NIL) {
+						directory = directory.cdr();
+						LispObject[] pth = ((Cons)defaults.directory).copyToArray();
+						for (int idx = pth.length - 1; idx >= 0; idx--) {
+							directory = new Cons(pth[idx],directory);
+						}
 					}
 				}
 				
@@ -1547,7 +1563,7 @@ public class Pathname extends LispObject implements IPathname {
 			if (!versionSupplied) {
 				version = defaults.version;
 			}
-		}
+		//}
 		final Pathname p;
 		final boolean logical;
 		LispObject logicalHost = NIL;
