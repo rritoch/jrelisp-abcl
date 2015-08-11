@@ -751,7 +751,7 @@ public final class Bignum extends LispInteger
   }
 
   @Override
-  public String printObject()
+  public LispObject printObject()
   {
     final LispThread thread = LispThread.currentThread();
     final int base = Fixnum.getValue(Symbol.PRINT_BASE.symbolValue(thread));
@@ -786,6 +786,6 @@ public final class Bignum extends LispInteger
           }
         s = sb.toString();
       }
-    return s;
+    return new SimpleString(s);
   }
 }

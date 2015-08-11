@@ -76,11 +76,11 @@ public class StructureClass extends SlotClass
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
         StringBuilder sb = new StringBuilder("STRUCTURE-CLASS ");
         sb.append(getName().princToString());
-        return unreadableString(sb.toString(), false);
+        return new SimpleString(unreadableString(sb.toString(), false));
     }
 
     // ### make-structure-class name direct-slots slots include => class

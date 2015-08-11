@@ -204,7 +204,7 @@ public abstract class AbstractVector extends AbstractArray
   }
 
   @Override
-  public String printObject()
+  public LispObject printObject()
   {
     final LispThread thread = LispThread.currentThread();
     if (Symbol.PRINT_READABLY.symbolValue(thread) != NIL)
@@ -218,7 +218,7 @@ public abstract class AbstractVector extends AbstractArray
             sb.append(AREF(i).printObject());
           }
         sb.append(')');
-        return sb.toString();
+        return new SimpleString(sb.toString());
       }
     else if (Symbol.PRINT_ARRAY.symbolValue(thread) != NIL)
       {
@@ -258,17 +258,17 @@ public abstract class AbstractVector extends AbstractArray
             if (limit < length)
               sb.append(limit > 0 ? " ..." : "...");
             sb.append(')');
-            return sb.toString();
+            return new SimpleString(sb.toString());
           }
         else
-          return "#";
+          return new SimpleString("#");
       }
     else
       {
         StringBuffer sb = new StringBuffer();
         sb.append(isSimpleVector() ? "SIMPLE-VECTOR " : "VECTOR ");
         sb.append(capacity());
-        return unreadableString(sb.toString());
+        return new SimpleString(unreadableString(sb.toString()));
       }
   }
 

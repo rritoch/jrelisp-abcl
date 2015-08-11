@@ -34,6 +34,7 @@
 package org.armedbear.lisp;
 
 import java.util.concurrent.ConcurrentHashMap;
+
 import static org.armedbear.lisp.Lisp.*;
 
 public class Layout extends LispObject
@@ -135,9 +136,9 @@ public class Layout extends LispObject
   }
 
   @Override
-  public String printObject()
+  public LispObject printObject()
   {
-    return unreadableString("LAYOUT");
+    return new SimpleString(unreadableString("LAYOUT"));
   }
 
   // Generates a list of slot definitions for the slot names in this layout.

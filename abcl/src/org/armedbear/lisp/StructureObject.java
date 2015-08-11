@@ -449,7 +449,7 @@ public class StructureObject extends LispObject
   }
 
   @Override
-  public String printObject()
+  public LispObject printObject()
   {
     try
       {
@@ -461,10 +461,10 @@ public class StructureObject extends LispObject
             LispObject fun = PRINT_RESTART.getSymbolFunction();
             StringOutputStream stream = new StringOutputStream();
             thread.execute(fun, this, stream);
-            return stream.getString().getStringValue();
+            return new SimpleString(stream.getString().getStringValue());
           }
         if (_PRINT_STRUCTURE_.symbolValue(thread) == NIL)
-          return unreadableString(structureClass.getName().printObject());
+          return new SimpleString(unreadableString(structureClass.getName().printObject().toString()));
         int maxLevel = Integer.MAX_VALUE;
         LispObject printLevel = Symbol.PRINT_LEVEL.symbolValue(thread);
         if (printLevel instanceof Fixnum)
@@ -473,9 +473,9 @@ public class StructureObject extends LispObject
           _CURRENT_PRINT_LEVEL_.symbolValue(thread);
         int currentLevel = Fixnum.getValue(currentPrintLevel);
         if (currentLevel >= maxLevel && slots.length > 0)
-          return "#";
+          return new SimpleString("#");
         StringBuilder sb = new StringBuilder("#S(");
-        sb.append(structureClass.getName().printObject());
+        sb.append(structureClass.getName().printObject().toString());
         if (currentLevel < maxLevel)
           {
             LispObject effectiveSlots = structureClass.getSlotDefinitions();
@@ -507,13 +507,13 @@ public class StructureObject extends LispObject
                     sb.append(stream.getString().getStringValue());
                   }
                 else
-                  sb.append(slots[i].printObject());
+                  sb.append(slots[i].printObject().toString());
               }
             if (limit < slots.length)
               sb.append(" ...");
           }
         sb.append(')');
-        return sb.toString();
+        return new SimpleString(sb.toString());
       }
     catch (StackOverflowError e)
       {

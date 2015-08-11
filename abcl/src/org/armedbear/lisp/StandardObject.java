@@ -196,7 +196,7 @@ public class StandardObject extends LispObject
   }
 
   @Override
-  public String printObject()
+  public LispObject printObject()
   {
     final LispThread thread = LispThread.currentThread();
     int maxLevel = Integer.MAX_VALUE;
@@ -207,8 +207,8 @@ public class StandardObject extends LispObject
       _CURRENT_PRINT_LEVEL_.symbolValue(thread);
     int currentLevel = Fixnum.getValue(currentPrintLevel);
     if (currentLevel >= maxLevel)
-      return "#";
-    return unreadableString(typeOf().printObject());
+      return new SimpleString("#");
+    return new SimpleString(unreadableString(typeOf().printObject().toString()));
   }
 
   synchronized Layout updateLayout()

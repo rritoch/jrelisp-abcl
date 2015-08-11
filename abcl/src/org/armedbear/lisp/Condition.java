@@ -203,27 +203,27 @@ public class Condition extends StandardObject
   }
 
   @Override
-  public final String printObject()
+  public final LispObject printObject()
   {
     final LispThread thread = LispThread.currentThread();
     if (Symbol.PRINT_ESCAPE.symbolValue(thread) == NIL)
       {
         String s = getMessage();
         if (s != null)
-          return s;
+          return new SimpleString(s);
         LispObject formatControl = getFormatControl();
         if (formatControl instanceof Function)
           {
             StringOutputStream stream = new StringOutputStream();
             Symbol.APPLY.execute(formatControl, stream, getFormatArguments());
-            return stream.getString().getStringValue();
+            return new SimpleString(stream.getString().getStringValue());
           }
         if (formatControl instanceof AbstractString)
           {
             LispObject f = Symbol.FORMAT.getSymbolFunction();
             if (f == null || f instanceof Autoload)
-              return format(formatControl, getFormatArguments());
-            return Symbol.APPLY.execute(f, NIL, formatControl, getFormatArguments()).getStringValue();
+              return new SimpleString(format(formatControl, getFormatArguments()));
+            return new SimpleString(Symbol.APPLY.execute(f, NIL, formatControl, getFormatArguments()).getStringValue());
           }
       }
     final int maxLevel;
@@ -236,8 +236,8 @@ public class Condition extends StandardObject
       _CURRENT_PRINT_LEVEL_.symbolValue(thread);
     int currentLevel = ((Fixnum)currentPrintLevel).value;
     if (currentLevel >= maxLevel)
-      return "#";
-    return unreadableString(typeOf().princToString());
+      return new SimpleString("#");
+    return new SimpleString(unreadableString(typeOf().princToString()));
   }
   
   @Override

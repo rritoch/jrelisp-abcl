@@ -315,10 +315,10 @@ public class WeakHashTable
     }
 
     @Override
-    public String printObject() {
+    public LispObject printObject() {
         if (Symbol.PRINT_READABLY.symbolValue(LispThread.currentThread()) != NIL) {
             error(new PrintNotReadable(list(Keyword.OBJECT, this)));
-            return null; // Not reached.
+            return NIL; // Not reached.
         }
         StringBuilder sb = new StringBuilder(getTest().princToString());
         sb.append(' ');
@@ -343,7 +343,7 @@ public class WeakHashTable
         sb.append(", ");
         sb.append(buckets.length);
         sb.append(" buckets");
-        return unreadableString(sb.toString());
+        return new SimpleString(unreadableString(sb.toString()));
     }
 
     public Symbol getTest() {

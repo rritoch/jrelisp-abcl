@@ -553,17 +553,17 @@ public final class SingleFloat extends LispObject
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
         if (value == Float.POSITIVE_INFINITY) {
             StringBuffer sb = new StringBuffer("#.");
             sb.append(Symbol.SINGLE_FLOAT_POSITIVE_INFINITY.printObject());
-            return sb.toString();
+            return new SimpleString(sb.toString());
         }
         if (value == Float.NEGATIVE_INFINITY) {
             StringBuffer sb = new StringBuffer("#.");
             sb.append(Symbol.SINGLE_FLOAT_NEGATIVE_INFINITY.printObject());
-            return sb.toString();
+            return new SimpleString(sb.toString());
         }
 
         LispThread thread = LispThread.currentThread();
@@ -571,9 +571,9 @@ public final class SingleFloat extends LispObject
 
         if (value != value) {
             if (printReadably)
-                return "#.(CL:PROGN \"Comment: create a NaN.\" (CL:/ 0.0s0 0.0s0))";
+                return new SimpleString("#.(CL:PROGN \"Comment: create a NaN.\" (CL:/ 0.0s0 0.0s0))");
             else
-                return unreadableString("SINGLE-FLOAT NaN", false);
+                return new SimpleString(unreadableString("SINGLE-FLOAT NaN", false));
         }
         String s1 = String.valueOf(value);
         if (printReadably ||
@@ -581,11 +581,11 @@ public final class SingleFloat extends LispObject
                   list(Symbol.SINGLE_FLOAT, Symbol.SHORT_FLOAT)))
         {
             if (s1.indexOf('E') >= 0)
-                return s1.replace('E', 'f');
+                return new SimpleString(s1.replace('E', 'f'));
             else
-                return s1.concat("f0");
+                return new SimpleString(s1.concat("f0"));
         } else
-            return s1;
+            return new SimpleString(s1);
     }
 
     public LispObject rational()

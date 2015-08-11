@@ -209,9 +209,9 @@ public abstract class CaseFrobStream extends Stream
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
-        return unreadableString("CASE-FROB-STREAM");
+        return new SimpleString(unreadableString("CASE-FROB-STREAM"));
     }
 
     private void notSupported()

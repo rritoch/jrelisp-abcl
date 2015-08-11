@@ -248,9 +248,9 @@ public final class Environment extends LispObject
   }
 
   @Override
-  public String printObject()
+  public LispObject printObject()
   {
-    return unreadableString("ENVIRONMENT");
+    return new SimpleString(unreadableString("ENVIRONMENT"));
   }
 
   // ### make-environment

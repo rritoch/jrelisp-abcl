@@ -308,7 +308,7 @@ public final class Interpreter
                             StringBuilder sb = new StringBuilder();
                             sb.append(separator);
                             sb.append("Caught ");
-                            sb.append(c.getCondition().typeOf().printObject());
+                            sb.append(c.getCondition().typeOf().printObject().toString());
                             sb.append(" while processing --eval option \"" +
                                       args[i + 1] + "\":");
                             sb.append(separator);
@@ -408,10 +408,10 @@ public final class Interpreter
                         slash = new Cons(values[i], slash);
                     Symbol.SLASH.setSymbolValue(slash);
                     for (int i = 0; i < values.length; i++)
-                        out._writeLine(values[i].printObject());
+                        out._writeLine(values[i].printObject().toString());
                 } else {
                     Symbol.SLASH.setSymbolValue(new Cons(result));
-                    out._writeLine(result.printObject());
+                    out._writeLine(result.printObject().toString());
                 }
                 out._finishOutput();
             }

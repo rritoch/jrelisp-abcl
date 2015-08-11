@@ -313,11 +313,11 @@ public abstract class Function extends Operator
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
         LispObject name = getLambdaName();
         if (name != null && name != NIL) {
-            return unreadableString(name.princToString());
+            return new SimpleString(unreadableString(name.princToString()));
         }
         // No name.
         LispObject lambdaList = getLambdaList();
@@ -331,16 +331,16 @@ public abstract class Function extends Operator
                 final SpecialBindingsMark mark = thread.markSpecialBindings();
                 thread.bindSpecial(Symbol.PRINT_LENGTH, Fixnum.THREE);
                 try {
-                    sb.append(lambdaList.printObject());
+                    sb.append(lambdaList.printObject().toString());
                 }
                 finally {
                     thread.resetSpecialBindings(mark);
                 }
             }
             sb.append(")");
-            return unreadableString(sb.toString());
+            return new SimpleString(unreadableString(sb.toString()));
         }
-        return unreadableString("FUNCTION");
+        return new SimpleString(unreadableString("FUNCTION"));
     }
 
     // Used by the JVM compiler.

@@ -110,9 +110,9 @@ public abstract class AbstractString extends AbstractVector
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
-        return printObject(0, length());
+        return new SimpleString(printObject(0, length()));
     }
 
     public String toString() {

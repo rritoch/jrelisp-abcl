@@ -208,9 +208,9 @@ public final class Load
                 } else {
                   String errorMessage
                       = "Loadable FASL not found for "
-                      + "'" + pathname.printObject() + "'"
+                      + "'" + pathname.printObject().toString() + "'"
                       + " in "
-                      + "'" + mergedPathname.printObject() + "'";
+                      + "'" + mergedPathname.printObject().toString() + "'";
                   if (ifDoesNotExist) {
                       return error(new FileError(errorMessage, mergedPathname));
                   } else {
@@ -650,7 +650,7 @@ public final class Load
                 if (print) {
                     Stream out =
                         checkCharacterOutputStream(Symbol.STANDARD_OUTPUT.symbolValue(thread));
-                    out._writeLine(result.printObject());
+                    out._writeLine(result.printObject().toString());
                     out._finishOutput();
                 }
             }

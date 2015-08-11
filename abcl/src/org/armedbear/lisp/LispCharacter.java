@@ -34,6 +34,7 @@
 package org.armedbear.lisp;
 
 import static org.armedbear.lisp.Lisp.*;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -223,7 +224,7 @@ public final class LispCharacter extends LispObject
   }
 
   @Override
-  public final String printObject()
+  public final LispObject printObject()
   {
     final LispThread thread = LispThread.currentThread();
     boolean printReadably = (Symbol.PRINT_READABLY.symbolValue(thread) != NIL);
@@ -278,7 +279,7 @@ public final class LispCharacter extends LispObject
       {
         sb.append(value);
       }
-    return sb.toString();
+    return new SimpleString(sb.toString());
   }
 
   // ### character

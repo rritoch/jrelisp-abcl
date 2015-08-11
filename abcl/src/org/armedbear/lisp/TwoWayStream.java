@@ -214,9 +214,9 @@ public class TwoWayStream extends Stream
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
-        return unreadableString("TWO-WAY-STREAM");
+        return new SimpleString(unreadableString("TWO-WAY-STREAM"));
     }
 
     // ### make-two-way-stream input-stream output-stream => two-way-stream

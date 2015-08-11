@@ -498,7 +498,7 @@ public final class Cons extends LispObject implements java.io.Serializable
   }
 
   @Override
-  public String printObject()
+  public LispObject printObject()
   {
     final LispThread thread = LispThread.currentThread();
     final LispObject printLength = Symbol.PRINT_LENGTH.symbolValue(thread);
@@ -523,7 +523,7 @@ public final class Cons extends LispObject implements java.io.Serializable
               {
                 sb.append('\'');
                 sb.append(cdr.car().printObject());
-                return sb.toString();
+                return new SimpleString(sb.toString());
               }
           }
       }
@@ -535,8 +535,8 @@ public final class Cons extends LispObject implements java.io.Serializable
             if (cdr.cdr() == NIL)
               {
                 sb.append("#'");
-                sb.append(cdr.car().printObject());
-                return sb.toString();
+                sb.append(cdr.car().printObject().toString());
+                return new SimpleString(sb.toString());
               }
           }
       }
@@ -590,7 +590,7 @@ public final class Cons extends LispObject implements java.io.Serializable
       }
     else
       sb.append('#');
-    return sb.toString();
+    return new SimpleString(sb.toString());
   }
 
   // Statistics for TIME.

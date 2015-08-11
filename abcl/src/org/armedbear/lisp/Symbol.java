@@ -458,7 +458,7 @@ public class Symbol extends LispObject implements java.io.Serializable
   }
 
   @Override
-  public String printObject()
+  public LispObject printObject()
   {
     final String n = name.getStringValue();
     final LispThread thread = LispThread.currentThread();
@@ -480,7 +480,7 @@ public class Symbol extends LispObject implements java.io.Serializable
           sb.append("#:");
         }
         sb.append(multipleEscape(n));
-        return sb.toString();
+        return new SimpleString(sb.toString());
       }
       else {
         printEscape = true;
@@ -489,33 +489,33 @@ public class Symbol extends LispObject implements java.io.Serializable
     if (!printEscape) {
       if (pkg == PACKAGE_KEYWORD) {
         if (printCase == Keyword.DOWNCASE)
-          return n.toLowerCase();
+          return new SimpleString(n.toLowerCase());
         if (printCase == Keyword.CAPITALIZE)
-          return capitalize(n, readtableCase);
-        return n;
+          return new SimpleString(capitalize(n, readtableCase));
+        return new SimpleString(n);
       }
       // Printer escaping is disabled.
       if (readtableCase == Keyword.UPCASE) {
         if (printCase == Keyword.DOWNCASE)
-          return n.toLowerCase();
+          return new SimpleString(n.toLowerCase());
         if (printCase == Keyword.CAPITALIZE)
-          return capitalize(n, readtableCase);
-        return n;
+          return new SimpleString(capitalize(n, readtableCase));
+        return new SimpleString(n);
       } else if (readtableCase == Keyword.DOWNCASE) {
         // "When the readtable case is :DOWNCASE, uppercase characters
         // are printed in their own case, and lowercase characters are
         // printed in the case specified by *PRINT-CASE*." (22.1.3.3.2)
         if (printCase == Keyword.DOWNCASE)
-          return n;
+          return new SimpleString(n);
         if (printCase == Keyword.UPCASE)
-          return n.toUpperCase();
+          return new SimpleString(n.toUpperCase());
         if (printCase == Keyword.CAPITALIZE)
-          return capitalize(n, readtableCase);
-        return n;
+          return new SimpleString(capitalize(n, readtableCase));
+        return new SimpleString(n);
       } else if (readtableCase == Keyword.PRESERVE) {
-        return n;
+        return new SimpleString(n);
       } else // INVERT
-        return invert(n);
+        return new SimpleString(invert(n));
     }
     // Printer escaping is enabled.
     final boolean escapeSymbolName = needsEscape(n, readtableCase, thread);
@@ -535,32 +535,32 @@ public class Symbol extends LispObject implements java.io.Serializable
     }
     if (pkg == NIL) {
       if (printReadably || PRINT_GENSYM.symbolValue(thread) != NIL) {
-        return "#:".concat(symbolName);
+        return new SimpleString("#:".concat(symbolName));
       } else {
-          return symbolName;
+          return new SimpleString(symbolName);
       }
     }
     if (pkg == PACKAGE_KEYWORD) {
-      return ":".concat(symbolName);
+      return new SimpleString(":".concat(symbolName));
     }
     // "Package prefixes are printed if necessary." (22.1.3.3.1)
     // Here we also use a package-local nickname if appropriate.
     final Package currentPackage = (Package) _PACKAGE_.symbolValue(thread);
     if (pkg == currentPackage) {
-      return symbolName;
+      return new SimpleString(symbolName);
     }
     if (currentPackage != null && currentPackage.uses(pkg)) {
         // Check for name conflict in current package.
         if (currentPackage.findExternalSymbol(name) == null)
           if (currentPackage.findInternalSymbol(name) == null)
             if (((Package)pkg).findExternalSymbol(name) != null)
-              return symbolName;
+              return new SimpleString(symbolName);
     }
     // Has this symbol been imported into the current package?
     if (currentPackage.findExternalSymbol(name) == this)
-      return symbolName;
+      return new SimpleString(symbolName);
     if (currentPackage.findInternalSymbol(name) == this)
-      return symbolName;
+      return new SimpleString(symbolName);
     // Package prefix is necessary.
     String packageName = ((Package)pkg).getName();
     if (currentPackage.getLocallyNicknamedPackages().contains(pkg)) {
@@ -607,7 +607,7 @@ public class Symbol extends LispObject implements java.io.Serializable
     else
       sb.append("::");
     sb.append(symbolName);
-    return sb.toString();
+    return new SimpleString(sb.toString());
   }
 
   private static final String invert(String s)

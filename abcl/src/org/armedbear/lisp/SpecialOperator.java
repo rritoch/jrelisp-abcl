@@ -146,11 +146,11 @@ public class SpecialOperator extends Operator
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
         StringBuilder sb = new StringBuilder("SPECIAL-OPERATOR ");
         sb.append(lambdaName.princToString());
-        return unreadableString(sb.toString(), false);
+        return new SimpleString(unreadableString(sb.toString(), false));
     }
 
     // Profiling.

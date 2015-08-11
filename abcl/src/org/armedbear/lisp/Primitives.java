@@ -881,7 +881,7 @@ public final class Primitives {
         public LispObject execute(LispObject first, LispObject second)
 
         {
-            checkStream(second)._writeString(first.printObject());
+            checkStream(second)._writeString(first.printObject().toString());
             return first;
         }
     };
@@ -904,7 +904,7 @@ public final class Primitives {
                 out = Symbol.STANDARD_OUTPUT.symbolValue();
             else
                 out = second;
-            String output = first.printObject();
+            String output = first.printObject().toString();
             checkStream(out)._writeString(output);
             return first;
         }
@@ -919,7 +919,8 @@ public final class Primitives {
 
         @Override
         public LispObject execute(LispObject arg) {
-            return new SimpleString(arg.printObject());
+            //return new SimpleString(arg.printObject());
+        	return arg.printObject();
         }
     };
 

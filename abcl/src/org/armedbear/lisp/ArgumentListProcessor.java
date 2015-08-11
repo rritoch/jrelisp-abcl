@@ -614,7 +614,7 @@ public class ArgumentListProcessor {
                               continue next_key;
 
                       program_error("Unrecognized keyword argument "
-                                    + key.printObject() + ".");
+                                    + key.printObject().toString() + ".");
                   }
               }
         } 
@@ -698,7 +698,7 @@ public class ArgumentListProcessor {
                 
                 if (key != Keyword.ALLOW_OTHER_KEYS)
                     program_error("Invalid keyword argument "
-                                  + key.printObject() + ".");
+                                  + key.printObject().toString() + ".");
                 allowOtherKeysValue = null;
             }
             

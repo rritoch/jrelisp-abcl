@@ -312,9 +312,9 @@ public final class FileStream extends Stream
 	}
 	
 	@Override
-	public String printObject()
+	public LispObject printObject()
 	{
-		return unreadableString("FILE-STREAM");
+		return new SimpleString(unreadableString("FILE-STREAM"));
 	}
 
 	// ### make-file-stream pathname namestring element-type direction if-exists external-format => stream

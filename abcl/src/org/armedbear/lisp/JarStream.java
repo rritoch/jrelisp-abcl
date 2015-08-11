@@ -134,7 +134,7 @@ public final class JarStream extends Stream
 	}
 
 	@Override
-	public String printObject()
+	public LispObject printObject()
 	{
 		StringBuffer sb = new StringBuffer();
 		sb.append(Symbol.JAR_STREAM.princToString());
@@ -143,7 +143,7 @@ public final class JarStream extends Stream
 			sb.append(" ");
 			sb.append(namestring);
 		}
-		return unreadableString(sb.toString());
+		return new SimpleString(unreadableString(sb.toString()));
 	}
 	
 	public void finalize() throws Throwable {

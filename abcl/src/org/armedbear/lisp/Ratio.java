@@ -545,7 +545,7 @@ public final class Ratio extends LispObject
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
         final LispThread thread = LispThread.currentThread();
         int base = Fixnum.getValue(Symbol.PRINT_BASE.symbolValue(thread));
@@ -581,6 +581,6 @@ public final class Ratio extends LispObject
             }
             s = sb.toString();
         }
-        return s;
+        return new SimpleString(s);
     }
 }

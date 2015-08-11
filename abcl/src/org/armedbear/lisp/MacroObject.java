@@ -129,8 +129,8 @@ public final class MacroObject extends Function
   }
 
   @Override
-  public String printObject()
+  public LispObject printObject()
   {
-    return unreadableString("MACRO-OBJECT");
+    return new SimpleString(unreadableString("MACRO-OBJECT"));
   }
 }

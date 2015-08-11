@@ -48,9 +48,9 @@ public final class EMFCache extends LispObject
   }
 
   @Override
-  public String printObject()
+  public LispObject printObject()
   {
-    return unreadableString("EMF-CACHE");
+    return new SimpleString(unreadableString("EMF-CACHE"));
   }
 
   static final FuncallableStandardObject checkStandardGenericFunction(LispObject obj)

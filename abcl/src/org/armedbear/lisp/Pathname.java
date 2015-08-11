@@ -942,7 +942,7 @@ public class Pathname extends LispObject implements IPathname {
 				// else: Nothing to do.
 			} else {
 				error(new FileError("Unsupported directory component "
-				  + part.printObject() + ".",
+				  + part.printObject().toString() + ".",
 				  this));
 			}
 			while (temp != NIL) {
@@ -1055,7 +1055,7 @@ public class Pathname extends LispObject implements IPathname {
 	}
 
 	@Override
-	public String printObject() {
+	public LispObject printObject() {
 		final LispThread thread = LispThread.currentThread();
 		final boolean printReadably = (Symbol.PRINT_READABLY.symbolValue(thread) != NIL);
 		final boolean printEscape = (Symbol.PRINT_ESCAPE.symbolValue(thread) != NIL);
@@ -1102,7 +1102,7 @@ public class Pathname extends LispObject implements IPathname {
 			if (printReadably || printEscape) {
 				sb.append('"');
 			}
-			return sb.toString();
+			return new SimpleString(sb.toString());
 		} 
 
 		sb.append("PATHNAME (with no namestring) ");
@@ -1140,7 +1140,7 @@ public class Pathname extends LispObject implements IPathname {
 			sb.setLength(sb.length() - 1);
 		}
 
-		return unreadableString(sb.toString());
+		return new SimpleString(unreadableString(sb.toString()));
 	}
 	// A logical host is represented as the string that names it.
 	// (defvar *logical-pathname-translations* (make-hash-table :test 'equal))
@@ -2078,7 +2078,7 @@ public class Pathname extends LispObject implements IPathname {
 			Cons d = (Cons) directory;
 			while (true) {
 				if (d.car() instanceof AbstractString) {
-					String s = d.car().printObject();
+					String s = d.car().printObject().toString();
 					if (s.contains("*")) {
 						return true;
 					}
@@ -2093,7 +2093,7 @@ public class Pathname extends LispObject implements IPathname {
 			return true;
 		}
 		if (name instanceof AbstractString) {
-			if (name.printObject().contains("*")) {
+			if (name.printObject().toString().contains("*")) {
 				return true;
 			}
 		}
@@ -2101,7 +2101,7 @@ public class Pathname extends LispObject implements IPathname {
 			return true;
 		}
 		if (type instanceof AbstractString) {
-			if (type.printObject().contains("*")) {
+			if (type.printObject().toString().contains("*")) {
 				return true;
 			}
 		}

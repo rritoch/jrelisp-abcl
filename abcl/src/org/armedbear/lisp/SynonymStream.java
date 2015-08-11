@@ -215,11 +215,11 @@ public final class SynonymStream extends Stream
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
         StringBuffer sb = new StringBuffer("SYNONYM-STREAM ");
         sb.append(symbol.printObject());
-        return unreadableString(sb.toString());
+        return new SimpleString(unreadableString(sb.toString()));
     }
 
     // ### make-synonym-stream symbol => synonym-stream

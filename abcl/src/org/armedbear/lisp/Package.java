@@ -912,18 +912,18 @@ public final class Package extends LispObject implements java.io.Serializable
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
         if (_PRINT_FASL_.symbolValue() != NIL && name != null) {
             StringBuilder sb = new StringBuilder("#.(CL:FIND-PACKAGE \"");
             sb.append(name);
             sb.append("\")");
-            return sb.toString();
+            return new SimpleString(sb.toString());
         } else {
              if (name != null) {
-                return unreadableString("PACKAGE " + name, false);
+                return new SimpleString(unreadableString("PACKAGE " + name, false));
             } else
-                return unreadableString("PACKAGE");
+                return new SimpleString(unreadableString("PACKAGE"));
         }
     }
 

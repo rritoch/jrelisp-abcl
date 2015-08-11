@@ -745,16 +745,16 @@ public class LispObject //extends Lisp
       try {
           thread.bindSpecial(Symbol.PRINT_READABLY, NIL);
           thread.bindSpecial(Symbol.PRINT_ESCAPE, NIL);
-          return printObject();
+          return unreadableString(toString(), false);
       }
       finally {
           thread.resetSpecialBindings(mark);
       }
   }
 
-  public String printObject()
+  public LispObject printObject()
   {
-      return unreadableString(toString(), false);
+      return new SimpleString(unreadableString(toString(), false));
   }
 
   /** Calls unreadableString(String s, boolean identity) with a default

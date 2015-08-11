@@ -319,9 +319,9 @@ public final class SimpleArray_T extends AbstractArray
   }
 
   @Override
-  public String printObject()
+  public LispObject printObject()
   {
-    return printObject(dimv);
+    return new SimpleString(printObject(dimv));
   }
 
   @Override

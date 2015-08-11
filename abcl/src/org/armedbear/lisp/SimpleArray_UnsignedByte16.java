@@ -291,14 +291,14 @@ public final class SimpleArray_UnsignedByte16 extends AbstractArray
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
         if (Symbol.PRINT_READABLY.symbolValue() != NIL) {
             error(new PrintNotReadable(list(Keyword.OBJECT, this)));
             // Not reached.
-            return null;
+            return NIL;
         }
-        return printObject(dimv);
+        return new SimpleString(printObject(dimv));
     }
 
     public AbstractArray adjustArray(int[] dimv, LispObject initialElement,

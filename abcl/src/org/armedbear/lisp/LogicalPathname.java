@@ -238,7 +238,7 @@ public final class LogicalPathname extends Pathname
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
         final LispThread thread = LispThread.currentThread();
         boolean printReadably = (Symbol.PRINT_READABLY.symbolValue(thread) != NIL);
@@ -277,7 +277,7 @@ public final class LogicalPathname extends Pathname
         }
         if (printReadably || printEscape)
             sb.append('"');
-        return sb.toString();
+        return new SimpleString(sb.toString());
     }
 
     // ### canonicalize-logical-host host => canonical-host

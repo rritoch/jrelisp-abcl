@@ -64,13 +64,13 @@ public final class AutoloadMacro extends Autoload
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
         StringBuilder sb = new StringBuilder();
         sb.append(getSymbol().princToString());
         sb.append(" \"");
         sb.append(getFileName());
-        return unreadableString(sb.toString());
+        return new SimpleString(unreadableString(sb.toString()));
     }
 
     // ### autoload-macro

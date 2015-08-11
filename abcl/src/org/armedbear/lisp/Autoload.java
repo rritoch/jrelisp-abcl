@@ -258,7 +258,7 @@ public class Autoload extends Function
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
         StringBuilder sb = new StringBuilder();
         sb.append(symbol.princToString());
@@ -273,7 +273,7 @@ public class Autoload extends Function
         } else
             sb.append(getFileName());
         sb.append("\"");
-        return unreadableString(sb.toString());
+        return new SimpleString(unreadableString(sb.toString()));
     }
 
     public static final Primitive AUTOLOAD = new pf_autoload();

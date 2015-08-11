@@ -313,13 +313,13 @@ public final class Complex extends LispObject
   }
 
   @Override
-  public String printObject()
+  public LispObject printObject()
   {
     StringBuilder sb = new StringBuilder("#C(");
-    sb.append(realpart.printObject());
+    sb.append(realpart.printObject().toString());
     sb.append(' ');
-    sb.append(imagpart.printObject());
+    sb.append(imagpart.printObject().toString());
     sb.append(')');
-    return sb.toString();
+    return new SimpleString(sb.toString());
   }
 }

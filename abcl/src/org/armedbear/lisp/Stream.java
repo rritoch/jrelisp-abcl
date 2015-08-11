@@ -1030,7 +1030,7 @@ public class Stream extends StructureObject {
 			sb.append(_getFilePosition());
 		}
 		sb.append(": #C");
-		sb.append(obj.printObject());
+		sb.append(obj.printObject().toString());
 		return error(new ReaderError(sb.toString(), this));
 	}
 
@@ -1711,7 +1711,7 @@ public class Stream extends StructureObject {
 		final SpecialBindingsMark mark = thread.markSpecialBindings();
 		thread.bindSpecial(Symbol.PRINT_ESCAPE, T);
 		try {
-			_writeString(obj.printObject());
+			_writeString(obj.printObject().toString());
 		} finally {
 			thread.resetSpecialBindings(mark);
 		}

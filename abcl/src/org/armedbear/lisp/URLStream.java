@@ -135,7 +135,7 @@ public final class URLStream extends Stream
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
         StringBuffer sb = new StringBuffer();
         sb.append(Symbol.URL_STREAM.printObject());
@@ -144,6 +144,6 @@ public final class URLStream extends Stream
             sb.append(" ");
             sb.append(namestring);
         }
-        return unreadableString(sb.toString());
+        return new SimpleString(unreadableString(sb.toString()));
     }
 }

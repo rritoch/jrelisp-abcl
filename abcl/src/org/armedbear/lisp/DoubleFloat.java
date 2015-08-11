@@ -564,17 +564,17 @@ public final class DoubleFloat extends LispObject
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
         if (value == Double.POSITIVE_INFINITY) {
             StringBuilder sb = new StringBuilder("#.");
             sb.append(Symbol.DOUBLE_FLOAT_POSITIVE_INFINITY.printObject());
-            return sb.toString();
+            return new SimpleString(sb.toString());
         }
         if (value == Double.NEGATIVE_INFINITY) {
             StringBuilder sb = new StringBuilder("#.");
             sb.append(Symbol.DOUBLE_FLOAT_NEGATIVE_INFINITY.printObject());
-            return sb.toString();
+            return new SimpleString(sb.toString());
         }
 
         LispThread thread = LispThread.currentThread();
@@ -582,9 +582,9 @@ public final class DoubleFloat extends LispObject
 
         if (value != value) {
             if (printReadably)
-                return "#.(CL:PROGN \"Comment: create a NaN.\" (CL:/ 0.0d0 0.0d0))";
+                return new SimpleString("#.(CL:PROGN \"Comment: create a NaN.\" (CL:/ 0.0d0 0.0d0))");
             else
-                return unreadableString("DOUBLE-FLOAT NaN", false);
+                return new SimpleString(unreadableString("DOUBLE-FLOAT NaN", false));
         }
         String s1 = String.valueOf(value);
         if (printReadably ||
@@ -592,11 +592,11 @@ public final class DoubleFloat extends LispObject
                   list(Symbol.DOUBLE_FLOAT, Symbol.LONG_FLOAT)))
         {
             if (s1.indexOf('E') >= 0)
-                return s1.replace('E', 'd');
+                return new SimpleString(s1.replace('E', 'd'));
             else
-                return s1.concat("d0");
+                return new SimpleString(s1.concat("d0"));
         } else
-            return s1;
+            return new SimpleString(s1);
     }
 
     public LispObject rational()

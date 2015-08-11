@@ -45,8 +45,8 @@ public class LispStackFrame
   {
     public UnavailableArgument () { }
     @Override
-    public String printObject() { 
-      return unreadableString("unavailable arg", false); 
+    public LispObject printObject() { 
+      return new SimpleString(unreadableString("unavailable arg", false)); 
     }
   }
 
@@ -73,7 +73,7 @@ public class LispStackFrame
    }
 
    @Override
-   public String printObject() 
+   public LispObject printObject() 
    { 
      String result = "";
      final String LISP_STACK_FRAME = "LISP-STACK-FRAME";
@@ -84,7 +84,7 @@ public class LispStackFrame
        Debug.trace(t);
        result = unreadableString(LISP_STACK_FRAME);
      }
-     return result;
+     return new SimpleString(result);
    }
 
   @Override
@@ -132,7 +132,7 @@ public class LispStackFrame
   {
     String result;
     try {
-      result = this.toLispList().printObject();
+      result = this.toLispList().printObject().toString();
     } catch (Throwable t) { // error while printing stack
       Debug.trace("Serious printing error: ");
       Debug.trace(t);

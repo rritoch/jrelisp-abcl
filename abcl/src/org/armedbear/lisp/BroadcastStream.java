@@ -219,9 +219,9 @@ public final class BroadcastStream extends Stream
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
-        return unreadableString("BROADCAST-STREAM");
+        return new SimpleString(unreadableString("BROADCAST-STREAM"));
     }
 
     // ### make-broadcast-stream &rest streams => broadcast-stream

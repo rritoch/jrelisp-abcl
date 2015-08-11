@@ -71,15 +71,15 @@ public class FuncallableStandardClass extends StandardClass
   }
 
   @Override
-  public String printObject()
+  public LispObject printObject()
   {
     StringBuilder sb =
-      new StringBuilder(Symbol.FUNCALLABLE_STANDARD_CLASS.printObject());
+      new StringBuilder(Symbol.FUNCALLABLE_STANDARD_CLASS.printObject().toString());
     if (getName() != null)
       {
         sb.append(' ');
         sb.append(getName().printObject());
       }
-    return unreadableString(sb.toString());
+    return new SimpleString(unreadableString(sb.toString()));
   }
 }

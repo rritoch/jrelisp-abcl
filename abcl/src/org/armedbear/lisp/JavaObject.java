@@ -354,10 +354,10 @@ public final class JavaObject extends LispObject {
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
         if (obj instanceof ControlTransfer)
-            return obj.toString();
+            return new SimpleString(obj.toString());
         final String s;
         if (obj != null) {
             Class<?> c = obj.getClass();
@@ -381,12 +381,12 @@ public final class JavaObject extends LispObject {
 				}
 				s = sb.toString();
 			} catch (Exception e) {
-				return serror(new JavaException(e));
+				return sobj_error(new JavaException(e));
 			}
         } else {
             s = "null";
         }
-        return unreadableString(s);
+        return new SimpleString(unreadableString(s));
     }
 
     @Override

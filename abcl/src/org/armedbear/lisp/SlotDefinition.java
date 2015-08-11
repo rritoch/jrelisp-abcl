@@ -123,16 +123,16 @@ public final class SlotDefinition extends StandardObject
   }
 
   @Override
-  public String printObject()
+  public LispObject printObject()
   {
     StringBuilder sb =
-      new StringBuilder(Symbol.SLOT_DEFINITION.printObject());
+      new StringBuilder(Symbol.SLOT_DEFINITION.printObject().toString());
     LispObject name = getInstanceSlotValue(Symbol.NAME);
     if (name != null && name != NIL) {
       sb.append(' ');
       sb.append(name.printObject());
     }
-    return unreadableString(sb.toString());
+    return new SimpleString(unreadableString(sb.toString()));
   }
 
   private static final Primitive MAKE_SLOT_DEFINITION 

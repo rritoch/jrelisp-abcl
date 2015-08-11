@@ -172,7 +172,7 @@ public abstract class AbstractBitVector extends AbstractVector
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
         final LispThread thread = LispThread.currentThread();
         final int length = length();
@@ -183,11 +183,11 @@ public abstract class AbstractBitVector extends AbstractVector
             sb.append("#*");
             for (int i = 0; i < length; i++)
                 sb.append(getBit(i) == 1 ? '1' : '0');
-            return sb.toString();
+            return new SimpleString(sb.toString());
         } else {
             final String str = "(%sBIT-VECTOR %d)";
             final String pre = (this instanceof SimpleBitVector) ? "SIMPLE-" : "";
-            return unreadableString(String.format(str, pre, length));
+            return new SimpleString(unreadableString(String.format(str, pre, length)));
         }
     }
 

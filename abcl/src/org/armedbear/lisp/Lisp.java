@@ -411,6 +411,12 @@ public final class Lisp
   }
 
 
+  public static final LispObject sobj_error(LispObject condition)
+  {
+    error(condition);
+    return new SimpleString(""); // Not reached
+  }
+  
   public static final LispObject error(LispObject condition, LispObject message)
   {
     pushJavaStackFrames();
@@ -1429,7 +1435,7 @@ public final class Lisp
   public static final String safeWriteToString(LispObject obj)
   {
     try {
-        return obj.printObject();
+        return obj.printObject().toString();
       }
     catch (NullPointerException e)
       {
@@ -2034,7 +2040,7 @@ public final class Lisp
                         thread.bindSpecial(Symbol.PRINT_ESCAPE, NIL);
                         thread.bindSpecial(Symbol.PRINT_READABLY, NIL);
                         try {
-                            sb.append(obj.printObject());
+                            sb.append(obj.printObject().toString());
                         }
                         finally {
                             thread.resetSpecialBindings(mark);
@@ -2049,7 +2055,7 @@ public final class Lisp
                         final SpecialBindingsMark mark = thread.markSpecialBindings();
                         thread.bindSpecial(Symbol.PRINT_ESCAPE, T);
                         try {
-                            sb.append(obj.printObject());
+                            sb.append(obj.printObject().toString());
                         }
                         finally {
                             thread.resetSpecialBindings(mark);
@@ -2066,7 +2072,7 @@ public final class Lisp
                         thread.bindSpecial(Symbol.PRINT_RADIX, NIL);
                         thread.bindSpecial(Symbol.PRINT_BASE, Fixnum.constants[10]);
                         try {
-                            sb.append(obj.printObject());
+                            sb.append(obj.printObject().toString());
                         }
                         finally {
                             thread.resetSpecialBindings(mark);
@@ -2083,7 +2089,7 @@ public final class Lisp
                         thread.bindSpecial(Symbol.PRINT_RADIX, NIL);
                         thread.bindSpecial(Symbol.PRINT_BASE, Fixnum.constants[16]);
                         try {
-                            sb.append(obj.printObject());
+                            sb.append(obj.printObject().toString());
                         }
                         finally {
                             thread.resetSpecialBindings(mark);
@@ -2671,9 +2677,9 @@ public final class Lisp
   static class unboundValue extends LispObject
   {
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
-      return unreadableString("UNBOUND", false);
+      return new SimpleString(unreadableString("UNBOUND", false));
     }
   }
 
@@ -2681,9 +2687,9 @@ public final class Lisp
   static class nullValue extends LispObject
   {
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
-      return unreadableString("null", false);
+      return new SimpleString(unreadableString("null", false));
     }
   }
 

@@ -34,6 +34,7 @@
 package org.armedbear.lisp;
 
 import java.util.concurrent.locks.ReentrantLock;
+
 import static org.armedbear.lisp.Lisp.*;
 
 public class HashTable 
@@ -225,7 +226,7 @@ public class HashTable
     }
 
     @Override
-    public String printObject() {
+    public LispObject printObject() {
         if (Symbol.PRINT_READABLY.symbolValue(LispThread.currentThread()) != NIL) {
             error(new PrintNotReadable(list(Keyword.OBJECT, this)));
             return null; // Not reached.
@@ -243,7 +244,7 @@ public class HashTable
         sb.append(", ");
         sb.append(buckets.length);
         sb.append(" buckets");
-        return unreadableString(sb.toString());
+        return new SimpleString(unreadableString(sb.toString()));
     }
 
     public Symbol getTest() {

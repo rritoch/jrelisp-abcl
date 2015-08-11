@@ -34,13 +34,13 @@
 package org.armedbear.lisp;
 
 import java.lang.ref.WeakReference;
+
 import static org.armedbear.lisp.Lisp.*;
 
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import java.text.MessageFormat;
 
 public final class LispThread extends LispObject
@@ -1080,7 +1080,7 @@ public final class LispThread extends LispObject
                 sb.append(' ');
             stream._writeString(sb.toString());
         }
-        String raw = obj.printObject();
+        String raw = obj.printObject().toString();
         if (stream.getCharPos() + raw.length() < 80) {
             // It fits.
             stream._writeString(raw);
@@ -1126,7 +1126,7 @@ public final class LispThread extends LispObject
     }
 
     @Override
-    public String printObject()
+    public LispObject printObject()
     {
         StringBuffer sb = new StringBuffer("THREAD");
         if (name != NIL) {
@@ -1134,7 +1134,7 @@ public final class LispThread extends LispObject
             sb.append(name.getStringValue());
             sb.append("\"");
         }
-        return unreadableString(sb.toString());
+        return new SimpleString(unreadableString(sb.toString()));
     }
 
     @DocString(name="make-thread", args="function &key name")
