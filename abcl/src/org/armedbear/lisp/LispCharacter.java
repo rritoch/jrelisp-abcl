@@ -525,6 +525,9 @@ public final class LispCharacter extends LispObject
           char c = LispCharacter.getValue(arg);
           if (c >= ' ' && c < 127)
             return T;
+          if (c == 160) {
+        	return NIL;
+          }
           return Character.isISOControl(c) ? NIL : T;
       }
     };

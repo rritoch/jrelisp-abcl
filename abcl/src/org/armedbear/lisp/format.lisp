@@ -1930,7 +1930,7 @@
 (defun format-print-named-character (char stream)
   (let* ((name (char-name char)))
     (cond (name
-	   (write-string (string-capitalize name) stream))
+	   (write-string name stream))
 	  (t
 	   (write-char char stream)))))
 
