@@ -266,9 +266,6 @@ public final class LispCharacter extends LispObject
           case 127:
             sb.append("Rubout");
             break;
-          case 160:
-            sb.append("No-break_space");
-            break;
 	  default:
 	    if (name!=null)
               sb.append(name);
@@ -525,9 +522,6 @@ public final class LispCharacter extends LispObject
           char c = LispCharacter.getValue(arg);
           if (c >= ' ' && c < 127)
             return T;
-          if (c == 160) {
-        	return NIL;
-          }
           return Character.isISOControl(c) ? NIL : T;
       }
     };
@@ -586,8 +580,7 @@ public final class LispCharacter extends LispObject
       return ' ';
     if (lower.equals("rubout") || lower.equals("del") || lower.equals("delete"))
       return 127;
-    if (lower.equals("no-break_space"))
-      return 160;
+    
     if (lower.startsWith("u")) {
       int length = lower.length();
       if (length > 1 && length < 5) {
@@ -640,8 +633,6 @@ public final class LispCharacter extends LispObject
         return "Space";
       case 127:
         return "Rubout";
-      case 160:
-        return "No-break_space";
       }
 
     if (c<0 || c>255) return null;
@@ -713,7 +704,7 @@ public final class LispCharacter extends LispObject
       return LOWER_CASE_CHARS[c];
     return Character.toLowerCase(c);
   }
-
+  
   static final char[] LOWER_CASE_CHARS = new char[128];
 
   static
