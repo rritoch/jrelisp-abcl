@@ -2493,11 +2493,12 @@ public final class Lisp
   public static final Symbol _PRINT_FASL_ =
     internSpecial("*PRINT-FASL*", PACKAGE_SYS, NIL);
 
+  /*
   static
   {
     Symbol._RANDOM_STATE_.initializeSpecial(new RandomState());
   }
-
+  */
   static
   {
     Symbol.STAR.initializeSpecial(NIL);
@@ -2759,6 +2760,11 @@ public final class Lisp
     cold = false;
   }
 
+  static
+  {
+    Symbol._RANDOM_STATE_.initializeSpecial(new RandomState());
+  }
+  
     private static Stream stdin = new Stream(Symbol.SYSTEM_STREAM, System.in, Symbol.CHARACTER, true);
 
     private static Stream stdout = new Stream(Symbol.SYSTEM_STREAM,System.out, Symbol.CHARACTER, true);
