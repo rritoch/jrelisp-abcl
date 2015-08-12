@@ -46,24 +46,64 @@ public final class RandomStateObject
 	extends StructureObject
 {
 
+	
+	public static final LispObject STATE_SLOT = RandomStateClass.STATE_SLOT;
+	
 	protected Object lock = new Object();
     private Random random;
-
-    protected long seed[];
     
     public RandomStateObject()
     {
-    	super(Symbol.RANDOM_STATE);
-    	init(T);
+    	super(Symbol.RANDOM_STATE,initSlots(T));
+    	random = new Random(parseSeed());
     }
 
     public RandomStateObject(LispObject rs)
     {
-    	super(Symbol.RANDOM_STATE);
-    	init(rs);
+    	super(Symbol.RANDOM_STATE,initSlots(rs));
+    	random = new Random(parseSeed());
     }
 
-    private void init(LispObject rs) {
+    private static LispObject[] initSlots(LispObject rs) {
+    	
+    	
+    	StructureClass structureClass = (StructureClass) LispClass.findClass(Symbol.RANDOM_STATE);
+    	
+    	LispObject slotDefinitions = structureClass.getSlotDefinitions();
+    	
+    	//SimpleVector effectiveSlots = (SimpleVector)structureClass.getSlotDefinitions();
+    	//int effectiveSlotsLen = effectiveSlots.length();
+    	
+    	LispObject[] effectiveSlots = ((Cons)slotDefinitions).copyToArray();
+    	int effectiveSlotsLen = effectiveSlots.length;
+    	
+    	LispObject[] effectiveSlotsArray = new LispObject[effectiveSlotsLen];
+    	for(int i=0; i<effectiveSlotsLen;i++) {
+    		//effectiveSlotsArray[i] = effectiveSlots.elt(i);
+    		effectiveSlotsArray[i] = effectiveSlots[i];
+    	}
+    	LispObject[] slots = new LispObject[effectiveSlotsArray.length];
+    	
+    	int myidx = -1;
+    	
+    	for (int i = 0; i < effectiveSlotsArray.length; i++) {
+    	    SimpleVector slotDefinition = (SimpleVector) effectiveSlotsArray[i];
+    		//LispObject[] slotDefinition = ((Cons)effectiveSlotsArray[i]).copyToArray();
+    		
+    		
+    	    LispObject candidateSlotName = slotDefinition.AREF(1);
+    		//LispObject candidateSlotName = slotDefinition[1];
+    		
+    		//LispObject candidateSlotName = ((SlotDefinition)effectiveSlotsArray[i]).getInstanceSlotValue(Symbol.NAME);
+    	    if(STATE_SLOT == candidateSlotName) {
+    	    	myidx = i;
+    	    	i = effectiveSlotsArray.length;
+    	    }
+    	}
+    	
+    	if (myidx == -1) {
+    		return null; // You are floating in the void.
+    	}
     	
     	if (rs == NIL) {
     		rs = (RandomStateObject)Symbol._RANDOM_STATE_.symbolValue();
@@ -71,43 +111,57 @@ public final class RandomStateObject
     	
     	if (rs instanceof RandomStateObject) {
     		RandomStateObject rso= (RandomStateObject)rs;
+    		int idx = rso.getSlotIndex(STATE_SLOT);
     		synchronized(rso.lock) {
-    			seed = new long[rso.seed.length];
-    			for(int i=0;i<seed.length;i++) {
-    				seed[i] = rso.seed[i];
+    			BasicVector_UnsignedByte32 fseed = (BasicVector_UnsignedByte32)rso.getSlotValue(idx);
+    			int flen = fseed.length();
+    			BasicVector_UnsignedByte32 seed = new BasicVector_UnsignedByte32(flen);
+    			for(int i=0;i<flen;i++) {
+    				seed.aset(i, fseed.AREF(i)); 
     			}
+    			slots[myidx] = seed;
     		}
     	} else if (rs == T) {
     		Random tmp_rand = new Random();
     		int len = (int)(100 + ((Math.abs(tmp_rand.nextLong())) % 900));
-    		
-    		seed = new long[len];
+    		BasicVector_UnsignedByte32 seed = new BasicVector_UnsignedByte32(len);
+    		int sv;
     		for(int i=0;i<len;i++) {
-    			seed[i] = ((i % 2) > 0) ? Long.MAX_VALUE : 0;
-    			seed[i] = tmp_rand.nextLong() ^ seed[i];
+    			sv = ((i % 2) > 0) ? Integer.MIN_VALUE : 0;
+    			sv = Math.abs(tmp_rand.nextInt() ^ sv);
+    			seed.aset(i, Fixnum.getInstance(sv));
     		}
-    		
+    		slots[myidx] = seed;
     	} else {
     		RandomStateObject rso= (RandomStateObject)Symbol._RANDOM_STATE_.symbolValue();
+    		int idx = rso.getSlotIndex(STATE_SLOT);
     		synchronized(rso.lock) {
-    			seed = new long[rso.seed.length];
-    			for(int i=0;i<seed.length;i++) {
-    				seed[i] = rso.seed[i];
+    			BasicVector_UnsignedByte32 fseed = (BasicVector_UnsignedByte32)rso.getSlotValue(idx);
+    			int flen = fseed.length();
+    			BasicVector_UnsignedByte32 seed = new BasicVector_UnsignedByte32(flen);
+    			for(int i=0;i<flen;i++) {
+    				seed.aset(i, fseed.AREF(i)); 
     			}
+    			slots[myidx] = seed;
     		}
     	}
     	
-    	random = new Random(parseSeed());
-
+    	return slots;
     }
     
     private long parseSeed() {
+    	
+    	int idx = getSlotIndex(STATE_SLOT);
+		BasicVector_UnsignedByte32 seed = (BasicVector_UnsignedByte32)getSlotValue(idx);
     	long s = 0;
     	int r;
+    	int sv;
     	synchronized(lock) {
-    		for(int i=0;i<seed.length;i++) {
+    		int sl = seed.getTotalSize();
+    		for(int i=0;i<sl;i++) {
+    			sv = seed.aref(i);
     			r = i % 64;
-    			s  = s ^ ((seed[i] >> r) | (seed[i] << (64 - r)));  
+    			s  = s ^ ((sv >> r) | (sv << (64 - r)));  
     		}
     	}
     	return s;
@@ -115,10 +169,13 @@ public final class RandomStateObject
     
     private void nextSeed() {
     	synchronized(lock) {
-    		for(int i=0;i<seed.length;i++) {
-    			seed[i] = random.nextLong();
+    		int idx = getSlotIndex(STATE_SLOT);
+    		BasicVector_UnsignedByte32 seed = (BasicVector_UnsignedByte32)getSlotValue(idx);
+    		int len = seed.length();
+    		for(int i=0;i<len;i++) {
+    			seed.aset(i, Fixnum.getInstance(Math.abs((int)(random.nextLong() % Integer.MAX_VALUE))));
     		}
-    		random.setSeed(parseSeed());
+    		setSlotValue(idx,seed);
     	}
     }
     
@@ -153,6 +210,8 @@ public final class RandomStateObject
 
     public LispObject random(LispObject arg)
     {
+    	random.setSeed(parseSeed());
+    	
         if (arg instanceof Fixnum) {
             int limit = ((Fixnum)arg).value;
             if (limit > 0) {
