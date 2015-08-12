@@ -2762,7 +2762,7 @@ public final class Lisp
 
   static
   {
-    Symbol._RANDOM_STATE_.initializeSpecial(LispClass.addClass(Symbol.RANDOM_STATE, new RandomState()));
+    Symbol._RANDOM_STATE_.initializeSpecial(new RandomStateObject());
   }
   
     private static Stream stdin = new Stream(Symbol.SYSTEM_STREAM, System.in, Symbol.CHARACTER, true);

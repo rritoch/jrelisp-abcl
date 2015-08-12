@@ -117,7 +117,10 @@ public class BuiltInClass extends LispClass
   public static final BuiltInClass PATHNAME             = addClass(Symbol.PATHNAME);
   public static final BuiltInClass JAR_PATHNAME         = addClass(Symbol.JAR_PATHNAME);
   public static final BuiltInClass URL_PATHNAME         = addClass(Symbol.URL_PATHNAME);
-  public static final BuiltInClass RANDOM_STATE         = addClass(Symbol.RANDOM_STATE);
+  //public static final BuiltInClass RANDOM_STATE         = addClass(Symbol.RANDOM_STATE);
+  
+  
+  
   public static final BuiltInClass RATIO                = addClass(Symbol.RATIO);
   public static final BuiltInClass RATIONAL             = addClass(Symbol.RATIONAL);
   public static final BuiltInClass READTABLE            = addClass(Symbol.READTABLE);
@@ -144,6 +147,9 @@ public class BuiltInClass extends LispClass
     (StructureClass)addClass(Symbol.STRUCTURE_OBJECT,
              new StructureClass(Symbol.STRUCTURE_OBJECT, list(CLASS_T)));
 
+  public static final RandomStateClass RANDOM_STATE    = (RandomStateClass)addClass(Symbol.RANDOM_STATE, new RandomStateClass());
+  
+  
     /* All the stream classes below are being defined as structure classes
        but won't be available as such until further action is taken:
        the 'defstruct' internal administration is missing.

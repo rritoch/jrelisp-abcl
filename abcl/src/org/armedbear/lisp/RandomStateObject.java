@@ -42,37 +42,87 @@ import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.util.Random;
 
-public final class RandomState 
-	//extends LispObject
-	extends StructureClass
+public final class RandomStateObject 
+	extends StructureObject
 {
 
+	protected Object lock = new Object();
     private Random random;
 
-    public RandomState()
+    protected long seed[];
+    
+    public RandomStateObject()
     {
     	super(Symbol.RANDOM_STATE);
-        random = new Random();
+    	init(T);
     }
 
-    public RandomState(RandomState rs)
+    public RandomStateObject(LispObject rs)
     {
     	super(Symbol.RANDOM_STATE);
-        try {
-            ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-            ObjectOutputStream out = new ObjectOutputStream(byteOut);
-            out.writeObject(rs.random);
-            out.close();
-            ByteArrayInputStream byteIn = new ByteArrayInputStream(byteOut.toByteArray());
-            ObjectInputStream in = new ObjectInputStream(byteIn);
-            random = (Random) in.readObject();
-            in.close();
-        }
-        catch (Throwable t) { // ANY exception gets converted to a lisp error
-            error(new LispError("Unable to copy random state."));
-        }
+    	init(rs);
     }
 
+    private void init(LispObject rs) {
+    	
+    	if (rs == NIL) {
+    		rs = (RandomStateObject)Symbol._RANDOM_STATE_.symbolValue();
+    	}
+    	
+    	if (rs instanceof RandomStateObject) {
+    		RandomStateObject rso= (RandomStateObject)rs;
+    		synchronized(rso.lock) {
+    			seed = new long[rso.seed.length];
+    			for(int i=0;i<seed.length;i++) {
+    				seed[i] = rso.seed[i];
+    			}
+    		}
+    	} else if (rs == T) {
+    		Random tmp_rand = new Random();
+    		int len = (int)(100 + ((Math.abs(tmp_rand.nextLong())) % 900));
+    		
+    		seed = new long[len];
+    		for(int i=0;i<len;i++) {
+    			seed[i] = ((i % 2) > 0) ? Long.MAX_VALUE : 0;
+    			seed[i] = tmp_rand.nextLong() ^ seed[i];
+    		}
+    		
+    	} else {
+    		RandomStateObject rso= (RandomStateObject)Symbol._RANDOM_STATE_.symbolValue();
+    		synchronized(rso.lock) {
+    			seed = new long[rso.seed.length];
+    			for(int i=0;i<seed.length;i++) {
+    				seed[i] = rso.seed[i];
+    			}
+    		}
+    	}
+    	
+    	random = new Random(parseSeed());
+
+    }
+    
+    private long parseSeed() {
+    	long s = 0;
+    	int r;
+    	synchronized(lock) {
+    		for(int i=0;i<seed.length;i++) {
+    			r = i % 64;
+    			s  = s ^ ((seed[i] >> r) | (seed[i] << (64 - r)));  
+    		}
+    	}
+    	return s;
+    }
+    
+    private void nextSeed() {
+    	synchronized(lock) {
+    		for(int i=0;i<seed.length;i++) {
+    			seed[i] = random.nextLong();
+    		}
+    		random.setSeed(parseSeed());
+    	}
+    }
+    
+    
     @Override
     public LispObject typeOf()
     {
@@ -107,6 +157,7 @@ public final class RandomState
             int limit = ((Fixnum)arg).value;
             if (limit > 0) {
                 int n = random.nextInt((int)limit);
+                nextSeed();
                 return Fixnum.getInstance(n);
             }
         } else if (arg instanceof Bignum) {
@@ -114,19 +165,23 @@ public final class RandomState
             if (limit.signum() > 0) {
                 int bitLength = limit.bitLength();
                 BigInteger rand = new BigInteger(bitLength + 1, random);
+                nextSeed();
                 BigInteger remainder = rand.remainder(limit);
+                
                 return number(remainder);
             }
         } else if (arg instanceof SingleFloat) {
             float limit = ((SingleFloat)arg).value;
             if (limit > 0) {
                 float rand = random.nextFloat();
+                nextSeed();
                 return new SingleFloat(rand * limit);
             }
         } else if (arg instanceof DoubleFloat) {
             double limit = ((DoubleFloat)arg).value;
             if (limit > 0) {
                 double rand = random.nextDouble();
+                nextSeed();
                 return new DoubleFloat(rand * limit);
             }
         }
@@ -142,16 +197,16 @@ public final class RandomState
         @Override
         public LispObject execute(LispObject arg)
         {
-            RandomState randomState =
-                (RandomState) Symbol._RANDOM_STATE_.symbolValue();
+            RandomStateObject randomState =
+                (RandomStateObject) Symbol._RANDOM_STATE_.symbolValue();
             return randomState.random(arg);
         }
         @Override
         public LispObject execute(LispObject first, LispObject second)
 
         {
-            if (second instanceof RandomState) {
-                RandomState randomState = (RandomState) second;
+            if (second instanceof RandomStateObject) {
+                RandomStateObject randomState = (RandomStateObject) second;
                 return randomState.random(first);
             }
             return type_error(first, Symbol.RANDOM_STATE);
@@ -165,18 +220,18 @@ public final class RandomState
         @Override
         public LispObject execute()
         {
-            return new RandomState((RandomState)Symbol._RANDOM_STATE_.symbolValue());
+            return new RandomStateObject((RandomStateObject)Symbol._RANDOM_STATE_.symbolValue());
         }
         @Override
         public LispObject execute(LispObject arg)
 
         {
             if (arg == NIL)
-                return new RandomState((RandomState)Symbol._RANDOM_STATE_.symbolValue());
+                return new RandomStateObject((RandomStateObject)Symbol._RANDOM_STATE_.symbolValue());
             if (arg == T)
-                return new RandomState();
-            if (arg instanceof RandomState)
-                return new RandomState((RandomState)arg);
+                return new RandomStateObject();
+            if (arg instanceof RandomStateObject)
+                return new RandomStateObject((RandomStateObject)arg);
             return type_error(arg, Symbol.RANDOM_STATE);
         }
     };
@@ -188,7 +243,7 @@ public final class RandomState
         @Override
         public LispObject execute(LispObject arg)
         {
-            return arg instanceof RandomState ? T : NIL;
+            return arg instanceof RandomStateObject ? T : NIL;
         }
     };
 }
