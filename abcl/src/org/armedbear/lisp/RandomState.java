@@ -42,17 +42,22 @@ import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.util.Random;
 
-public final class RandomState extends LispObject
+public final class RandomState 
+	//extends LispObject
+	extends StructureClass
 {
+
     private Random random;
 
     public RandomState()
     {
+    	super(Symbol.RANDOM_STATE);
         random = new Random();
     }
 
     public RandomState(RandomState rs)
     {
+    	super(Symbol.RANDOM_STATE);
         try {
             ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
             ObjectOutputStream out = new ObjectOutputStream(byteOut);

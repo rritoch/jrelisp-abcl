@@ -641,7 +641,9 @@ public class Stream extends StructureObject {
 			return NIL;
 		if (obj.listp()) {
 			Symbol structure = checkSymbol(obj.car());
+			System.out.println("Stream: structure="+structure.princToString());
 			LispClass c = LispClass.findClass(structure);
+			System.out.println("Stream: c is class"+c.getClass().toString());
 			if (!(c instanceof StructureClass))
 				return error(new ReaderError(structure.getName() +
 											 " is not a defined structure type.",
