@@ -79,6 +79,49 @@ public class RandomStateClass
         
         return super.typep(type);
     }
+
+	public LispObject readState(LispObject data_in) {
+		
+		RandomStateObject mrso = new RandomStateObject();
+		
+		if (data_in == NIL) {
+			return mrso;
+		}
+		
+		if (!data_in.isCons()) {
+			System.out.println("READ HAS A "+data_in.getClass().toString());
+			return data_in;
+		}
+		
+		LispObject data = data_in; // Anyone else, need not apply!
+		
+		LispObject nState = NIL;
+		LispObject key;
+		LispObject value;
+		
+		while(data != NIL) {
+			key = ((Cons)data).car();
+			data = ((Cons)data).cdr();
+			if (data != NIL) {
+				value = ((Cons)data).car();
+				if (key == STATE && value != NIL) {
+					nState = value;
+				} else {
+					System.out.println("KEY A "+key.getClass().toString());
+				}
+				data = ((Cons)data).cdr(); 
+			}
+		}
+		
+		
+		int idx = mrso.getSlotIndex(STATE);
+		
+		synchronized(mrso.lock) {
+			mrso.setSlotValue(idx, nState);
+		}
+		
+		return mrso;
+	}
 	
 
 }

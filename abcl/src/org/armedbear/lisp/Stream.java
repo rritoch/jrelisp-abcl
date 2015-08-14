@@ -641,18 +641,26 @@ public class Stream extends StructureObject {
 			return NIL;
 		if (obj.listp()) {
 			Symbol structure = checkSymbol(obj.car());
-			System.out.println("Stream: structure="+structure.princToString());
 			LispClass c = LispClass.findClass(structure);
-			System.out.println("Stream: c is class"+c.getClass().toString());
 			if (!(c instanceof StructureClass))
 				return error(new ReaderError(structure.getName() +
 											 " is not a defined structure type.",
 											 this));
+
+			// Please be advised, RandomState returns a defstruct 
+			// constructor class which can't make a random state.
+			// make-
+			if (c instanceof RandomStateClass) {
+				return ((RandomStateClass)c).readState(obj.cdr());
+			}
+			
 			LispObject args = obj.cdr();
 			Symbol DEFSTRUCT_DEFAULT_CONSTRUCTOR =
 				PACKAGE_SYS.intern("DEFSTRUCT-DEFAULT-CONSTRUCTOR");
+			LispObject constructor_reader = DEFSTRUCT_DEFAULT_CONSTRUCTOR.getSymbolFunctionOrDie();
 			LispObject constructor =
-				DEFSTRUCT_DEFAULT_CONSTRUCTOR.getSymbolFunctionOrDie().execute(structure);
+					constructor_reader.execute(structure);
+			
 			final int length = args.length();
 			if ((length % 2) != 0)
 				return error(new ReaderError("Odd number of keyword arguments following #S: " +
