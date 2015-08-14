@@ -64,7 +64,7 @@
                  (FLOATING-POINT-OVERFLOW ARITHMETIC-ERROR)
                  (FLOATING-POINT-UNDERFLOW ARITHMETIC-ERROR)
                  (FUNCTION)
-                 (GENERIC-FUNCTION FUNCTION)
+                 (GENERIC-FUNCTION COMPILED-FUNCTION)
                  (HASH-TABLE)
                  (INTEGER RATIONAL)
                  (KEYWORD SYMBOL)
@@ -780,4 +780,9 @@
            (values nil nil)))))
 
 (defun subtypep (type1 type2 &optional environment)
-  (%subtypep type1 type2 environment))
+  (if (or
+         (and (consp type1)
+              (eq (car type1) 'extensions:nil-vector)
+              (eq type2 'base-string )))
+      (values t t)
+      (%subtypep type1 type2 environment)))

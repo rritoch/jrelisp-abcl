@@ -225,7 +225,7 @@ public final class Primitives {
 
         @Override
         public LispObject execute(LispObject arg) {
-            return arg instanceof Cons ? T : NIL;
+            return arg.isCons() ? T : NIL;
         }
     };
 
