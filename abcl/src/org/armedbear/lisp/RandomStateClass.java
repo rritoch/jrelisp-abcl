@@ -5,42 +5,80 @@ import static org.armedbear.lisp.Lisp.*;
 public class RandomStateClass 
 	extends StructureClass {
 
-	public static final LispObject STATE_SLOT = new Symbol("STATE"); // Intern me someplace?
+	public static final Symbol DEFSTRUCT_SLOT_DESCRIPTION = PACKAGE_SYS.intern("DEFSTRUCT_SLOT_DESCRIPTION");
+	public static final Symbol STATE = internKeyword("STATE");
+	public static final Symbol RANDOM_STATE_STATE = internKeyword("RANDOM-STATE-STATE");
 	
 	public RandomStateClass() {
+
 		super(Symbol.RANDOM_STATE);
+		
 		
 		int n_slots = 1;
 		
 		// Allocate Slots
-		Cons slots;
-		//SimpleVector slots = new SimpleVector(1);
-		LispObject[] instanceSlotNames = new LispObject[1];
+		Cons directSlots;
+		//LispObject[] instanceSlotNames = new LispObject[1];
 		
-		// Define State Slot
+		// Define STATE Slot
 		
-		//SlotDefinition stateSlotDefinition = new SlotDefinition(STATE_SLOT,NIL);
+		//instanceSlotNames[0] = STATE;
 		
-		SimpleVector stateSlotDefinition = new SimpleVector(2);
+		SimpleVector stateSlotDefinition = new SimpleVector(7);
 		
-		stateSlotDefinition.aset(1, STATE_SLOT);
-		//slots.aset(0, stateSlotDefinition);
+		LispObject structure_class = LispClass.findClass(Symbol.STRUCTURE_CLASS);
 		
-		slots = new Cons(stateSlotDefinition,NIL);
-		//setCPL(new Cons(this,NIL));
+		//setDirectSuperclass(structure_class);
+		stateSlotDefinition.aset(0, DEFSTRUCT_SLOT_DESCRIPTION); // Class?
+		stateSlotDefinition.aset(1, STATE); // Name?
+		stateSlotDefinition.aset(2,Fixnum.getInstance(0)); // Index?
+		stateSlotDefinition.aset(3,RANDOM_STATE_STATE); // Func?
+		stateSlotDefinition.aset(4,NIL); // Default? (should be sequence?)
+		stateSlotDefinition.aset(5,Symbol.SEQUENCE); // Type?
+		stateSlotDefinition.aset(6,NIL); // Readonly??
 		
-		
-		
-        //setSlotDefinitions(slots);
-        setSlotDefinitions(slots);
-        
-        instanceSlotNames[0] = STATE_SLOT;
 
-        setClassLayout(new Layout(this, instanceSlotNames, NIL));
-        setDefaultInitargs(computeDefaultInitargs());
+		directSlots = new Cons(stateSlotDefinition,NIL);
+		Cons slots = directSlots;
+        
+        setCPL(this, BuiltInClass.STRUCTURE_OBJECT, BuiltInClass.CLASS_T);
+        setDirectSlotDefinitions(directSlots);
+        setSlotDefinitions(slots);
         setFinalized(true);
+    	addClass(Symbol.STRUCTURE_CLASS, this);
+        
 	}
 	
+	/*
+    @Override
+    public LispObject typeOf()
+    {
+        return Symbol.RANDOM_STATE;
+    }
+    */
+
+	/*
+    @Override
+    public LispObject classOf()
+    {
+        return LispClass.findClass(Symbol.RANDOM_STATE);
+    }
+	*/
+	
+    @Override
+    public LispObject typep(LispObject type)
+    {
+    	if (type == Symbol.RANDOM_STATE) {
+    		return T;
+    	}
+    	if (type == BuiltInClass.RANDOM_STATE) {
+    		return T;
+    	}
+        if (type == LispClass.findClass(Symbol.RANDOM_STATE))
+            return T;
+        
+        return super.typep(type);
+    }
 	
 
 }

@@ -47,7 +47,7 @@ public final class RandomStateObject
 {
 
 	
-	public static final LispObject STATE_SLOT = RandomStateClass.STATE_SLOT;
+	public static final LispObject STATE = RandomStateClass.STATE;
 	
 	protected Object lock = new Object();
     private Random random;
@@ -67,7 +67,7 @@ public final class RandomStateObject
     private static LispObject[] initSlots(LispObject rs) {
     	
     	
-    	StructureClass structureClass = (StructureClass) LispClass.findClass(Symbol.RANDOM_STATE);
+    	StructureClass structureClass = BuiltInClass.RANDOM_STATE;
     	
     	LispObject slotDefinitions = structureClass.getSlotDefinitions();
     	
@@ -95,7 +95,7 @@ public final class RandomStateObject
     		//LispObject candidateSlotName = slotDefinition[1];
     		
     		//LispObject candidateSlotName = ((SlotDefinition)effectiveSlotsArray[i]).getInstanceSlotValue(Symbol.NAME);
-    	    if(STATE_SLOT == candidateSlotName) {
+    	    if(STATE == candidateSlotName) {
     	    	myidx = i;
     	    	i = effectiveSlotsArray.length;
     	    }
@@ -111,7 +111,7 @@ public final class RandomStateObject
     	
     	if (rs instanceof RandomStateObject) {
     		RandomStateObject rso= (RandomStateObject)rs;
-    		int idx = rso.getSlotIndex(STATE_SLOT);
+    		int idx = rso.getSlotIndex(STATE);
     		synchronized(rso.lock) {
     			BasicVector_UnsignedByte32 fseed = (BasicVector_UnsignedByte32)rso.getSlotValue(idx);
     			int flen = fseed.length();
@@ -134,7 +134,7 @@ public final class RandomStateObject
     		slots[myidx] = seed;
     	} else {
     		RandomStateObject rso= (RandomStateObject)Symbol._RANDOM_STATE_.symbolValue();
-    		int idx = rso.getSlotIndex(STATE_SLOT);
+    		int idx = rso.getSlotIndex(STATE);
     		synchronized(rso.lock) {
     			BasicVector_UnsignedByte32 fseed = (BasicVector_UnsignedByte32)rso.getSlotValue(idx);
     			int flen = fseed.length();
@@ -151,7 +151,7 @@ public final class RandomStateObject
     
     private long parseSeed() {
     	
-    	int idx = getSlotIndex(STATE_SLOT);
+    	int idx = getSlotIndex(STATE);
 		BasicVector_UnsignedByte32 seed = (BasicVector_UnsignedByte32)getSlotValue(idx);
     	long s = 0;
     	int r;
@@ -169,7 +169,7 @@ public final class RandomStateObject
     
     private void nextSeed() {
     	synchronized(lock) {
-    		int idx = getSlotIndex(STATE_SLOT);
+    		int idx = getSlotIndex(STATE);
     		BasicVector_UnsignedByte32 seed = (BasicVector_UnsignedByte32)getSlotValue(idx);
     		int len = seed.length();
     		for(int i=0;i<len;i++) {

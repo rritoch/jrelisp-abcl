@@ -2493,12 +2493,6 @@ public final class Lisp
   public static final Symbol _PRINT_FASL_ =
     internSpecial("*PRINT-FASL*", PACKAGE_SYS, NIL);
 
-  /*
-  static
-  {
-    Symbol._RANDOM_STATE_.initializeSpecial(new RandomState());
-  }
-  */
   static
   {
     Symbol.STAR.initializeSpecial(NIL);

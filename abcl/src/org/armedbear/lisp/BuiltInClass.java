@@ -283,8 +283,6 @@ public class BuiltInClass extends LispClass
     JAR_PATHNAME.setCPL(JAR_PATHNAME, PATHNAME, CLASS_T);
     URL_PATHNAME.setDirectSuperclass(PATHNAME);
     URL_PATHNAME.setCPL(URL_PATHNAME, PATHNAME, CLASS_T);
-    RANDOM_STATE.setDirectSuperclass(CLASS_T);
-    RANDOM_STATE.setCPL(RANDOM_STATE, CLASS_T);
     RATIO.setDirectSuperclass(RATIONAL);
     RATIO.setCPL(RATIO, RATIONAL, REAL, NUMBER, CLASS_T);
     RATIONAL.setDirectSuperclass(REAL);

@@ -5350,7 +5350,6 @@ public final class Primitives {
         public LispObject execute(LispObject arg) {
             if (arg instanceof LispClass)
                 return ((LispClass)arg).getName();
-
             return ((StandardObject)arg).getInstanceSlotValue(StandardClass.symName);
         }
     };
