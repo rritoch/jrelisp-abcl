@@ -153,6 +153,13 @@ public class StructureObject extends LispObject
     return structureClass;
   }
 
+	protected LispObject getSlotName(int i) {
+		LispObject effectiveSlots = structureClass.getSlotDefinitions();
+		LispObject[] effectiveSlotsArray = effectiveSlots.copyToArray();
+		SimpleVector slotDefinition = (SimpleVector) effectiveSlotsArray[i];
+		return slotDefinition.AREF(1);
+	}
+   
     protected int getSlotIndex(LispObject slotName) {
 	LispObject effectiveSlots = structureClass.getSlotDefinitions();
 	LispObject[] effectiveSlotsArray = effectiveSlots.copyToArray();
@@ -418,6 +425,10 @@ public class StructureObject extends LispObject
       }
   }
 
+  protected int slotCount() {
+	  return slots.length;
+  }
+  
   private LispObject badIndex(int n)
   {
     StringBuilder sb = new StringBuilder("Invalid slot index ");

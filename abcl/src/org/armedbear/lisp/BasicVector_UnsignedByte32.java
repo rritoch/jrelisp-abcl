@@ -301,4 +301,21 @@ public final class BasicVector_UnsignedByte32 extends AbstractVector
   {
     return new ComplexVector(newCapacity, displacedTo, displacement);
   }
+  
+  public LispObject printObject() {
+	    if (Symbol.PRINT_READABLY.symbolValue() != NIL) {
+	    	StringBuilder sb = new StringBuilder(String.format("#.(MAKE-ARRAY %d :ELEMENT-TYPE '(UNSIGNED-BYTE 32) :INITIAL-CONTENTS '(\n",elements.length));
+	    	
+	    	for(int i=0;i<elements.length;i++) {
+	    		sb.append("    ");
+	    		sb.append(elements[i]);
+	    		if (i > 0 && (i % 3) == 0) {
+	    			sb.append("\n");
+	    		}
+	    	}
+	    	sb.append("))");
+	    	return new SimpleString(sb.toString());
+	    }
+	    return super.printObject();
+  }
 }

@@ -490,6 +490,6 @@ public final class SimpleString extends AbstractString
 
     @Override
     public String toString()  {
-        return String.valueOf(chars);
+        return chars == null ? null : new String(chars);
     }
 }

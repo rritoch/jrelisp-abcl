@@ -205,6 +205,23 @@ public final class RandomStateObject
     @Override
     public LispObject printObject()
     {
+    	if (Symbol.PRINT_READABLY.symbolValue() != NIL) {
+    	
+    		int c = slotCount();
+    		StringBuilder sb = new StringBuilder("#S(RANDOM-STATE ");
+    		
+    		for (int i=0; i< c;i++) {
+    			
+    			sb.append("\n  ");
+    			sb.append(getSlotName(i).printObject().toString());
+    			sb.append(" ");
+    			sb.append(getSlotValue(i).printObject().toString());
+    		}
+    	
+    		sb.append(")");
+    		return new SimpleString(sb.toString());
+    	}
+    	
         return new SimpleString(unreadableString("RANDOM-STATE"));
     }
 
