@@ -460,6 +460,7 @@ public class Autoload extends Function
         autoload("make-broadcast-stream", "BroadcastStream");
         autoload("make-concatenated-stream", "ConcatenatedStream");
         autoload("make-echo-stream", "EchoStream");
+        autoload("make-random-state", "RandomStateObject");
         autoload("make-string-input-stream", "StringInputStream");
         autoload("make-synonym-stream", "SynonymStream");
         autoload("maphash", "HashTableFunctions");
