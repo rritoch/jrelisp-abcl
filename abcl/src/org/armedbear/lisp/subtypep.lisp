@@ -481,12 +481,21 @@
   (and (classp thing) (class-name thing)
        (eq thing (find-class (class-name thing) nil environment))))
 
+
+
 (defun %subtypep (type1 type2 &optional environment)
   (when (or (eq type1 type2)
             (null type1)
             (eq type2 t)
             (and (classp type2) (eq type2 (find-class t))))
     (return-from %subtypep (values t t)))
+  
+  ;; Handle nil-vector
+  (if (and (consp type1) (eq (car type1) 'extensions:nil-vector))
+      (if (eq type2 'base-string)
+          (return-from %subtypep (values t t))
+          (setf type1 (car type1))))
+  
   (when (properly-named-class-p type1 environment)
     (setf type1 (class-name type1)))
   (when (properly-named-class-p type2 environment)
@@ -779,9 +788,7 @@
           (t
            (values nil nil)))))
 
+;; Don't put type logic directly in subtypep
+;; Compiled code uses %subtypep directly 
 (defun subtypep (type1 type2 &optional environment)
-  (if (and (consp type1) (eq (car type1) 'extensions:nil-vector))
-      (if (eq type2 'base-string)
-          (values t t)
-          (%subtypep (car type1) type2 environment))
-      (%subtypep type1 type2 environment)))
+  (%subtypep type1 type2 environment))

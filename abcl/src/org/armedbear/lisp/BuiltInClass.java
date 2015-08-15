@@ -270,7 +270,7 @@ public class BuiltInClass extends LispClass
     MUTEX.setDirectSuperclass(CLASS_T);
     MUTEX.setCPL(MUTEX, CLASS_T);
     NIL_VECTOR.setDirectSuperclass(STRING);
-    NIL_VECTOR.setCPL(NIL_VECTOR, STRING, VECTOR, ARRAY, SEQUENCE, CLASS_T);
+    NIL_VECTOR.setCPL(NIL_VECTOR, BASE_STRING, STRING, VECTOR, ARRAY, SEQUENCE, CLASS_T);
     NULL.setDirectSuperclass(LIST);
     NULL.setCPL(NULL, SYMBOL, LIST, SEQUENCE, CLASS_T);
     NUMBER.setDirectSuperclass(CLASS_T);

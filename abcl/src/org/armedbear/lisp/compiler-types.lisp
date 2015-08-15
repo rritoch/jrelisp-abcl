@@ -211,19 +211,11 @@
                    t)))))))
 
 (declaim (ftype (function (t t) t) compiler-subtypep))
-(defun compiler-subtypep (compiler-type typespec)
-  (cond ((eq typespec t)
-         t)
-        ((eq compiler-type t)
-         nil)
-        ((eq compiler-type typespec)
-         t)
-        ((eq typespec 'STRING)
-         (eq compiler-type 'SIMPLE-STRING))
-        ((integer-type-p compiler-type)
-         (integer-type-subtypep compiler-type typespec))
-        (t
-         (values (subtypep compiler-type typespec)))))
+
+;; Please don't edit compiler-subtypep unless you can remove it!
+;; The compiler shouldn't be playing by it's own set of rules!
+(defun compiler-subtypep (compiler-type typespec) 
+  (values (subtypep compiler-type typespec)))
 
 (declaim (type hash-table *function-result-types*))
 (defvar *function-result-types* (make-hash-table :test 'equal))

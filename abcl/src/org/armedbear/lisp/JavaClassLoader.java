@@ -70,18 +70,22 @@ public class JavaClassLoader extends URLClassLoader {
      */
     public Class<?> findPrecompiledClassOrNull(String name) {
         ClassLoader ourCL = JavaClassLoader.class.getClassLoader();
+        Class<?> check = null;
         while (ourCL != null) {
             try {
-                return Class.forName(name, true, ourCL);
+                if (null != (check = Class.forName(name, true, ourCL))) {
+                	return check;
+                }
             } catch (ClassNotFoundException cnf) {
             }
             ourCL = ourCL.getParent();
         }
         try {
-            return findSystemClass(name);
+            check = findSystemClass(name);
         } catch (ClassNotFoundException e) {
-            return null;
         }
+        
+        return check;
     }
     
     public byte[] getFunctionClassBytes(String name) {
