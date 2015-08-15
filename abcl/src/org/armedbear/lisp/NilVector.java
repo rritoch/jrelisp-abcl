@@ -85,8 +85,7 @@ public final class NilVector extends AbstractString
         return BuiltInClass.NIL_VECTOR;
     }
 
-    @Override
-    public LispObject typep(LispObject type)
+    private LispObject intl_typep(LispObject type)
     {
         if (type == Symbol.NIL_VECTOR)
             return T;
@@ -103,6 +102,15 @@ public final class NilVector extends AbstractString
         return super.typep(type);
     }
 
+    
+    @Override
+    public LispObject typep(LispObject type)
+    {
+    	LispObject ret = intl_typep(type);
+    	//System.out.println(String.format("NilVector Typep: %s : %s"+String.valueOf(type),String.valueOf(ret)));
+    	return ret;
+    }
+    
     @Override
     public LispObject SIMPLE_STRING_P()
     {

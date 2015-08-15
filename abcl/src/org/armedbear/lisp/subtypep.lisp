@@ -780,9 +780,8 @@
            (values nil nil)))))
 
 (defun subtypep (type1 type2 &optional environment)
-  (if (or
-         (and (consp type1)
-              (eq (car type1) 'extensions:nil-vector)
-              (eq type2 'base-string )))
-      (values t t)
+  (if (and (consp type1) (eq (car type1) 'extensions:nil-vector))
+      (if (eq type2 'base-string)
+          (values t t)
+          (%subtypep (car type1) type2 environment))
       (%subtypep type1 type2 environment)))
