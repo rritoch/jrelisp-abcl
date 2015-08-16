@@ -1,11 +1,9 @@
 # abcl
-Armed Bear Common Lisp
-
-This branch is maintained and developed by Ralph Ritoch
+JRE Lisp - ABCL Implementation
 
 ## Purpose
 
-The purpose of this branch is to better integrate common lisp into existing JVM based enterprise applications. For the official release of Armed Bear Common Lisp please see the [svn-master] (https://github.com/rritoch/abcl/tree/svn-master "Official subversion release") branch.
+The purpose of this branch is to better integrate common lisp into existing JVM based enterprise applications. 
 
 # Armed Bear Common Lisp
 
@@ -45,62 +43,24 @@ you may extend this exception to your version of the software, but you
 are not obligated to do so. If you do not wish to do so, delete this
 exception statement from your version.
 
-
-RUNNING FROM BINARY RELEASE
-===========================
-
-After you have downloaded a binary release archive unpack it into its
-own directory. To run ABCL directly from this directory, make sure
-Java (version 1.5 or up) is in your shell's path. Then issue the
-following command:
-
-    cmd$ java -jar abcl.jar
-
-which should result in output like the following
-
-    Armed Bear Common Lisp 1.4.0-dev
-    Java 1.7.0_51 Sun Microsystems Inc.
-    Java HotSpot(TM) Client VM
-    Low-level initialization completed in 0.3 seconds.
-    Startup completed in 2.294 seconds.
-    Type ":help" for a list of available commands.
-    CL-USER(1):
-
-
 BUILDING FROM SOURCE RELEASE
 ============================
 
-There are three ways to build ABCL from the source release with the
-preferred (and most tested way) is to being to use the Ant build tool:
+Using Maven
+-----------
 
-* Use the Ant build tool for Java environments.
+Download a release from github then execute
 
-* Use the NetBeans [678].x IDE to open ABCL as a project.
+mvn clean package
 
-* Bootstrap ABCL using a Common Lisp implementation. Supported
-  implementations for this process: SBCL, CMUCL, OpenMCL, Allegro
-  CL, LispWorks or CLISP.
+The executable jar file will be placed in the subfolder named target/
 
-In all cases you need a Java 5 or later JDK (JDK 1.[567] have been
-tested).  Just the JRE isn't enough, as you need the Java compiler
-('javac') to compile the Java source of the ABCL implementation.
+Using Ant (Depricated)
+----------------------
 
-Note that when deploying ABCL having JDK isn't a requirement for the
-installation site, just the equivalent JRE, as ABCL compiles directly
-to byte code, avoiding the need for the 'javac' compiler in deployment
-environments.
+Download a release from github then execute
 
-
-Using Ant
----------
-
-Download a binary distribution [Ant version 1.7.1 or greater][1].
-Unpack the files somewhere convenient, ensuring that the 'ant' (or
-'ant.bat' under Windows) executable is in your path and executable.
-
-[1]: http://ant.apache.org/bindownload.cgi
-
-Then simply executing
+Then simply execute
 
     unix$ ant
 
@@ -111,20 +71,6 @@ or
 from the directory containing this README file will create an
 executable wrapper ('abcl' under UNIX, 'abcl.bat' under Windows).  Use
 this wrapper to start ABCL.
-
-
-Using NetBeans
---------------
-
-Obtain and install the [NetBeans IDE][2]. One should be able to open
-the ABCL directory as a project in the Netbeans application, whereupon
-the usual build, run, and debug targets as invoked in the GUI are
-available.  Use the 'slime' config with a suitably linked 'swank.asd'
-in '~/.asdf-install-dir/systems/' to connect a REPL to the NetBeans
-debug process.
-
-[2]: http://netbeans.org/downloads/
-
 
 Building from Lisp
 ------------------
@@ -186,17 +132,16 @@ effect as loading the ASDF definition.
 BUGS
 ====
 
-ABCL is a conforming ANSI Common Lisp implementation.  Any other
+JRE Lisp ABCL is a conforming ANSI Common Lisp implementation.  Any other
 behavior should be reported as a bug.
 
-ABCL now has a manual stating its conformance to the ANSI standard,
+ABCL has a manual stating its conformance to the ANSI standard,
 providing a compliant and practical Common Lisp implementation.
 Because of this, 
 
-
 ### Tests 
 
-ABCL 1.3.0 now fails only 1[2-4] out of 21708 total tests in the ANSI CL
+JRE Lisp now fails only 3 out of 21708 total tests in the ANSI CL
 test suite (derived from the tests originally written for GCL).
 
 Maxima's test suite runs without failures.
@@ -204,29 +149,17 @@ Maxima's test suite runs without failures.
 ABCL comes with a test suite, see the output of `ant help.test` for more
 information.
 
-### Deficiencies 
+# Authors
+    Ralph Ritoch
 
-The MOP implementation is incompletel untested.
-
-Patches to address any of the issues mentioned above will
-be gladly accepted.
-
-# Contact
-
-Please report problems to the development mailing list:
-
-    <armedbear-devel@common-lisp.net>
-
-Have fun!
-
-# Authors 
+# Original Authors 
 
 On behalf of all ABCL development team and contributors,
 
-    Mark Evenson
     Erik Huelsmann
+    Mark Evenson
     Rudolf Schlatte
     Alessio Stalla
     Ville Voutilainen
 
-March 2014
+August 2015
