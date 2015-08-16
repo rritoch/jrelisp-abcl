@@ -1,3 +1,5 @@
-/.classpath
-/.project
+/bin/
+.classpath
+.project
 /target/
+/dist/
