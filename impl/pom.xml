@@ -3,14 +3,14 @@
          xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.vnetpublishing.abcl</groupId>
-		<artifactId>abcl-parent</artifactId>
-		<version>2.0.0-SNAPSHOT</version>
+		<groupId>com.vnetpublishing.lisp</groupId>
+		<artifactId>jrelisp-abcl</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>abcl</artifactId>
+	<artifactId>jrelisp-abcl-impl</artifactId>
 	<packaging>jar</packaging>
-	<name>Armed Bear Common Lisp (Main)</name>
+	<name>JRE Lisp - ABCL Implementation</name>
 	<description>Common Lisp implementation running on the JVM</description>
 	<url>http://abcl.org</url>
 	<licenses>
@@ -21,11 +21,11 @@
 		</license>
 	</licenses>
 	<build>
-		<directory>../target</directory>
-		<outputDirectory>../target/classes</outputDirectory>
+		<directory>target</directory>
+		<outputDirectory>target/classes</outputDirectory>
 		<finalName>${project.artifactId}-${project.version}</finalName>
-		<testOutputDirectory>../target/test-classes</testOutputDirectory>
-		<sourceDirectory>../src</sourceDirectory>
+		<testOutputDirectory>target/test-classes</testOutputDirectory>
+		<sourceDirectory>src/main/java</sourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -49,7 +49,7 @@
 								<property name="build.dir" value="${project.build.directory}" />
 								<property name="build.classes.dir" value="${project.build.directory}/classes" />
 								<property name="abcl.build.incremental" value="true" />
-								<ant antfile="${basedir}/../build.xml" dir="../">
+								<ant antfile="${basedir}/../build-from-maven.xml" dir="../">
 									<target name="abcl.compile"/>
 								</ant>
 							</target>
@@ -73,6 +73,11 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
+							<artifactSet>
+                				<excludes>
+                					<exclude>com.vnetpublishing.lisp:clapi</exclude>
+                				</excludes>
+              				</artifactSet>
 							<transformers>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>
@@ -133,6 +138,11 @@
 										<property name="build.dir" value="${project.build.directory}" />
 										<property name="build.classes.dir" value="${project.build.directory}/classes" />
 										<property name="abcl.build.incremental" value="true" />
+										<dependencyfilesets prefix="mydeps."/>
+                						<mkdir dir="target/dependencies"/>
+                						<copy todir="target/dependencies">
+                  							<fileset refid="mydeps.com.vnetpublishing.lisp:clapi:jar"/>
+                						</copy>
 										<ant antfile="${basedir}/../build.xml" dir="../">
 											<target name="abcl.compile"/>
 										</ant>
@@ -206,6 +216,11 @@
 	</scm>
 	<developers>
 		<developer>
+			<id>rritoch</id>
+			<name>Ralph Ritoch</name>
+			<email>rritoch (at) gmail (dot) com</email>
+		</developer>
+		<developer>
 			<id>ehu</id>
 			<name>Erik Huelsmann</name>
 			<email>ehuels (at) gmail (dot) com</email>
@@ -231,5 +246,11 @@
 			<email>rudi (at) constantly (dot) at</email>
 		</developer>
 	</developers>
-	<dependencies />
+	<dependencies>
+		<dependency>  
+			<groupId>com.vnetpublishing.lisp</groupId>
+			<artifactId>clapi</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
 </project>

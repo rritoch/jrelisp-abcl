@@ -3,12 +3,12 @@
          xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.vnetpublishing.abcl</groupId>
-		<artifactId>abcl-parent</artifactId>
-		<version>2.0.0-SNAPSHOT</version>
+		<groupId>com.vnetpublishing.lisp</groupId>
+		<artifactId>jrelisp-abcl</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>..</relativePath>    
 	</parent>
-	<artifactId>abcl-contrib</artifactId>
+	<artifactId>jrelisp-abcl-contrib</artifactId>
 	<packaging>jar</packaging>
 	<name>Armed Bear Common Lisp (ABCL) Contribs</name>
 	<description>Extra packages--contribs--for ABCL</description>
@@ -26,10 +26,10 @@
 		<url>http://abcl.org/trac/browser/trunk/abcl/contrib</url>
 	</scm>
 	<build>
-		<directory>../target/contrib</directory>
-		<outputDirectory>../target/contrib/classes</outputDirectory>
+		<directory>target</directory>
+		<outputDirectory>target/classes</outputDirectory>
 		<finalName>${project.artifactId}-${project.version}</finalName>
-		<testOutputDirectory>../target/contrib/test-classes</testOutputDirectory>
+		<testOutputDirectory>target/test-classes</testOutputDirectory>
 		<sourceDirectory>src/main/abcl</sourceDirectory>
 		<resources>
 			<resource>
@@ -78,8 +78,8 @@
 								<property name="build.dir" value="${project.build.directory}" />
 								<property name="build.classes.dir" value="${project.build.directory}/classes" />
 								<property name="abcl.build.incremental" value="true" />
-								<property name="dist.dir" value="${basedir}/../target" />
-								<ant antfile="${basedir}/../build.xml" dir="../">
+								<property name="dist.dir" value="${basedir}/target" />
+								<ant antfile="${basedir}/../build-from-maven.xml" dir="../">
 									<target name="abcl.contrib"/>
 								</ant>
 							</target>
@@ -143,6 +143,11 @@
 		</profile>
 	</profiles>
 	<developers>
+		<developer>
+			<id>rritoch</id>
+			<name>Ralph Ritoch</name>
+			<email>rritoch (at) gmail (dot) com</email>
+		</developer>
 		<developer>
 			<id>ehu</id>
 			<name>Erik Huelsmann</name>

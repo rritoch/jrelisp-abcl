@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="antlib:org.apache.tools.ant"
+    xmlns:artifact="antlib:org.apache.maven.artifact.ant"
+    name="abcldeps" default="default" basedir=".">
+
+    <path id="maven-ant-tasks.classpath" path="lib/maven-ant-tasks-2.1.3.jar" />
+    <typedef resource="org/apache/maven/artifact/ant/antlib.xml"
+       uri="antlib:org.apache.maven.artifact.ant"
+       classpathref="maven-ant-tasks.classpath" />
+
+    <artifact:dependencies filesetId="dependency.fileset" useScope="runtime">
+        <dependency groupId="com.vnetpublishing.lisp" artifactId="clapi" version="0.0.1-SNAPSHOT"/>
+	</artifact:dependencies>
+	
+    
+    <path id="dep.classpath">
+      <fileset refid="dependency.fileset" />
+   </path>
+    
+    <target name="abcl.compile.java" 
+            depends="abcl.init,abcl.java.warning,abcl.jsr-223.notice">
+      <mkdir dir="${build.dir}"/>
+      <mkdir dir="${build.classes.dir}"/>
+      <!-- Stock build for Java 1.8 (aka Java 8) container -->
+      <javac destdir="${build.classes.dir}"
+             debug="true"
+             target="1.8"
+             source="1.8"
+             includeantruntime="false"
+             failonerror="true">
+        <classpath refid="dep.classpath" />
+        <src path="${src.dir}"/>
+        <patternset refid="abcl.source.java"/>
+      </javac>
+      <echo message="${build}" 
+            file="${build.classes.dir}/org/armedbear/lisp/build"/>
+    </target>
+    
+</project>

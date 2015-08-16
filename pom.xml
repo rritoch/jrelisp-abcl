@@ -7,19 +7,18 @@
 		<artifactId>oss-parent</artifactId>
 		<version>6</version>
 	</parent>
-	<groupId>com.vnetpublishing.abcl</groupId>
-	<artifactId>abcl-parent</artifactId>
-	<version>2.0.0-SNAPSHOT</version>
+	<groupId>com.vnetpublishing.lisp</groupId>
+	<artifactId>jrelisp-abcl</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>ABCL - Armed Bear Common Lisp</name>
+	<name>JRE Lisp - ABCL Implementation</name>
 	<description>Common Lisp implementation running on the JVM</description>
-	<url>http://abcl.org</url>
 	<properties> 
-		<abcl.version>2.0.0-SNAPSHOT</abcl.version>
+		<abcl.version>0.0.1-SNAPSHOT</abcl.version>
 		<additionalparam>-Xdoclint:none</additionalparam>
 	</properties>
 	<modules>
-		<module>main</module>
+		<module>impl</module>
 		<module>contrib</module>
 	</modules>
 	<licenses>
@@ -176,6 +175,11 @@
 		</profile>
 	</profiles>
 	<developers>
+		<developer>
+			<id>rritoch</id>
+			<name>Ralph Ritoch</name>
+			<email>rritoch (at) gmail (dot) com</email>
+		</developer>
 		<developer>
 			<id>ehu</id>
 			<name>Erik Huelsmann</name>

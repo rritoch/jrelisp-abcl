@@ -638,7 +638,7 @@ public final class Interpreter
     private static String banner()
     {
         final String sep = System.getProperty("line.separator");
-        StringBuilder sb = new StringBuilder("Armed Bear Common Lisp ");
+        StringBuilder sb = new StringBuilder("JRE Lisp - ABCL Implementation");
         sb.append(Version.getVersion());
         if (build != null) {
             sb.append(" (built ");

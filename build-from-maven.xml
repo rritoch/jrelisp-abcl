@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="antlib:org.apache.tools.ant"
+         name="abcl-master" default="abcl.wrapper" basedir=".">
+    <description>Compiling, testing, and packaging Armed Bear Common Lisp</description>
+
+    <!-- 
+    <path id="dep.classpath">
+      <fileset refid="dependency.fileset" />
+   </path>
+    -->
+    
+    <target name="abcl.compile.java" 
+            depends="abcl.init,abcl.java.warning,abcl.jsr-223.notice">
+      <mkdir dir="${build.dir}"/>
+      <mkdir dir="${build.classes.dir}"/>
+      <!-- Stock build for Java 1.8 (aka Java 8) container -->
+      <!-- 
+      <javac destdir="${build.classes.dir}"
+             debug="true"
+             target="1.8"
+             source="1.8"
+             includeantruntime="false"
+             failonerror="true">
+        <src path="${src.dir}"/>
+        <patternset refid="abcl.source.java"/>
+      </javac>
+       -->
+      <echo message="${build}" 
+            file="${build.classes.dir}/org/armedbear/lisp/build"/>
+    </target>
+    
+    <import file="build-common.xml" optional="true"/> 
+
+</project>
