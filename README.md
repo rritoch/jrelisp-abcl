@@ -1,4 +1,4 @@
-# abcl
+# jrelisp-abcl
 JRE Lisp - ABCL Implementation
 
 ## Purpose
