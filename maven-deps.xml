@@ -9,7 +9,7 @@
        classpathref="maven-ant-tasks.classpath" />
 
     <artifact:dependencies filesetId="dependency.fileset" useScope="runtime">
-        <dependency groupId="com.vnetpublishing.lisp" artifactId="clapi" version="0.0.1-SNAPSHOT"/>
+        <dependency groupId="com.vnetpublishing.lisp" artifactId="clapi" version="0.0.1"/>
 	</artifact:dependencies>
 	
     
