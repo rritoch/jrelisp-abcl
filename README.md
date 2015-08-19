@@ -1,6 +1,10 @@
 # jrelisp-abcl
 JRE Lisp - ABCL Implementation
 
+## Status
+
+This project is not under active development and is only provided for achival purposes.  This code is not suitable for any particular purpose and the Authors do not take any responsiblity for it's use.
+
 ## Purpose
 
 The purpose of this branch is to better integrate common lisp into existing JVM based enterprise applications. 
