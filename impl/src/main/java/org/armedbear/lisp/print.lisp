@@ -161,6 +161,8 @@
 ;;; printed.
 (defvar *circularity-hash-table* nil)
 
+(defvar *np-circularity-hash-table* nil)
+
 ;;; When NIL, we are just looking for circularities. After we have
 ;;; found them all, this gets bound to 0. Then whenever we need a new
 ;;; marker, it is incremented.
