@@ -238,7 +238,7 @@ public final class BroadcastStream extends Stream
         {
             Stream[] streams = new Stream[args.length];
             for (int i = 0; i < args.length; i++) {
-                if (args[i] instanceof Stream) {
+                if (args[i] != null && args[i].isStream()) {
                     if (((Stream)args[i]).isOutputStream()) {
                         streams[i] = (Stream) args[i];
                         continue;
@@ -260,7 +260,7 @@ public final class BroadcastStream extends Stream
         @Override
         public LispObject execute(LispObject arg)
         {
-            if (arg instanceof BroadcastStream) {
+            if (arg != null && arg.isBroadcastStream()) {
                 BroadcastStream stream = (BroadcastStream) arg;
                 Stream[] streams = stream.streams;
                 LispObject result = NIL;
@@ -271,4 +271,9 @@ public final class BroadcastStream extends Stream
             return type_error(arg, Symbol.BROADCAST_STREAM);
         }
     };
+    
+    @Override
+    public final boolean isBroadcastStream() {
+  	  return true;
+    }
 }

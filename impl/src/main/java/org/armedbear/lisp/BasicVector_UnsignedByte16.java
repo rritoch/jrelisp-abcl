@@ -169,7 +169,7 @@ public final class BasicVector_UnsignedByte16 extends AbstractVector
     @Override
     public void aset(int index, LispObject obj)
     {
-        if (obj instanceof Fixnum) {
+        if (obj != null && obj.isFixnum()) {
                 try {
             elements[index] = ((Fixnum)obj).value;
         }

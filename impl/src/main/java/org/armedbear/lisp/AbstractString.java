@@ -40,7 +40,7 @@ public abstract class AbstractString extends AbstractVector
     @Override
     public LispObject typep(LispObject type)
     {
-        if (type instanceof Symbol) {
+        if (type != null && type.isSymbol()) {
             if (type == Symbol.STRING)
                 return T;
             if (type == Symbol.BASE_STRING)
@@ -124,4 +124,8 @@ public abstract class AbstractString extends AbstractVector
 	    return sb.toString();
     }
 
+    @Override
+    public final boolean isAbstractString() {
+  	  return true;
+    }
 }

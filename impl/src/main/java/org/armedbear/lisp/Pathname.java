@@ -3053,5 +3053,9 @@ public class Pathname extends LispObject implements IPathname {
 			String.valueOf(namestring)
 		));
 	}
+	
+	public final boolean isPathname() {
+		return true;
+	}
 }
 

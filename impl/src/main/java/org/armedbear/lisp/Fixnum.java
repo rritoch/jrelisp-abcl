@@ -972,4 +972,9 @@ public final class Fixnum extends LispInteger
       }
     return new SimpleString(s);
   }
+  
+  @Override
+  public final boolean isFixnum() {
+	  return true;
+  }
 }

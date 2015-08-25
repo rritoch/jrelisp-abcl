@@ -51,7 +51,8 @@ public final class AutoloadMacro extends Autoload
 
     {
         AutoloadMacro am = new AutoloadMacro(symbol, fileName);
-        if (symbol.getSymbolFunction() instanceof SpecialOperator)
+        LispObject sf = symbol.getSymbolFunction(); 
+        if (sf != null && sf.isASpecialOperator())
             put(symbol, Symbol.MACROEXPAND_MACRO, am);
         else
             symbol.setSymbolFunction(am);
@@ -80,12 +81,12 @@ public final class AutoloadMacro extends Autoload
         @Override
         public LispObject execute(LispObject first)
         {
-            if (first instanceof Symbol) {
+            if (first != null && first.isSymbol()) {
                 Symbol symbol = (Symbol) first;
                 installAutoloadMacro(symbol, null);
                 return T;
             }
-            if (first instanceof Cons) {
+            if (first != null && first.isCons()) {
                 for (LispObject list = first; list != NIL; list = list.cdr()) {
                     Symbol symbol = checkSymbol(list.car());
                     installAutoloadMacro(symbol, null);
@@ -99,12 +100,12 @@ public final class AutoloadMacro extends Autoload
 
         {
             final String fileName = second.getStringValue();
-            if (first instanceof Symbol) {
+            if (first != null && first.isSymbol()) {
                 Symbol symbol = (Symbol) first;
                 installAutoloadMacro(symbol, fileName);
                 return T;
             }
-            if (first instanceof Cons) {
+            if (first != null && first.isCons()) {
                 for (LispObject list = first; list != NIL; list = list.cdr()) {
                     Symbol symbol = checkSymbol(list.car());
                     installAutoloadMacro(symbol, fileName);

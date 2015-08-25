@@ -166,7 +166,7 @@ public final class ComplexBitVector extends AbstractBitVector
     {
         if (index < 0 || index >= capacity)
             badIndex(index, capacity);
-        if (newValue instanceof Fixnum) {
+        if (newValue != null && newValue.isFixnum()) {
             switch (((Fixnum)newValue).value) {
                 case 0:
                     if (bits != null) {

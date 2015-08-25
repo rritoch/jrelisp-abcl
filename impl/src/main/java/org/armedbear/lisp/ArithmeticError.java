@@ -129,7 +129,7 @@ public class ArithmeticError extends LispError
         @Override
         public LispObject execute(LispObject arg)
         {
-            if (arg instanceof ArithmeticError) {
+            if (arg != null && arg.isArithmeticError()) {
                 return ((ArithmeticError)arg).getOperation();
             }
             else {
@@ -144,7 +144,7 @@ public class ArithmeticError extends LispError
         @Override
         public LispObject execute(LispObject arg)
         {
-            if (arg instanceof ArithmeticError) {
+            if (arg != null && arg.isArithmeticError()) {
                 return ((ArithmeticError)arg).getOperands();
             }
             else {
@@ -152,4 +152,9 @@ public class ArithmeticError extends LispError
             }
         }
     };
+    
+    @Override
+    public final boolean isArithmeticError() {
+    	return true;
+    }
 }

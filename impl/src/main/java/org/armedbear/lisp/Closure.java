@@ -85,7 +85,7 @@ public class Closure extends Function
     super(name, lambdaExpression.cadr());
     final LispObject lambdaList = lambdaExpression.cadr();
     setLambdaList(lambdaList);
-    if (!(lambdaList == NIL || lambdaList instanceof Cons))
+    if (!(lambdaList == NIL || (lambdaList != null && lambdaList.isCons())))
       program_error("The lambda list " + lambdaList.princToString()
                     + " is invalid.");
     this.body = lambdaExpression.cddr();
@@ -228,5 +228,9 @@ public class Closure extends Function
   protected final LispObject[] processArgs(LispObject[] args, LispThread thread)
   {
     return arglist.match(args, environment, environment, thread);
+  }
+  
+  public final boolean isClosure() {
+	  return true;
   }
 }

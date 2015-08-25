@@ -54,15 +54,15 @@ public final class Complex extends LispObject
       return type_error(realpart, Symbol.REAL);
     if (!imagpart.realp())
       return type_error(imagpart, Symbol.REAL);
-    if (realpart instanceof DoubleFloat)
+    if (realpart != null && realpart.isDoubleFloat())
       imagpart = DoubleFloat.coerceToFloat(imagpart);
-    else if (imagpart instanceof DoubleFloat)
+    else if (imagpart != null && imagpart.isDoubleFloat())
       realpart = DoubleFloat.coerceToFloat(realpart);
-    else if (realpart instanceof SingleFloat)
+    else if (realpart != null && realpart.isSingleFloat())
       imagpart = SingleFloat.coerceToFloat(imagpart);
-    else if (imagpart instanceof SingleFloat)
+    else if (imagpart != null && imagpart.isSingleFloat())
       realpart = SingleFloat.coerceToFloat(realpart);
-    if (imagpart instanceof Fixnum)
+    if (imagpart != null && imagpart.isFixnum())
       {
         if (((Fixnum)imagpart).value == 0)
           return realpart;
@@ -126,7 +126,7 @@ public final class Complex extends LispObject
   {
     if (this == obj)
       return true;
-    if (obj instanceof Complex)
+    if (obj != null && obj.isComplex())
       {
         Complex c = (Complex) obj;
         return realpart.eql(c.realpart) && imagpart.eql(c.imagpart);
@@ -163,7 +163,7 @@ public final class Complex extends LispObject
   @Override
   public LispObject add(LispObject obj)
   {
-    if (obj instanceof Complex)
+    if (obj != null && obj.isComplex())
       {
         Complex c = (Complex) obj;
         return getInstance(realpart.add(c.realpart), imagpart.add(c.imagpart));
@@ -174,7 +174,7 @@ public final class Complex extends LispObject
   @Override
   public LispObject subtract(LispObject obj)
   {
-    if (obj instanceof Complex)
+    if (obj != null && obj.isComplex())
       {
         Complex c = (Complex) obj;
         return getInstance(realpart.subtract(c.realpart),
@@ -186,7 +186,7 @@ public final class Complex extends LispObject
   @Override
   public LispObject multiplyBy(LispObject obj)
   {
-    if (obj instanceof Complex)
+    if (obj != null && obj.isComplex())
       {
         LispObject a = realpart;
         LispObject b = imagpart;
@@ -208,7 +208,7 @@ public final class Complex extends LispObject
   @Override
   public LispObject divideBy(LispObject obj)
   {
-    if (obj instanceof Complex)
+    if (obj != null && obj.isComplex())
       {
         LispObject a = realpart;
         LispObject b = imagpart;
@@ -229,7 +229,7 @@ public final class Complex extends LispObject
   @Override
   public boolean isEqualTo(LispObject obj)
   {
-    if (obj instanceof Complex)
+    if (obj != null && obj.isComplex())
       {
         Complex c = (Complex) obj;
         return (realpart.isEqualTo(c.realpart) &&
@@ -238,27 +238,27 @@ public final class Complex extends LispObject
     if (obj.numberp())
       {
         // obj is a number, but not complex.
-        if (imagpart instanceof SingleFloat)
+        if (imagpart != null && imagpart.isSingleFloat())
           {
             if (((SingleFloat)imagpart).value == 0)
               {
-                if (obj instanceof Fixnum)
+                if (obj != null && obj.isFixnum())
                   return ((Fixnum)obj).value == ((SingleFloat)realpart).value;
-                if (obj instanceof SingleFloat)
+                if (obj != null && obj.isSingleFloat())
                   return ((SingleFloat)obj).value == ((SingleFloat)realpart).value;
-                if (obj instanceof DoubleFloat)
+                if (obj != null && obj.isDoubleFloat())
                   return ((DoubleFloat)obj).value == ((SingleFloat)realpart).value;
               }
           }
-        if (imagpart instanceof DoubleFloat)
+        if (imagpart != null && imagpart.isDoubleFloat())
           {
             if (((DoubleFloat)imagpart).value == 0)
               {
-                if (obj instanceof Fixnum)
+                if (obj != null && obj.isFixnum())
                   return ((Fixnum)obj).value == ((DoubleFloat)realpart).value;
-                if (obj instanceof SingleFloat)
+                if (obj != null && obj.isSingleFloat())
                   return ((SingleFloat)obj).value == ((DoubleFloat)realpart).value;
-                if (obj instanceof DoubleFloat)
+                if (obj != null && obj.isDoubleFloat())
                   return ((DoubleFloat)obj).value == ((DoubleFloat)realpart).value;
               }
           }
@@ -282,7 +282,7 @@ public final class Complex extends LispObject
       return imagpart.ABS();
     double real = DoubleFloat.coerceToFloat(realpart).value;
     double imag = DoubleFloat.coerceToFloat(imagpart).value;
-    if (realpart instanceof DoubleFloat)
+    if (realpart != null && realpart.isDoubleFloat())
       return new DoubleFloat(Math.hypot(real, imag));
     else
       return new SingleFloat((float)Math.hypot(real, imag));
@@ -322,4 +322,10 @@ public final class Complex extends LispObject
     sb.append(')');
     return new SimpleString(sb.toString());
   }
+  
+  @Override
+  public final boolean isComplex() {
+	  return true;
+  }
+  
 }

@@ -77,7 +77,7 @@ public abstract class AbstractBitVector extends AbstractVector
     {
         if (this == obj)
             return true;
-        if (obj instanceof AbstractBitVector) {
+        if (null != obj && obj.isAbstractBitVector()) {
             AbstractBitVector v = (AbstractBitVector) obj;
             if (length() != v.length())
                 return false;
@@ -95,7 +95,7 @@ public abstract class AbstractBitVector extends AbstractVector
     {
         if (this == obj)
             return true;
-        if (obj instanceof AbstractBitVector) {
+        if (obj != null && obj.isAbstractBitVector()) {
             AbstractBitVector v = (AbstractBitVector) obj;
             if (length() != v.length())
                 return false;
@@ -105,9 +105,9 @@ public abstract class AbstractBitVector extends AbstractVector
             }
             return true;
         }
-        if (obj instanceof AbstractString)
+        if (obj != null && obj.isAbstractString())
             return false;
-        if (obj instanceof AbstractVector)
+        if (obj != null && obj.isAbstractVector())
             return ((AbstractVector)obj).equalp(this);
         return false;
     }
@@ -115,7 +115,7 @@ public abstract class AbstractBitVector extends AbstractVector
     @Override
     public void fill(LispObject obj)
     {
-        if (obj instanceof Fixnum) {
+        if (obj != null && obj.isFixnum()) {
             switch (((Fixnum)obj).value) {
                 case 0:
                     if (bits != null) {
@@ -186,7 +186,7 @@ public abstract class AbstractBitVector extends AbstractVector
             return new SimpleString(sb.toString());
         } else {
             final String str = "(%sBIT-VECTOR %d)";
-            final String pre = (this instanceof SimpleBitVector) ? "SIMPLE-" : "";
+            final String pre = (this.isSimpleBitVector()) ? "SIMPLE-" : "";
             return new SimpleString(unreadableString(String.format(str, pre, length)));
         }
     }
@@ -211,4 +211,9 @@ public abstract class AbstractBitVector extends AbstractVector
     protected abstract void setBit(int index);
 
     protected abstract void clearBit(int index);
+    
+    @Override
+    public final boolean isAbstractBitVector() {
+  	  return true;
+    }
 }

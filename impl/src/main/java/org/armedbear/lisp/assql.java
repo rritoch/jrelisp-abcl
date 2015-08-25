@@ -49,7 +49,7 @@ public final class assql extends Primitive
     {
         while (alist != NIL) {
             LispObject cons = alist.car();
-            if (cons instanceof Cons) {
+            if (cons != null && cons.isCons()) {
                 if (cons.car().eql(item))
                     return cons;
             } else if (cons != NIL)

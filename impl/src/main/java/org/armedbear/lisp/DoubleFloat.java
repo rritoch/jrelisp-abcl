@@ -643,4 +643,9 @@ public final class DoubleFloat extends LispObject
         // Not reached.
         return null;
     }
+    
+    @Override
+    public final boolean isDoubleFloat() {
+  	  return true;
+    }
 }

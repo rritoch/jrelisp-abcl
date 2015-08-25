@@ -59,7 +59,7 @@ public abstract class AbstractVector extends AbstractArray
   @Override
   public boolean equalp(LispObject obj)
   {
-    if (obj instanceof AbstractVector)
+    if (obj != null && obj.isAbstractVector())
       {
         if (length() != obj.length())
           return false;
@@ -225,7 +225,7 @@ public abstract class AbstractVector extends AbstractArray
         int maxLevel = Integer.MAX_VALUE;
         final LispObject printLevel =
           Symbol.PRINT_LEVEL.symbolValue(thread);
-        if (printLevel instanceof Fixnum)
+        if (printLevel != null && printLevel.isFixnum())
           maxLevel = ((Fixnum)printLevel).value;
         LispObject currentPrintLevel =
           _CURRENT_PRINT_LEVEL_.symbolValue(thread);
@@ -236,7 +236,7 @@ public abstract class AbstractVector extends AbstractArray
             int maxLength = Integer.MAX_VALUE;
             final LispObject printLength =
               Symbol.PRINT_LENGTH.symbolValue(thread);
-            if (printLength instanceof Fixnum)
+            if (printLength != null && printLength.isFixnum())
               maxLength = ((Fixnum)printLength).value;
             final int length = length();
             final int limit = Math.min(length, maxLength);
@@ -306,5 +306,9 @@ public abstract class AbstractVector extends AbstractArray
                                               int displacement)
     {
       return adjustArray(dims[0], displacedTo, displacement);
+  }
+  
+  public final boolean isAbstractVector() {
+	  return true;
   }
 }

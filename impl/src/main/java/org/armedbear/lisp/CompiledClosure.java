@@ -220,11 +220,11 @@ public class CompiledClosure extends Closure
     public LispObject execute(LispObject arg)
     {
       String namestring = null;
-      if (arg instanceof Pathname)
+      if (arg != null && arg.isPathname())
         namestring = ((Pathname)arg).getNamestring();
-      else if (arg instanceof AbstractString)
+      else if (arg != null && arg.isAbstractString())
         namestring = arg.getStringValue();
-      if(arg instanceof JavaObject) {
+      if(arg != null && arg.isJavaObject()) {
 	  try {
 	      return loadClassBytes((byte[]) arg.javaInstance(byte[].class));
 	  } catch(Throwable t) {

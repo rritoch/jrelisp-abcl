@@ -583,4 +583,9 @@ public final class Ratio extends LispObject
         }
         return new SimpleString(s);
     }
+    
+    @Override
+    public final boolean isRatio() {
+  	  return true;
+    }
 }

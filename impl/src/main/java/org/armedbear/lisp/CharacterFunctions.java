@@ -49,10 +49,11 @@ public final class CharacterFunctions
         @Override
         public LispObject execute(LispObject arg)
         {
-            if (arg instanceof LispCharacter)
+            if (arg != null && arg.isLispCharacter())
                 return T;
             return type_error(arg, Symbol.CHARACTER);
         }
+        
         @Override
         public LispObject execute(LispObject first, LispObject second)
 
@@ -84,7 +85,7 @@ public final class CharacterFunctions
         @Override
         public LispObject execute(LispObject arg)
         {
-            if (arg instanceof LispCharacter)
+            if (arg != null && arg.isLispCharacter())
                 return T;
             return type_error(arg, Symbol.CHARACTER);
         }
@@ -134,7 +135,7 @@ public final class CharacterFunctions
         @Override
         public LispObject execute(LispObject arg)
         {
-            if (arg instanceof LispCharacter)
+            if (arg != null && arg.isLispCharacter())
                 return T;
             return type_error(arg, Symbol.CHARACTER);
         }
@@ -173,7 +174,7 @@ public final class CharacterFunctions
         @Override
         public LispObject execute(LispObject arg)
         {
-            if (arg instanceof LispCharacter)
+            if (arg != null && arg.isLispCharacter())
                 return T;
             return type_error(arg, Symbol.CHARACTER);
         }
@@ -212,10 +213,11 @@ public final class CharacterFunctions
         @Override
         public LispObject execute(LispObject arg)
         {
-            if (arg instanceof LispCharacter)
+            if (arg != null && arg.isLispCharacter())
                 return T;
             return type_error(arg, Symbol.CHARACTER);
         }
+        
         @Override
         public LispObject execute(LispObject first, LispObject second)
 
@@ -250,7 +252,7 @@ public final class CharacterFunctions
         @Override
         public LispObject execute(LispObject arg)
         {
-            if (arg instanceof LispCharacter)
+            if (arg != null && arg.isLispCharacter())
                 return T;
             return type_error(arg, Symbol.CHARACTER);
         }
@@ -299,7 +301,7 @@ public final class CharacterFunctions
         @Override
         public LispObject execute(LispObject arg)
         {
-            if (arg instanceof LispCharacter)
+            if (arg != null && arg.isLispCharacter())
                 return T;
             return type_error(arg, Symbol.CHARACTER);
         }
@@ -338,7 +340,7 @@ public final class CharacterFunctions
         @Override
         public LispObject execute(LispObject arg)
         {
-            if (arg instanceof LispCharacter)
+            if (arg != null && arg.isLispCharacter())
                 return T;
             return type_error(arg, Symbol.CHARACTER);
         }

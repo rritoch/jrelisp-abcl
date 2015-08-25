@@ -50,7 +50,7 @@ public abstract class AbstractArray extends LispObject implements java.io.Serial
     @Override
     public boolean equalp(LispObject obj)
     {
-        if (obj instanceof AbstractArray) {
+        if (obj != null && obj.isAbstractArray()) {
             AbstractArray a = (AbstractArray) obj;
             if (getRank() != a.getRank())
                 return false;
@@ -132,7 +132,7 @@ public abstract class AbstractArray extends LispObject implements java.io.Serial
         int[] subs = new int[subscripts.length];
         for (int i = 0; i < subscripts.length; i++) {
             LispObject subscript = subscripts[i];
-            if (subscript instanceof Fixnum)
+            if (subscript != null && subscript.isFixnum())
                 subs[i] = ((Fixnum)subscript).value;
             else
                 type_error(subscript, Symbol.FIXNUM);
@@ -201,7 +201,7 @@ public abstract class AbstractArray extends LispObject implements java.io.Serial
                 }
             } else {
                 LispObject printLevel = Symbol.PRINT_LEVEL.symbolValue(thread);
-                if (printLevel instanceof Fixnum)
+                if (printLevel != null && printLevel.isFixnum())
                     maxLevel = ((Fixnum)printLevel).value;
             }
             LispObject currentPrintLevel =
@@ -216,7 +216,7 @@ public abstract class AbstractArray extends LispObject implements java.io.Serial
             return sb.toString();
         }
         sb.append('(');
-        if (this instanceof SimpleArray_T)
+        if (this.isSimpleArray_T())
             sb.append("SIMPLE-");
         sb.append("ARRAY " + getElementType().printObject() + " (");
         for (int i = 0; i < dimv.length; i++) {
@@ -249,11 +249,11 @@ public abstract class AbstractArray extends LispObject implements java.io.Serial
             if (printReadably == NIL) {
                 final LispObject printLength =
                     Symbol.PRINT_LENGTH.symbolValue(thread);
-                if (printLength instanceof Fixnum)
+                if (printLength != null && printLength.isFixnum())
                     maxLength = ((Fixnum)printLength).value;
                 final LispObject printLevel =
                     Symbol.PRINT_LEVEL.symbolValue(thread);
-                if (printLevel instanceof Fixnum)
+                if (printLevel != null && printLevel.isFixnum())
                     maxLevel = ((Fixnum)printLevel).value;
             }
             LispObject currentPrintLevel =
@@ -328,4 +328,9 @@ public abstract class AbstractArray extends LispObject implements java.io.Serial
     public abstract AbstractArray adjustArray(int[] dims,
                                               AbstractArray displacedTo,
                                               int displacement);
+    
+    @Override
+    public final boolean isAbstractArray() {
+  	  return true;
+    }
 }

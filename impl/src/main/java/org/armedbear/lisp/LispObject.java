@@ -1339,4 +1339,104 @@ public class LispObject //extends Lisp
   public boolean isASpecialOperator() {
   	return false;
   }
+  
+  public boolean isAbstractArray() {
+	  return false;
+  }
+  
+  public boolean isSimpleArray_T() {
+	  return false;
+  }
+  
+  public boolean isFixnum() {
+	  return false;
+  }
+  
+  public boolean isAbstractVector() {
+	  return false;
+  }
+
+  public boolean isAbstractBitVector() {
+	  return false;
+  }
+  
+  public boolean isSimpleBitVector() {
+	  return false;
+  }
+  
+  public boolean isAbstractString() {
+	  return false;
+  }
+  
+  public boolean isOperator() {
+  	return false;
+  }
+  
+  public boolean isAutoload() {
+  	return false;
+  }
+  
+  public boolean isArithmeticError() {
+  	return false;
+  }
+  
+  public boolean isAutoloadGeneralizedReference() {
+	  return false;
+  }
+  
+  public boolean isLispClass() {
+	  return false;
+  }
+  
+  public boolean isBignum() {
+	  return false;
+  }
+  
+  public boolean isRatio() {
+	  return false;
+  }
+  
+  public boolean isSingleFloat() {
+	  return false;
+  }
+  
+  public boolean isDoubleFloat() {
+	  return false;
+  }
+  
+  public boolean isComplex() {
+	  return false;
+  }
+  
+  public boolean isStream() {
+	  return false;
+  }
+  
+  public boolean isBroadcastStream() {
+	  return false;
+  }
+  
+  public boolean isByteArrayOutputStream() {
+	  return false;
+  }
+  
+  public boolean isStandardObject() {
+	  return false;
+  }
+  
+  public boolean isPathname() {
+	  return false;
+  }
+  
+  public boolean isJavaObject() {
+	  return false;
+  }
+  
+  public boolean isClosure() {
+	  return false;
+  }
+  
+  public boolean isLispCharacter() {
+	  return false;
+  }
 }

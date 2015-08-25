@@ -151,7 +151,8 @@ public class Autoload extends Function
         }
         if (debug) {
             if (symbol != null) {
-                if (symbol.getSymbolFunction() instanceof Autoload) {
+            	LispObject sf = symbol.getSymbolFunction(); 
+                if (sf != null && sf.isAutoload()) {
                     Debug.trace("Unable to autoload " + symbol.princToString());
                     throw new IntegrityError();
                 }
@@ -287,12 +288,12 @@ public class Autoload extends Function
         @Override
         public LispObject execute(LispObject first)
         {
-            if (first instanceof Symbol) {
+            if (first != null && first.isSymbol()) {
                 Symbol symbol = (Symbol) first;
                 symbol.setSymbolFunction(new Autoload(symbol));
                 return T;
             }
-            if (first instanceof Cons) {
+            if (first != null && first.isCons()) {
                 for (LispObject list = first; list != NIL; list = list.cdr()) {
                     Symbol symbol = checkSymbol(list.car());
                     symbol.setSymbolFunction(new Autoload(symbol));
@@ -306,12 +307,12 @@ public class Autoload extends Function
 
         {
             final String fileName = second.getStringValue();
-            if (first instanceof Symbol) {
+            if (first != null && first.isSymbol()) {
                 Symbol symbol = (Symbol) first;
                 symbol.setSymbolFunction(new Autoload(symbol, fileName, null));
                 return T;
             }
-            if (first instanceof Cons) {
+            if (first != null && first.isCons()) {
                 for (LispObject list = first; list != NIL; list = list.cdr()) {
                     Symbol symbol = checkSymbol(list.car());
                     symbol.setSymbolFunction(new Autoload(symbol, fileName, null));
@@ -335,7 +336,7 @@ public class Autoload extends Function
         public LispObject execute(LispObject arg) {
             Symbol symbol = checkSymbol(arg);
             LispObject fun = symbol.getSymbolFunction();
-            if (fun instanceof Autoload) {
+            if (fun != null && fun.isAutoload()) {
                 Autoload autoload = (Autoload) fun;
                 autoload.load();
                 return symbol.getSymbolFunction();
@@ -356,8 +357,9 @@ public class Autoload extends Function
         @Override
         public LispObject execute(LispObject arg)
         {
-            if (arg instanceof Symbol) {
-                if (arg.getSymbolFunction() instanceof Autoload)
+            if (arg != null && arg.isSymbol()) {
+            	LispObject sf = arg.getSymbolFunction(); 
+                if (sf != null && sf.isAutoload())
                     return T;
             }
             return NIL;
@@ -690,5 +692,10 @@ public class Autoload extends Function
         autoload(PACKAGE_EXT, "autoload-setf-expander", "AutoloadGeneralizedReference", true);
         autoload(PACKAGE_EXT, "autoload-setf-function", "AutoloadGeneralizedReference", true);
         autoload(PACKAGE_EXT, "autoload-ref-p", "AutoloadGeneralizedReference", true);
+    }
+    
+    @Override
+    public final boolean isAutoload() {
+    	return true;
     }
 }

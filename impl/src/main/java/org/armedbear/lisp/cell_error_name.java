@@ -47,7 +47,7 @@ public final class cell_error_name extends Primitive
     public LispObject execute(LispObject arg)
     {
         final StandardObject obj;
-        if (arg instanceof StandardObject) {
+        if (arg != null && arg.isStandardObject()) {
             obj = (StandardObject) arg;
         }
         else {

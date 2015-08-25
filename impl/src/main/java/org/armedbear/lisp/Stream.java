@@ -2748,4 +2748,8 @@ public class Stream extends StructureObject {
 		}
 	}
 
+	@Override
+	public final boolean isStream() {
+		  return true;
+	}
 }

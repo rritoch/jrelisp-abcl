@@ -75,11 +75,11 @@ public final class adjust_array extends Primitive
             initialElement = Fixnum.ZERO;
         if (array.getRank() == 1) {
             final int newSize;
-            if (dimensions instanceof Cons && dimensions.length() == 1)
+            if (dimensions != null && dimensions.isCons() && dimensions.length() == 1)
                 newSize = Fixnum.getValue(dimensions.car());
             else
                 newSize = Fixnum.getValue(dimensions);
-            if (array instanceof AbstractVector) {
+            if (array != null && array.isAbstractVector()) {
                 AbstractVector v = (AbstractVector) array;
                 AbstractArray v2;
                 if (displacedTo != NIL) {

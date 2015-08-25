@@ -120,7 +120,7 @@ public final class ByteArrayOutputStream extends Stream
         @Override
         public LispObject execute(LispObject arg)
         {
-            if (arg instanceof ByteArrayOutputStream) {
+            if (arg != null && arg.isByteArrayOutputStream()) {
                 return JavaObject.getInstance(((ByteArrayOutputStream)arg).getByteArray());
             }
             return type_error(this, Symbol.STREAM); //TODO
@@ -134,11 +134,15 @@ public final class ByteArrayOutputStream extends Stream
         @Override
         public LispObject execute(LispObject arg)
         {
-            if (arg instanceof ByteArrayOutputStream)
+            if (arg != null && arg.isByteArrayOutputStream())
                 return new BasicVector_UnsignedByte8(((ByteArrayOutputStream)arg).getByteArray());
 
             return type_error(this, Symbol.STREAM); // TODO
         }
     };
 
+    @Override
+    public final boolean isByteArrayOutputStream() {
+  	  return true;
+    }
 }

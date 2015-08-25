@@ -506,4 +506,9 @@ public final class SimpleBitVector extends AbstractBitVector
             return result;
         }
     };
+    
+    @Override
+    public final boolean isSimpleBitVector() {
+  	  return true;
+    }
 }

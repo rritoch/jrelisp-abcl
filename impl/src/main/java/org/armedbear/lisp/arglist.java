@@ -40,16 +40,16 @@ public final class arglist
     static final Operator getOperator(LispObject obj)
 
     {
-        if (obj instanceof Operator)
+        if (obj != null && obj.isOperator())
             return (Operator) obj;
-        if (obj instanceof Symbol) {
+        if (obj != null && obj.isSymbol()) {
             LispObject function = obj.getSymbolFunction();
-            if (function instanceof Autoload) {
+            if (function != null && function.isAutoload()) {
                 Autoload autoload = (Autoload) function;
                 autoload.load();
                 function = autoload.getSymbol().getSymbolFunction();
             }
-            if (function instanceof Operator) {
+            if (function != null && function.isOperator()) {
                 Operator operator = (Operator) function;
                 if (operator.getLambdaList() != null)
                     return operator;
@@ -59,7 +59,7 @@ public final class arglist
                 else
                     return null;
             }
-        } else if (obj instanceof Cons && obj.car() == Symbol.LAMBDA)
+        } else if (obj != null && obj.isCons() && obj.car() == Symbol.LAMBDA)
             return new Closure(obj, new Environment());
         return null;
     }
@@ -77,7 +77,7 @@ public final class arglist
             if (operator != null)
                 arglist = operator.getLambdaList();
             final LispObject value1, value2;
-            if (arglist instanceof AbstractString) {
+            if (arglist != null && arglist.isAbstractString()) {
                 String s = arglist.getStringValue();
                 // Give the string list syntax.
                 s = "(" + s + ")";
@@ -113,11 +113,11 @@ public final class arglist
 
         {
             Operator operator = null;
-            if (first instanceof Operator) {
+            if (first != null && first.isOperator()) {
                 operator = (Operator) first;
-            } else if (first instanceof Symbol) {
+            } else if (first != null && first.isSymbol()) {
                 LispObject function = first.getSymbolFunction();
-                if (function instanceof Operator)
+                if (function != null && function.isOperator())
                     operator = (Operator) function;
             }
             if (operator != null)

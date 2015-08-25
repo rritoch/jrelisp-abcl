@@ -99,7 +99,8 @@ public final class AutoloadGeneralizedReference extends Autoload
     public LispObject execute(LispObject arg) {
       LispObject list = checkSymbol(arg).getPropertyList();
       while (list != NIL) {
-        if (list.car() instanceof AutoloadGeneralizedReference) {
+    	LispObject listCar = list.car();
+        if (listCar != null && listCar.isAutoloadGeneralizedReference()) {
           return T;
         }
 
@@ -114,12 +115,12 @@ public final class AutoloadGeneralizedReference extends Autoload
                                                                       Symbol indicator, 
                                                                       String filename) 
   {
-    if (first instanceof Symbol) {
+    if (first != null && first.isSymbol()) {
       Symbol symbol = checkSymbol(first);
       install(symbol, indicator, filename);
       return T;
     }
-    if (first instanceof Cons) {
+    if (first != null && first.isCons()) {
       for (LispObject list = first; list != NIL; list = list.cdr()) {
         Symbol symbol = checkSymbol(list.car());
         install(symbol, indicator, filename);
@@ -229,6 +230,9 @@ public final class AutoloadGeneralizedReference extends Autoload
     return get(symbol, indicator, null).execute(args);
   }
 
-  
+  @Override
+  public final boolean isAutoloadGeneralizedReference() {
+	  return true;
+  }
 
 }

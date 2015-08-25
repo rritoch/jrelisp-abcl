@@ -691,4 +691,8 @@ public class StandardObject extends LispObject
       }
     }
   };
+  
+  public final boolean isStandardObject() {
+	  return true;
+  }
 }

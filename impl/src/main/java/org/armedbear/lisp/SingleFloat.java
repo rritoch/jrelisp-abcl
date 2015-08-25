@@ -637,4 +637,9 @@ public final class SingleFloat extends LispObject
         // Not reached.
         return null;
     }
+    
+    @Override
+    public final boolean isSingleFloat() {
+  	  return true;
+    }
 }

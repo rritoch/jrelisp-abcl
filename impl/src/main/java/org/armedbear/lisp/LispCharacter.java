@@ -713,4 +713,8 @@ public final class LispCharacter extends LispObject
     for (int i = LOWER_CASE_CHARS.length; i-- > 0;)
       LOWER_CASE_CHARS[i] = Character.toLowerCase((char)i);
   }
+  
+  public final boolean isLispCharacter() {
+	  return true;
+  }
 }

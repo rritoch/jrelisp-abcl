@@ -176,7 +176,7 @@ public class ArgumentListProcessor {
     
     boolean _andKey = false;
     boolean _allowOtherKeys = false;
-    if (lambdaList instanceof Cons)
+    if (lambdaList != null && lambdaList.isCons())
       {
         final int length = lambdaList.length();
         ArrayList<Param> required = null;
@@ -199,7 +199,7 @@ public class ArgumentListProcessor {
         while (remaining != NIL)
           {
             LispObject obj = remaining.car();
-            if (obj instanceof Symbol)
+            if (obj != null && obj.isSymbol())
               {
                 if (obj == Symbol.AND_WHOLE) {
                     if (type == LambdaListType.ORDINARY)
@@ -240,7 +240,7 @@ public class ArgumentListProcessor {
                         program_error("&REST/&BODY may occur only once.");
                       }
                     final LispObject remainingcar =  remaining.car();
-                    if (remainingcar instanceof Symbol)
+                    if (remainingcar != null && remainingcar.isSymbol())
                       {
                         restVar = (Symbol) remainingcar;
                         restParam = new RestParam(restVar, isSpecial(restVar, specials));
@@ -311,7 +311,7 @@ public class ArgumentListProcessor {
                       }
                   }
               }
-            else if (obj instanceof Cons)
+            else if (obj != null && obj.isCons())
               {
                 if (state == STATE_AUX)
                   {
@@ -341,7 +341,7 @@ public class ArgumentListProcessor {
                     LispObject initForm = NIL;
                     Symbol svar = NIL;
                     LispObject first = obj.car();
-                    if (first instanceof Cons)
+                    if (first != null && first.isCons())
                       {
                         keyword = checkSymbol(first.car());
                         var = checkSymbol(first.cadr());
@@ -723,9 +723,9 @@ public class ArgumentListProcessor {
   private static InitForm createInitForm(LispObject form) {
       if (form.constantp())
         {
-          if (form instanceof Symbol)
+          if (form != null && form.isSymbol())
             return new ConstantInitForm(form.getSymbolValue());
-          if (form instanceof Cons)
+          if (form != null && form.isCons())
             {
               Debug.assertTrue(form.car() == Symbol.QUOTE);
               return new ConstantInitForm(form.cadr());

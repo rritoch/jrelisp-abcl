@@ -385,4 +385,8 @@ public final class SimpleArray_T extends AbstractArray
   {
     return new ComplexArray(dimv, displacedTo, displacement);
   }
+  
+  public final boolean isSimpleArray_T() {
+	  return true;
+  }
 }

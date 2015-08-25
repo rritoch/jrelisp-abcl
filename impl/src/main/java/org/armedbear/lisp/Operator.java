@@ -74,4 +74,9 @@ public abstract class Operator extends LispObject
         result = result.push(new Cons("lambda-list", lambdaList));
         return result.nreverse();
     }
+    
+    @Override
+    public final boolean isOperator() {
+    	return true;
+    }
 }

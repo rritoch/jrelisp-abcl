@@ -363,4 +363,9 @@ public abstract class LispClass extends StandardObject
         return LispClass.subclassp(first, second) ? T : NIL;
       }
     };
+    
+    @Override
+    public final boolean isLispClass() {
+  	  return true;
+    }
 }

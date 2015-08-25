@@ -685,4 +685,7 @@ public final class JavaObject extends LispObject {
         FALSE.setDocumentation(Symbol.VARIABLE, new SimpleString(doc));
     }
 
+    public final boolean isJavaObject() {
+  	  return true;
+    }
 }
