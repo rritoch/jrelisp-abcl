@@ -9,12 +9,12 @@
 	</parent>
 	<groupId>com.vnetpublishing.lisp</groupId>
 	<artifactId>jrelisp-abcl</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.2</version>
 	<packaging>pom</packaging>
 	<name>JRE Lisp - ABCL Implementation</name>
 	<description>Common Lisp implementation running on the JVM</description>
 	<properties> 
-		<abcl.version>0.0.1-SNAPSHOT</abcl.version>
+		<abcl.version>0.0.2</abcl.version>
 		<additionalparam>-Xdoclint:none</additionalparam>
 	</properties>
 	<modules>
