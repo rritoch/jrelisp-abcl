@@ -2525,15 +2525,18 @@ to ~S with argument list ~S."
          (nthcdr non-keyword-args args) applicable-keywords)
       (funcall emfun args)))
 
+
+(defun slow-applicable-methods-lookup (gf args)
+  (if (std-generic-function-p gf)
+      (std-compute-applicable-methods gf args)
+      (or (compute-applicable-methods-using-classes gf (mapcar #'class-of args))
+          (compute-applicable-methods gf args))))
+
 (defun slow-method-lookup (gf args)
-  (let ((applicable-methods
-          (if (std-generic-function-p gf)
-              (std-compute-applicable-methods gf args)
-              (or (compute-applicable-methods-using-classes gf (mapcar #'class-of args))
-                  (compute-applicable-methods gf args)))))
+  (let ((applicable-methods (slow-applicable-methods-lookup gf args)))
     (if applicable-methods
         (let* ((emfun (funcall (if (std-generic-function-p gf)
-                                   #'std-compute-effective-method
+                                   #'slow-std-compute-effective-method
                                    #'compute-effective-method)
                                gf (generic-function-method-combination gf)
                                applicable-methods))
@@ -2617,6 +2620,7 @@ to ~S with argument list ~S."
                  (assert (typep next-method-form 'method))
                  next-method-form)))
           next-method-list))
+
 
 (defun std-compute-effective-method (gf method-combination methods)
   (assert (typep method-combination 'method-combination))
@@ -2717,6 +2721,111 @@ to ~S with argument list ~S."
     (or #+nil (ignore-errors (autocompile emf-form))
         (coerce-to-function emf-form))))
 
+;; Here we shall validate our arguments 
+;; Could be polynomial time, but probably worse!
+(defun slow-std-compute-effective-method (gf method-combination methods)
+  (assert (typep method-combination 'method-combination))
+  (let* ((mc-name (method-combination-name method-combination))
+         (options (slot-value method-combination 'options))
+         (order (car options))
+         (primaries '())
+         (arounds '())
+         around
+         emf-form
+         (long-method-combination-p
+          (typep method-combination 'long-method-combination)))
+    (unless long-method-combination-p
+      (dolist (m methods)
+        (let ((qualifiers (method-qualifiers m)))
+          (cond ((null qualifiers)
+                 (if (eq mc-name 'standard)
+                     (push m primaries)
+                     (error "Method combination type mismatch: missing qualifier for method combination ~S." method-combination)))
+                ((cdr qualifiers)
+                 (error "Invalid method qualifiers."))
+                ((eq (car qualifiers) :around)
+                 (push m arounds))
+                ((eq (car qualifiers) mc-name)
+                 (push m primaries))
+                ((memq (car qualifiers) '(:before :after)))
+                (t
+                 (error "Invalid method qualifiers."))))))
+    (unless (eq order :most-specific-last)
+      (setf primaries (nreverse primaries)))
+    (setf arounds (nreverse arounds))
+    (setf around (car arounds))
+    (when (and (null primaries) (not long-method-combination-p))
+      (error "No primary methods for the generic function ~S." gf))
+    (cond
+      (around 
+       ;; The new method list isn't sorted so
+       ;; forget about validating the available methods! FIXME!
+       (let ((next-emfun
+              (funcall
+               (if (std-generic-function-p gf)
+                   #'std-compute-effective-method
+                   #'compute-effective-method)
+               gf method-combination (remove around methods))))
+         (setf emf-form
+               (generate-emf-lambda (method-function around) next-emfun))))
+      ((eq mc-name 'standard)
+        ;; This is the reason this function exists!
+       (let* ((next-emfun (slow-compute-primary-emfun gf methods (cdr primaries)))
+              (befores (remove-if-not #'before-method-p methods))
+              (reverse-afters
+               (reverse (remove-if-not #'after-method-p methods))))
+         (setf emf-form
+               (cond
+                 ((and (null befores) (null reverse-afters))
+                  (let ((fast-function (std-method-fast-function (car primaries))))
+                    (if fast-function ;; This may be a problem
+                        (ecase (length (generic-function-required-arguments gf))
+                          (1
+                           #'(lambda (args)
+                               (declare (optimize speed))
+                               (funcall fast-function (car args))))
+                          (2
+                           #'(lambda (args)
+                               (declare (optimize speed))
+                               (funcall fast-function (car args) (cadr args)))))
+                        (generate-emf-lambda (std-method-function (car primaries))
+                                             next-emfun))))
+                 (t
+                  (let ((method-function (method-function (car primaries))))
+                    #'(lambda (args)
+                        (declare (optimize speed))
+                        (dolist (before befores)
+                          (funcall (method-function before) args nil))
+                        (multiple-value-prog1
+                            (funcall method-function args next-emfun)
+                          (dolist (after reverse-afters)
+                            (funcall (method-function after) args nil))))))))))
+      ;; Optimistically hoping we don't get past this point! FIXME!
+      (long-method-combination-p
+       (let ((function (long-method-combination-function method-combination))
+             (arguments (slot-value method-combination 'options)))
+         (assert function)
+         (setf emf-form
+               (if arguments
+                   (apply function gf methods arguments)
+                   (funcall function gf methods)))))
+      (t
+       (unless (typep method-combination 'short-method-combination)
+         (error "Unsupported method combination type ~A." mc-name))
+       (let ((operator (short-method-combination-operator method-combination))
+             (ioa (short-method-combination-identity-with-one-argument method-combination)))
+         (setf emf-form
+               (if (and ioa (null (cdr primaries)))
+                   (generate-emf-lambda (method-function (car primaries)) nil)
+                   `(lambda (args)
+                      (,operator ,@(mapcar
+                                    (lambda (primary)
+                                      `(funcall ,(method-function primary) args nil))
+                                    primaries))))))))
+    (assert (not (null emf-form)))
+    (or #+nil (ignore-errors (autocompile emf-form))
+        (coerce-to-function emf-form))))
+
 (defun generate-emf-lambda (method-function next-emfun)
   #'(lambda (args)
       (declare (optimize speed))
@@ -2729,6 +2838,20 @@ to ~S with argument list ~S."
       nil
       (let ((next-emfun (compute-primary-emfun (cdr methods))))
         #'(lambda (args)
+           (funcall (std-method-function (car methods)) args next-emfun)))))
+
+;; Recursion??? FIXME!
+(defun slow-compute-primary-emfun (gf-in all-matches-in methods)
+  (if (null methods)
+      nil
+      (let ((next-emfun (slow-compute-primary-emfun gf-in all-matches-in (cdr methods)))
+            (all-matches all-matches-in)
+            (gf gf-in))
+        #'(lambda (args)
+           (when (not (equal all-matches (slow-applicable-methods-lookup gf args)))
+                 (error "Illegal mutation in the generic function ~S to arguments ~S."
+                   gf
+                   args))
            (funcall (std-method-function (car methods)) args next-emfun)))))
 
 (defvar *call-next-method-p*)
