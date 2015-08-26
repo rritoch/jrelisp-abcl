@@ -125,7 +125,11 @@ public final class RandomStateObject
     		}
     	} else if (rs == T) {
     		Random tmp_rand = new Random();
-    		int len = (int)(Math.abs(min_values) + Math.abs((Math.abs(tmp_rand.nextLong())) % Math.abs(max_values - min_values)));
+    		int len = Math.abs(min_values) == Math.abs(max_values) ? 
+    				  min_values : 
+    				  (int)(Math.abs(min_values) 
+    				       + Math.abs((Math.abs(tmp_rand.nextLong())) 
+    				    		      % Math.abs(max_values - min_values)));
     		BasicVector_UnsignedByte32 seed = new BasicVector_UnsignedByte32(len);
     		int sv;
     		for(int i=0;i<len;i++) {
