@@ -93,8 +93,11 @@ public final class Cons extends LispObject implements java.io.Serializable
   @Override
   public LispObject typep(LispObject typeSpecifier)
   {
-    if (typeSpecifier instanceof Symbol)
-      {
+	if (null == typeSpecifier) {
+		return NIL;
+	}
+	
+    if (typeSpecifier.isSymbol()) {
         if (typeSpecifier == Symbol.LIST)
           return T;
         if (typeSpecifier == Symbol.CONS)
@@ -104,7 +107,7 @@ public final class Cons extends LispObject implements java.io.Serializable
         if (typeSpecifier == T)
           return T;
       }
-    else if (typeSpecifier instanceof LispClass)
+    else if (typeSpecifier.isLispClass())
       {
         if (typeSpecifier == BuiltInClass.LIST)
           return T;
@@ -123,7 +126,7 @@ public final class Cons extends LispObject implements java.io.Serializable
   {
     if (car == Symbol.QUOTE)
       {
-        if (cdr instanceof Cons)
+        if (cdr.isCons())
           if (((Cons)cdr).cdr == NIL)
             return true;
       }
@@ -158,7 +161,7 @@ public final class Cons extends LispObject implements java.io.Serializable
 
   private static final int computeHash(LispObject obj, int depth)
   {
-    if (obj instanceof Cons)
+    if (obj.isCons())
       {
         if (depth > 0)
           {
@@ -186,7 +189,7 @@ public final class Cons extends LispObject implements java.io.Serializable
 
   private static final int computeEqualpHash(LispObject obj, int depth)
   {
-    if (obj instanceof Cons)
+    if (obj.isCons())
       {
         if (depth > 0)
           {
@@ -206,7 +209,7 @@ public final class Cons extends LispObject implements java.io.Serializable
   {
     if (this == obj)
       return true;
-    if (obj instanceof Cons)
+    if (obj.isCons())
       {
         if (car.equal(((Cons)obj).car) && cdr.equal(((Cons)obj).cdr))
           return true;
@@ -217,13 +220,13 @@ public final class Cons extends LispObject implements java.io.Serializable
   @Override
   public final boolean equalp(LispObject obj)
   {
+	if (obj == null) return false;
     if (this == obj)
       return true;
-    if (obj instanceof Cons)
-      {
+    if (obj.isCons()) {
         if (car.equalp(((Cons)obj).car) && cdr.equalp(((Cons)obj).cdr))
           return true;
-      }
+    }
     return false;
   }
 
@@ -235,7 +238,7 @@ public final class Cons extends LispObject implements java.io.Serializable
         while (obj != NIL)
           {
             ++length;
-            if (obj instanceof Cons) {
+            if (obj.isCons()) {
                 obj = ((Cons)obj).cdr;
             } else  type_error(obj, Symbol.LIST);
           }      
@@ -272,7 +275,7 @@ public final class Cons extends LispObject implements java.io.Serializable
         if (i == index)
           return cons.car;
         LispObject conscdr = cons.cdr;
-        if (conscdr instanceof Cons)
+        if (conscdr.isCons())
           {
             cons = (Cons) conscdr;
           }
@@ -302,7 +305,7 @@ public final class Cons extends LispObject implements java.io.Serializable
   {
     Cons cons = this;
     LispObject result = new Cons(cons.car);
-    while (cons.cdr instanceof Cons)
+    while (cons.cdr.isCons())
       {
         cons = (Cons) cons.cdr;
         result = new Cons(cons.car, result);
@@ -315,10 +318,10 @@ public final class Cons extends LispObject implements java.io.Serializable
   @Override
   public final LispObject nreverse()
   {
-    if (cdr instanceof Cons)
+    if (cdr.isCons())
       {
         Cons cons = (Cons) cdr;
-        if (cons.cdr instanceof Cons)
+        if (cons.cdr.isCons())
           {
             Cons cons1 = cons;
             LispObject list = NIL;
@@ -329,7 +332,7 @@ public final class Cons extends LispObject implements java.io.Serializable
                 list = cons;
                 cons = temp;
               }
-            while (cons.cdr instanceof Cons);
+            while (cons.cdr.isCons());
             if (cons.cdr != NIL)
               return type_error(cons.cdr, Symbol.LIST);
             cdr = list;
@@ -503,20 +506,20 @@ public final class Cons extends LispObject implements java.io.Serializable
     final LispThread thread = LispThread.currentThread();
     final LispObject printLength = Symbol.PRINT_LENGTH.symbolValue(thread);
     final int maxLength;
-    if (printLength instanceof Fixnum)
+    if (printLength.isFixnum())
       maxLength = ((Fixnum)printLength).value;
     else
       maxLength = Integer.MAX_VALUE;
     final LispObject printLevel = Symbol.PRINT_LEVEL.symbolValue(thread);
     final int maxLevel;
-    if (printLevel instanceof Fixnum)
+    if (printLevel.isFixnum())
       maxLevel = ((Fixnum)printLevel).value;
     else
       maxLevel = Integer.MAX_VALUE;
     StringBuilder sb = new StringBuilder();
     if (car == Symbol.QUOTE)
       {
-        if (cdr instanceof Cons)
+        if (cdr.isCons())
           {
             // Not a dotted list.
             if (cdr.cdr() == NIL)
@@ -529,7 +532,7 @@ public final class Cons extends LispObject implements java.io.Serializable
       }
     if (car == Symbol.FUNCTION)
       {
-        if (cdr instanceof Cons)
+        if (cdr.isCons())
           {
             // Not a dotted list.
             if (cdr.cdr() == NIL)
@@ -557,7 +560,7 @@ public final class Cons extends LispObject implements java.io.Serializable
                 LispObject p = this;
                 sb.append(p.car().printObject());
                 ++count;
-                while ((p = p.cdr()) instanceof Cons)
+                while ((p = p.cdr()).isCons())
                   {
                     sb.append(' ');
                     if (count < maxLength)
@@ -621,9 +624,9 @@ public final class Cons extends LispObject implements java.io.Serializable
               // Don't eval args!
               return fun.execute(cdr, env);
             }
-          if (fun instanceof MacroObject)
+          if (fun != null && fun.isMacroObject())
             return eval(macroexpand(this, env, thread), env, thread);
-          if (fun instanceof Autoload)
+          if (fun != null && fun.isAutoload())
             {
               Autoload autoload = (Autoload) fun;
               autoload.load();

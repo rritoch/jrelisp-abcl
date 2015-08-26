@@ -83,7 +83,7 @@ public class Condition extends StandardObject
     LispObject control = null;
     LispObject arguments = null;
     LispObject first, second;
-    while (initArgs instanceof Cons)
+    while (initArgs != null && initArgs.isCons())
       {
         first = initArgs.car();
         initArgs = initArgs.cdr();
@@ -155,15 +155,17 @@ public class Condition extends StandardObject
   public LispObject typeOf()
   {
 
-	  if (is_complex_type){
+	if (is_complex_type){
 		  return myType;
-	  }
+	}
     LispObject c = getLispClass();
-    if (c instanceof LispClass)
+    if (c == null) {
+    	return Symbol.CONDITION;
+    }
+    
+    if (c.isLispClass())
         return ((LispClass)c).getName();
-    else if (c != null)
-      return Symbol.CLASS_NAME.execute(c);
-    return Symbol.CONDITION;
+    return Symbol.CLASS_NAME.execute(c);
   }
 
   @Override
@@ -212,23 +214,23 @@ public class Condition extends StandardObject
         if (s != null)
           return new SimpleString(s);
         LispObject formatControl = getFormatControl();
-        if (formatControl instanceof Function)
-          {
-            StringOutputStream stream = new StringOutputStream();
-            Symbol.APPLY.execute(formatControl, stream, getFormatArguments());
-            return new SimpleString(stream.getString().getStringValue());
-          }
-        if (formatControl instanceof AbstractString)
-          {
-            LispObject f = Symbol.FORMAT.getSymbolFunction();
-            if (f == null || f instanceof Autoload)
-              return new SimpleString(format(formatControl, getFormatArguments()));
-            return new SimpleString(Symbol.APPLY.execute(f, NIL, formatControl, getFormatArguments()).getStringValue());
-          }
+        if (formatControl != null) {
+        	if (formatControl.isFunction()) {
+        		StringOutputStream stream = new StringOutputStream();
+        		Symbol.APPLY.execute(formatControl, stream, getFormatArguments());
+        		return new SimpleString(stream.getString().getStringValue());
+        	}
+        	if (formatControl.isAbstractString()) {
+        		LispObject f = Symbol.FORMAT.getSymbolFunction();
+        		if (f == null || f.isAutoload())
+        			return new SimpleString(format(formatControl, getFormatArguments()));
+        		return new SimpleString(Symbol.APPLY.execute(f, NIL, formatControl, getFormatArguments()).getStringValue());
+        	}
+        }
       }
     final int maxLevel;
     LispObject printLevel = Symbol.PRINT_LEVEL.symbolValue(thread);
-    if (printLevel instanceof Fixnum)
+    if (printLevel !=null && printLevel.isFixnum())
       maxLevel = ((Fixnum)printLevel).value;
     else
       maxLevel = Integer.MAX_VALUE;

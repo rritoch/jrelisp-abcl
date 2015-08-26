@@ -35,6 +35,8 @@ package org.armedbear.lisp;
 
 import static org.armedbear.lisp.Lisp.*;
 
+import org.armedbear.lisp.protocol.IBinding;
+
 // ### dolist
 public final class dolist extends SpecialOperator
 {
@@ -71,7 +73,7 @@ public final class dolist extends SpecialOperator
         LispObject remaining = bodyForm;
         LispObject localTags = preprocessTagBody(bodyForm, ext);
 
-        final Object binding;
+        final IBinding binding;
         if (specials != NIL && memq(var, specials))
           {
             thread.bindSpecial(var, null);
@@ -95,7 +97,7 @@ public final class dolist extends SpecialOperator
           }
         while (list != NIL)
           {
-            if (binding instanceof SpecialBinding)
+            if (binding != null && binding.isSpecialBinding())
               ((SpecialBinding)binding).value = list.car();
             else
               ((Binding)binding).value = list.car();
@@ -106,7 +108,7 @@ public final class dolist extends SpecialOperator
             if (interrupted)
               handleInterrupt();
           }
-        if (binding instanceof SpecialBinding)
+        if (binding != null && binding.isSpecialBinding())
           ((SpecialBinding)binding).value = NIL;
         else
           ((Binding)binding).value = NIL;

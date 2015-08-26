@@ -53,9 +53,9 @@ public final class delete_file extends Primitive
         // Don't follow symlinks! We want to delete the symlink itself, not
         // the linked-to file.
         Pathname pathname = coerceToPathname(arg);
-        if (arg instanceof Stream)
+        if (arg != null && arg.isStream())
             ((Stream)arg)._close();
-        if (pathname instanceof LogicalPathname)
+        if (pathname != null && pathname.isLogicalPathname())
             pathname = LogicalPathname.translateLogicalPathname((LogicalPathname)pathname);
         if (pathname.isWild())
             return error(new FileError("Bad place for a wild pathname.",

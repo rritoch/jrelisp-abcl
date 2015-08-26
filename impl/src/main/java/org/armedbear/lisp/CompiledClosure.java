@@ -243,7 +243,7 @@ public class CompiledClosure extends Closure
     @Override
     public LispObject execute(LispObject arg)
     {
-      if (arg instanceof Closure)
+      if (arg != null && arg.isClosure())
         return ((Closure)arg).getVariableList();
       return type_error(arg, Symbol.COMPILED_FUNCTION);
     }

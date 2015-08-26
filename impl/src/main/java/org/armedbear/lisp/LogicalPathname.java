@@ -333,4 +333,9 @@ public final class LogicalPathname extends Pathname
             return error(new TypeError("Logical namestring does not specify a host: \"" + s + '"'));
         }
     }
+    
+    public final boolean isLogicalPathname() {
+  	  return true;
+    }
+    
 }

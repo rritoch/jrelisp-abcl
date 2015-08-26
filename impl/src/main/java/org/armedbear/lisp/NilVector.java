@@ -302,4 +302,9 @@ public final class NilVector extends AbstractString
         return (hashCode & 0x7fffffff);
     }
     
+    @Override
+    public final boolean isNilVector() {
+  	  return true;
+    }
+    
 }

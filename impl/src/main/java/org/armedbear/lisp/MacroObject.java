@@ -133,4 +133,8 @@ public final class MacroObject extends Function
   {
     return new SimpleString(unreadableString("MACRO-OBJECT"));
   }
+  
+  public final boolean isMacroObject() {
+	  return true;
+  }
 }

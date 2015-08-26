@@ -82,7 +82,7 @@ public final class Do {
         LispObject[] stepforms = new LispObject[numvars];
         for (int i = 0; i < numvars; i++) {
             final LispObject varspec = varlist.car();
-            if (varspec instanceof Cons) {
+            if (varspec != null && varspec.isCons()) {
                 vars[i] = checkSymbol(varspec.car());
                 initforms[i] = varspec.cadr();
                 // Is there a step form?

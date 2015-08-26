@@ -35,6 +35,8 @@ package org.armedbear.lisp;
 
 import static org.armedbear.lisp.Lisp.*;
 
+import org.armedbear.lisp.protocol.IBinding;
+
 public final class dotimes extends SpecialOperator
 {
   private dotimes()
@@ -69,7 +71,7 @@ public final class dotimes extends SpecialOperator
 
         LispObject result;
         // Establish a reusable binding.
-        final Object binding;
+        final IBinding binding;
         if (specials != NIL && memq(var, specials))
           {
             thread.bindSpecial(var, null);
@@ -91,13 +93,13 @@ public final class dotimes extends SpecialOperator
             ext.declareSpecial(checkSymbol(specials.car()));
             specials = specials.cdr();
           }
-        if (limit instanceof Fixnum)
+        if (limit != null && limit.isFixnum())
           {
             int count = ((Fixnum)limit).value;
             int i;
             for (i = 0; i < count; i++)
               {
-                if (binding instanceof SpecialBinding)
+                if (binding != null && binding.isSpecialBinding())
                   ((SpecialBinding)binding).value = Fixnum.getInstance(i);
                 else
                   ((Binding)binding).value = Fixnum.getInstance(i);
@@ -107,18 +109,18 @@ public final class dotimes extends SpecialOperator
                 if (interrupted)
                   handleInterrupt();
               }
-            if (binding instanceof SpecialBinding)
+            if (binding != null && binding.isSpecialBinding())
               ((SpecialBinding)binding).value = Fixnum.getInstance(i);
             else
               ((Binding)binding).value = Fixnum.getInstance(i);
             result = eval(resultForm, ext, thread);
           }
-        else if (limit instanceof Bignum)
+        else if (limit != null && limit.isBignum())
           {
             LispObject i = Fixnum.ZERO;
             while (i.isLessThan(limit))
               {
-                if (binding instanceof SpecialBinding)
+                if (binding != null && binding.isSpecialBinding())
                   ((SpecialBinding)binding).value = i;
                 else
                   ((Binding)binding).value = i;
@@ -129,7 +131,7 @@ public final class dotimes extends SpecialOperator
                 if (interrupted)
                   handleInterrupt();
               }
-            if (binding instanceof SpecialBinding)
+            if (binding != null && binding.isSpecialBinding())
               ((SpecialBinding)binding).value = i;
             else
               ((Binding)binding).value = i;

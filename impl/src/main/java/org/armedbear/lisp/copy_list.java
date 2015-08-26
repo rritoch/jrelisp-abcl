@@ -51,7 +51,7 @@ public final class copy_list extends Primitive
     Cons result = new Cons(arg.car());
     Cons splice = result;
     arg = arg.cdr();
-    while (arg instanceof Cons)
+    while (arg != null && arg.isCons())
       {
         Cons cons = (Cons) arg;
         Cons temp = new Cons(cons.car);

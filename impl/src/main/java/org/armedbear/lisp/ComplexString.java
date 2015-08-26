@@ -152,7 +152,7 @@ public final class ComplexString extends AbstractString
       return chars;
     Debug.assertTrue(array != null);
     char[] copy = new char[capacity];
-    if (array instanceof AbstractString)
+    if (array != null && array.isAbstractString())
       System.arraycopy(array.chars(), displacement, copy, 0, capacity);
     else if (array.getElementType() == Symbol.CHARACTER)
       {
@@ -180,9 +180,11 @@ public final class ComplexString extends AbstractString
   @Override
   public boolean equal(LispObject obj)
   {
+	if (obj == null) return false;
+	
     if (this == obj)
       return true;
-    if (obj instanceof AbstractString)
+    if (obj.isAbstractString())
       {
         AbstractString string = (AbstractString) obj;
         if (string.length() != length())
@@ -192,7 +194,7 @@ public final class ComplexString extends AbstractString
             return false;
         return true;
       }
-    if (obj instanceof NilVector)
+    if (obj.isNilVector())
       return obj.equal(this);
     return false;
   }
@@ -200,9 +202,11 @@ public final class ComplexString extends AbstractString
   @Override
   public boolean equalp(LispObject obj)
   {
+	if (obj == null) return false;
+	
     if (this == obj)
       return true;
-    if (obj instanceof AbstractString)
+    if (obj.isAbstractString())
       {
         AbstractString string = (AbstractString) obj;
         if (string.length() != length())
@@ -217,9 +221,9 @@ public final class ComplexString extends AbstractString
           }
         return true;
       }
-    if (obj instanceof AbstractBitVector)
+    if (obj.isAbstractBitVector())
       return false;
-    if (obj instanceof AbstractArray)
+    if (obj.isAbstractArray())
       return obj.equalp(this);
     return false;
   }
@@ -267,7 +271,7 @@ public final class ComplexString extends AbstractString
     Debug.assertTrue(chars == null);
     // Displaced array. Copy existing characters.
     chars = new char[n];
-    if (array instanceof AbstractString)
+    if (array !=null && array.isAbstractString())
       {
         AbstractString string = (AbstractString) array;
         for (int i = 0; i < n; i++)
@@ -489,7 +493,7 @@ public final class ComplexString extends AbstractString
             chars = new char[minCapacity];
             final int limit =
               Math.min(capacity, array.getTotalSize() - displacement);
-            if (array instanceof AbstractString)
+            if (array != null && array.isAbstractString())
               {
                 AbstractString string = (AbstractString) array;
                 for (int i = 0; i < limit; i++)
@@ -586,7 +590,7 @@ public final class ComplexString extends AbstractString
             // Displaced array. Copy existing characters.
             chars = new char[newCapacity];
             final int limit = Math.min(capacity, newCapacity);
-            if (array instanceof AbstractString)
+            if (array != null && array.isAbstractString())
               {
                 AbstractString string = (AbstractString) array;
                 for (int i = 0; i < limit; i++)

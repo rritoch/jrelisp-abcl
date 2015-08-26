@@ -125,9 +125,15 @@ public final class DoubleFloat extends LispObject
     @Override
     public boolean eql(LispObject obj)
     {
+    	
         if (this == obj)
             return true;
-        if (obj instanceof DoubleFloat) {
+        
+        if (obj == null) {
+    		return false;
+    	}
+        
+        if (obj.isDoubleFloat()) {
             if (value == 0) {
                 // "If an implementation supports positive and negative zeros
                 // as distinct values, then (EQL 0.0 -0.0) returns false."
@@ -146,7 +152,10 @@ public final class DoubleFloat extends LispObject
     {
         if (this == obj)
             return true;
-        if (obj instanceof DoubleFloat) {
+        if (obj == null) {
+        	return false;
+        }
+        if (obj.isDoubleFloat()) {
             if (value == 0) {
                 // same as EQL
                 double d = ((DoubleFloat)obj).value;
@@ -210,7 +219,7 @@ public final class DoubleFloat extends LispObject
 
     public static double getValue(LispObject obj)
     {
-        if (obj instanceof DoubleFloat) 
+        if (obj != null && obj.isDoubleFloat()) 
             return ((DoubleFloat)obj).value;
             type_error(obj, Symbol.FLOAT);
             // Not reached.
@@ -267,17 +276,21 @@ public final class DoubleFloat extends LispObject
     @Override
     public LispObject add(LispObject obj)
     {
-        if (obj instanceof Fixnum)
+    	if (obj == null) {
+    		return type_error(obj, Symbol.NUMBER);
+    	}
+    	
+        if (obj.isFixnum())
             return new DoubleFloat(value + ((Fixnum)obj).value);
-        if (obj instanceof SingleFloat)
+        if (obj.isSingleFloat())
             return new DoubleFloat(value + ((SingleFloat)obj).value);
-        if (obj instanceof DoubleFloat)
+        if (obj.isDoubleFloat())
             return new DoubleFloat(value + ((DoubleFloat)obj).value);
-        if (obj instanceof Bignum)
+        if (obj.isBignum())
             return new DoubleFloat(value + ((Bignum)obj).doubleValue());
-        if (obj instanceof Ratio)
+        if (obj.isRatio())
             return new DoubleFloat(value + ((Ratio)obj).doubleValue());
-        if (obj instanceof Complex) {
+        if (obj.isComplex()) {
             Complex c = (Complex) obj;
             return Complex.getInstance(add(c.getRealPart()), c.getImaginaryPart());
         }
@@ -287,17 +300,21 @@ public final class DoubleFloat extends LispObject
     @Override
     public LispObject subtract(LispObject obj)
     {
-        if (obj instanceof Fixnum)
+    	if (obj == null) {
+    		return type_error(obj, Symbol.NUMBER);
+    	}
+    	
+        if (obj.isFixnum())
             return new DoubleFloat(value - ((Fixnum)obj).value);
-        if (obj instanceof SingleFloat)
+        if (obj.isSingleFloat())
             return new DoubleFloat(value - ((SingleFloat)obj).value);
-        if (obj instanceof DoubleFloat)
+        if (obj.isDoubleFloat())
             return new DoubleFloat(value - ((DoubleFloat)obj).value);
-        if (obj instanceof Bignum)
+        if (obj.isBignum())
             return new DoubleFloat(value - ((Bignum)obj).doubleValue());
-        if (obj instanceof Ratio)
+        if (obj.isRatio())
             return new DoubleFloat(value - ((Ratio)obj).doubleValue());
-        if (obj instanceof Complex) {
+        if (obj.isComplex()) {
             Complex c = (Complex) obj;
             return Complex.getInstance(subtract(c.getRealPart()),
                                        ZERO.subtract(c.getImaginaryPart()));
@@ -308,17 +325,21 @@ public final class DoubleFloat extends LispObject
     @Override
     public LispObject multiplyBy(LispObject obj)
     {
-        if (obj instanceof Fixnum)
+    	if (obj == null) {
+    		return type_error(obj, Symbol.NUMBER);
+    	}
+    
+        if (obj.isFixnum())
             return new DoubleFloat(value * ((Fixnum)obj).value);
-        if (obj instanceof SingleFloat)
+        if (obj.isSingleFloat())
             return new DoubleFloat(value * ((SingleFloat)obj).value);
-        if (obj instanceof DoubleFloat)
+        if (obj.isDoubleFloat())
             return new DoubleFloat(value * ((DoubleFloat)obj).value);
-        if (obj instanceof Bignum)
+        if (obj.isBignum())
             return new DoubleFloat(value * ((Bignum)obj).doubleValue());
-        if (obj instanceof Ratio)
+        if (obj.isRatio())
             return new DoubleFloat(value * ((Ratio)obj).doubleValue());
-        if (obj instanceof Complex) {
+        if (obj.isComplex()) {
             Complex c = (Complex) obj;
             return Complex.getInstance(multiplyBy(c.getRealPart()),
                                        multiplyBy(c.getImaginaryPart()));
@@ -329,17 +350,21 @@ public final class DoubleFloat extends LispObject
     @Override
     public LispObject divideBy(LispObject obj)
     {
-        if (obj instanceof Fixnum)
+    	if (obj == null) {
+    		return type_error(obj, Symbol.NUMBER);
+    	}
+    	
+        if (obj.isFixnum())
             return new DoubleFloat(value / ((Fixnum)obj).value);
-        if (obj instanceof SingleFloat)
+        if (obj.isSingleFloat())
             return new DoubleFloat(value / ((SingleFloat)obj).value);
-        if (obj instanceof DoubleFloat)
+        if (obj.isDoubleFloat())
             return new DoubleFloat(value / ((DoubleFloat)obj).value);
-        if (obj instanceof Bignum)
+        if (obj.isBignum())
             return new DoubleFloat(value / ((Bignum)obj).doubleValue());
-        if (obj instanceof Ratio)
+        if (obj.isRatio())
             return new DoubleFloat(value / ((Ratio)obj).doubleValue());
-        if (obj instanceof Complex) {
+        if (obj.isComplex()) {
             Complex c = (Complex) obj;
             LispObject re = c.getRealPart();
             LispObject im = c.getImaginaryPart();
@@ -355,21 +380,24 @@ public final class DoubleFloat extends LispObject
     @Override
     public boolean isEqualTo(LispObject obj)
     {
-        if (obj instanceof Fixnum)
+    	if (obj == null) {
+    		return type_error(obj, Symbol.NUMBER) == null;
+    	}
+    	
+        if (obj.isFixnum())
             return value == ((Fixnum)obj).value;
-        if (obj instanceof SingleFloat)
+        if (obj.isSingleFloat())
             return value == ((SingleFloat)obj).value;
-        if (obj instanceof DoubleFloat)
+        if (obj.isDoubleFloat())
             return value == ((DoubleFloat)obj).value;
-        if (obj instanceof Bignum)
+        if (obj.isBignum())
             return rational().isEqualTo(obj);
-        if (obj instanceof Ratio)
+        if (obj.isRatio())
             return rational().isEqualTo(obj);
-        if (obj instanceof Complex)
+        if (obj.isComplex())
             return obj.isEqualTo(this);
-        type_error(obj, Symbol.NUMBER);
-        // Not reached.
-        return false;
+
+        return type_error(obj, Symbol.NUMBER) == null;
     }
 
     @Override
@@ -381,91 +409,103 @@ public final class DoubleFloat extends LispObject
     @Override
     public boolean isLessThan(LispObject obj)
     {
-        if (obj instanceof Fixnum)
+    	if (obj == null) {
+    		return type_error(obj, Symbol.REAL) == null;
+    	}
+    	
+        if (obj.isFixnum())
             return value < ((Fixnum)obj).value;
-        if (obj instanceof SingleFloat)
+        if (obj.isSingleFloat())
             return value < ((SingleFloat)obj).value;
-        if (obj instanceof DoubleFloat)
+        if (obj.isDoubleFloat())
             return value < ((DoubleFloat)obj).value;
-        if (obj instanceof Bignum)
+        if (obj.isBignum())
             return rational().isLessThan(obj);
-        if (obj instanceof Ratio)
+        if (obj.isRatio())
             return rational().isLessThan(obj);
-        type_error(obj, Symbol.REAL);
-        // Not reached.
-        return false;
+
+        return type_error(obj, Symbol.REAL) == null;
     }
 
     @Override
     public boolean isGreaterThan(LispObject obj)
     {
-        if (obj instanceof Fixnum)
+    	if (obj == null) {
+    		return type_error(obj, Symbol.REAL) == null;
+    	}
+    	
+        if (obj.isFixnum())
             return value > ((Fixnum)obj).value;
-        if (obj instanceof SingleFloat)
+        if (obj.isSingleFloat())
             return value > ((SingleFloat)obj).value;
-        if (obj instanceof DoubleFloat)
+        if (obj.isDoubleFloat())
             return value > ((DoubleFloat)obj).value;
-        if (obj instanceof Bignum)
+        if (obj.isBignum())
             return rational().isGreaterThan(obj);
-        if (obj instanceof Ratio)
+        if (obj.isRatio())
             return rational().isGreaterThan(obj);
-        type_error(obj, Symbol.REAL);
-        // Not reached.
-        return false;
+        return type_error(obj, Symbol.REAL) == null;
     }
 
     @Override
     public boolean isLessThanOrEqualTo(LispObject obj)
     {
-        if (obj instanceof Fixnum)
+    	if (obj == null) {
+    		return type_error(obj, Symbol.REAL) == null;
+    	}
+        if (obj.isFixnum())
             return value <= ((Fixnum)obj).value;
-        if (obj instanceof SingleFloat)
+        if (obj.isSingleFloat())
             return value <= ((SingleFloat)obj).value;
-        if (obj instanceof DoubleFloat)
+        if (obj.isDoubleFloat())
             return value <= ((DoubleFloat)obj).value;
-        if (obj instanceof Bignum)
+        if (obj.isBignum())
             return rational().isLessThanOrEqualTo(obj);
-        if (obj instanceof Ratio)
+        if (obj.isRatio())
             return rational().isLessThanOrEqualTo(obj);
-        type_error(obj, Symbol.REAL);
-        // Not reached.
-        return false;
+
+        return type_error(obj, Symbol.REAL) == null;
     }
 
     @Override
     public boolean isGreaterThanOrEqualTo(LispObject obj)
     {
-        if (obj instanceof Fixnum)
+    	if (obj == null) {
+    		return type_error(obj, Symbol.REAL) == null;
+    	}
+    	
+        if (obj.isFixnum())
             return value >= ((Fixnum)obj).value;
-        if (obj instanceof SingleFloat)
+        if (obj.isSingleFloat())
             return value >= ((SingleFloat)obj).value;
-        if (obj instanceof DoubleFloat)
+        if (obj.isDoubleFloat())
             return value >= ((DoubleFloat)obj).value;
-        if (obj instanceof Bignum)
+        if (obj.isBignum())
             return rational().isGreaterThanOrEqualTo(obj);
-        if (obj instanceof Ratio)
+        if (obj.isRatio())
             return rational().isGreaterThanOrEqualTo(obj);
-        type_error(obj, Symbol.REAL);
-        // Not reached.
-        return false;
+        return type_error(obj, Symbol.REAL) == null;
     }
 
     @Override
     public LispObject truncate(LispObject obj)
     {
+    	if (obj == null) {
+    		return type_error(obj, Symbol.REAL);
+    	}
         // "When rationals and floats are combined by a numerical function,
         // the rational is first converted to a float of the same format."
         // 12.1.4.1
-        if (obj instanceof Fixnum) {
+        if (obj.isFixnum()) {
             return truncate(new DoubleFloat(((Fixnum)obj).value));
         }
-        if (obj instanceof Bignum) {
+        if (obj.isBignum()) {
             return truncate(new DoubleFloat(((Bignum)obj).doubleValue()));
         }
-        if (obj instanceof Ratio) {
+        if (obj.isRatio()) {
             return truncate(new DoubleFloat(((Ratio)obj).doubleValue()));
         }
-        if (obj instanceof SingleFloat) {
+        if (obj.isSingleFloat()) {
             final LispThread thread = LispThread.currentThread();
             double divisor = ((SingleFloat)obj).value;
             double quotient = value / divisor;
@@ -497,7 +537,7 @@ public final class DoubleFloat extends LispObject
             LispObject remainder = subtract(product);
             return thread.setValues(result, remainder);
         }
-        if (obj instanceof DoubleFloat) {
+        if (obj.isDoubleFloat()) {
 //             Debug.trace("value = " + value);
             final LispThread thread = LispThread.currentThread();
             double divisor = ((DoubleFloat)obj).value;
@@ -628,19 +668,25 @@ public final class DoubleFloat extends LispObject
 
     public static DoubleFloat coerceToFloat(LispObject obj)
     {
-        if (obj instanceof DoubleFloat)
+    	if (obj == null) {
+            error(new TypeError("The value " + obj.princToString() +
+                    " cannot be converted to type DOUBLE-FLOAT."));
+            return null;
+    	}
+    	
+        if (obj.isDoubleFloat())
             return (DoubleFloat) obj;
-        if (obj instanceof Fixnum)
+        if (obj.isFixnum())
             return new DoubleFloat(((Fixnum)obj).value);
-        if (obj instanceof Bignum)
+        if (obj.isBignum())
             return new DoubleFloat(((Bignum)obj).doubleValue());
-        if (obj instanceof SingleFloat)
+        if (obj.isSingleFloat())
             return new DoubleFloat(((SingleFloat)obj).value);
-        if (obj instanceof Ratio)
+        if (obj.isRatio())
             return new DoubleFloat(((Ratio)obj).doubleValue());
+        
         error(new TypeError("The value " + obj.princToString() +
-                             " cannot be converted to type DOUBLE-FLOAT."));
-        // Not reached.
+                " cannot be converted to type DOUBLE-FLOAT."));
         return null;
     }
     

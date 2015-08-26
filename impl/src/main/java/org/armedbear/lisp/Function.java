@@ -385,4 +385,9 @@ public abstract class Function extends Operator
     {
         ++hotCount;
     }
+    
+    @Override
+    public final boolean isFunction() {
+  	  return true;
+    }
 }

@@ -253,7 +253,7 @@ public final class ConcatenatedStream extends Stream
         {
             LispObject streams = NIL;
             for (int i = 0; i < args.length; i++) {
-                if (args[i] instanceof Stream) {
+                if (args[i] != null && args[i].isStream()) {
                     Stream stream = (Stream) args[i];
                     if (stream.isInputStream()) {
                         //                         streams[i] = (Stream) args[i];
@@ -275,9 +275,13 @@ public final class ConcatenatedStream extends Stream
         @Override
         public LispObject execute(LispObject arg)
         {
-            if (arg instanceof ConcatenatedStream) 
+            if (arg != null && arg.isConcatenatedStream()) 
                 return ((ConcatenatedStream)arg).streams;
             return type_error(arg, Symbol.CONCATENATED_STREAM);
         }
     };
+    
+    public final boolean isConcatenatedStream() {
+    	return true;
+    }
 }

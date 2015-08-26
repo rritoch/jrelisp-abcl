@@ -33,12 +33,14 @@
 
 package org.armedbear.lisp;
 
+import org.armedbear.lisp.protocol.IBinding;
+
 /** Used by the environment to capture different kinds of bindings:
  * tags, blocks, functions and variables.
  *
  */
 // Package accessibility.
-final class Binding
+final class Binding implements IBinding
 {
     /** The symbol in case of a variable, block, symbol-macro or
      * non-SETF function binding, the tag (symbol or
@@ -89,5 +91,9 @@ final class Binding
     {
         this(symbol, value, next);
         this.env = env;
+    }
+    
+    public boolean isSpecialBinding() {
+    	return false;
     }
 }

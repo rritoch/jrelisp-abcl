@@ -33,7 +33,9 @@
 
 package org.armedbear.lisp;
 
-final public class SpecialBinding
+import org.armedbear.lisp.protocol.IBinding;
+
+final public class SpecialBinding implements IBinding
 {
     /** The index in the specials array of the symbol
      *  to which this value belongs.
@@ -73,4 +75,10 @@ final public class SpecialBinding
     {
         this.value = value;
     }
+    
+    @Override
+    public final boolean isSpecialBinding() {
+  	  return true;
+    }
+    
 }

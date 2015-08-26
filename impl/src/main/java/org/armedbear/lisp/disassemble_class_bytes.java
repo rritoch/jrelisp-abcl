@@ -50,7 +50,7 @@ public final class disassemble_class_bytes extends Primitive
     @Override
     public LispObject execute(LispObject arg)
     {
-        if (arg instanceof JavaObject) {
+        if (arg != null && arg.isJavaObject()) {
             byte[] bytes = (byte[]) ((JavaObject)arg).getObject();
             try {
                 File file = File.createTempFile("abcl", ".class", null);
@@ -59,11 +59,16 @@ public final class disassemble_class_bytes extends Primitive
                 out.close();
                 LispObject disassembler = _DISASSEMBLER_.symbolValue();
                 StringBuffer command = new StringBuffer();
-                if (disassembler instanceof AbstractString) {
+                
+                if (disassembler == null) {
+                	return new SimpleString("No disassembler is available.");
+                }
+                
+                if (disassembler.isAbstractString()) {
                     command.append(disassembler.getStringValue());
                     command.append(" ");
                     command.append(file.getPath());
-                } else if (disassembler instanceof Operator) {
+                } else if (disassembler.isOperator()) {
                     Pathname p = Pathname.makePathname(file);
                     LispObject commandResult = disassembler.execute(p);
                     command.append(commandResult.getStringValue());

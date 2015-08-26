@@ -1439,4 +1439,22 @@ public class LispObject //extends Lisp
   public boolean isLispCharacter() {
 	  return false;
   }
+  
+  public boolean isMacroObject() {
+	  return false;
+  }
+  public boolean isNilVector() {
+	  return false;
+  }
+  
+  public boolean isConcatenatedStream() {
+  	return false;
+  }
+  public boolean isLogicalPathname() {
+	  return false;
+  }
+  
+  public boolean isFunction() {
+	  return false;
+  }
 }
