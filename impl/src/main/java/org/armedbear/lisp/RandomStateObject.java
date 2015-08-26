@@ -46,6 +46,8 @@ public final class RandomStateObject
 	extends StructureObject
 {
 
+	public static int min_values = 100;
+	public static int max_values = 500;
 	
 	public static final LispObject STATE = RandomStateClass.STATE;
 	
@@ -123,7 +125,7 @@ public final class RandomStateObject
     		}
     	} else if (rs == T) {
     		Random tmp_rand = new Random();
-    		int len = (int)(100 + ((Math.abs(tmp_rand.nextLong())) % 900));
+    		int len = (int)(Math.abs(min_values) + Math.abs((Math.abs(tmp_rand.nextLong())) % Math.abs(max_values - min_values)));
     		BasicVector_UnsignedByte32 seed = new BasicVector_UnsignedByte32(len);
     		int sv;
     		for(int i=0;i<len;i++) {
