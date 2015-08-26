@@ -34,6 +34,7 @@
 package org.armedbear.lisp;
 
 import static org.armedbear.lisp.Lisp.*;
+import java.util.Arrays;
 
 // A basic vector is a specialized vector that is not displaced to another
 // array, has no fill pointer, and is not expressly adjustable.
@@ -210,7 +211,8 @@ public final class BasicVector_UnsignedByte32 extends AbstractVector
     for (int i = capacity; i-- > 0;)
       elements[i] = obj.longValue();
   }
-
+  
+  
   @Override
   public void shrink(int n)
   {
@@ -317,5 +319,14 @@ public final class BasicVector_UnsignedByte32 extends AbstractVector
 	    	return new SimpleString(sb.toString());
 	    }
 	    return super.printObject();
+  }
+  
+  public long[] toArray() {
+	  return Arrays.copyOf(elements, elements.length);
+  }
+  
+  public void internValues(long[] values) {
+	 elements = Arrays.copyOf(values, values.length);;
+  	 capacity = values.length;
   }
 }

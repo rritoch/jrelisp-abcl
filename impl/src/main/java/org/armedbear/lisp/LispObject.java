@@ -1457,4 +1457,8 @@ public class LispObject //extends Lisp
   public boolean isFunction() {
 	  return false;
   }
+  
+  public boolean isRandomStateObject() {
+  	return false;
+  }
 }

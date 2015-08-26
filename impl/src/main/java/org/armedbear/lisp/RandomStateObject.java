@@ -109,7 +109,7 @@ public final class RandomStateObject
     		rs = (RandomStateObject)Symbol._RANDOM_STATE_.symbolValue();
     	}
     	
-    	if (rs instanceof RandomStateObject) {
+    	if (rs != null && rs.isRandomStateObject()) {
     		RandomStateObject rso= (RandomStateObject)rs;
     		int idx = rso.getSlotIndex(STATE);
     		synchronized(rso.lock) {
@@ -150,17 +150,17 @@ public final class RandomStateObject
     }
     
     private long parseSeed() {
-    	
     	int idx = getSlotIndex(STATE);
-		BasicVector_UnsignedByte32 seed = (BasicVector_UnsignedByte32)getSlotValue(idx);
+		BasicVector_UnsignedByte32 _seed = (BasicVector_UnsignedByte32)getSlotValue(idx);
+		long[] seed = _seed.toArray();
     	long s = 0;
     	int r;
-    	int sv;
+    	long sv;
     	synchronized(lock) {
-    		int sl = seed.getTotalSize();
+    		int sl = seed.length;
     		for(int i=0;i<sl;i++) {
-    			sv = seed.aref(i);
-    			r = i % 64;
+    			sv = seed[i];
+    			r = (int)(i % 64);
     			s  = s ^ ((sv >> r) | (sv << (64 - r)));  
     		}
     	}
@@ -170,12 +170,14 @@ public final class RandomStateObject
     private void nextSeed() {
     	synchronized(lock) {
     		int idx = getSlotIndex(STATE);
-    		BasicVector_UnsignedByte32 seed = (BasicVector_UnsignedByte32)getSlotValue(idx);
-    		int len = seed.length();
+    		BasicVector_UnsignedByte32 _seed = (BasicVector_UnsignedByte32)getSlotValue(idx);
+    		long[] seed = _seed.toArray();
+    		int len = seed.length;
     		for(int i=0;i<len;i++) {
-    			seed.aset(i, Fixnum.getInstance(Math.abs((int)(random.nextLong() % Integer.MAX_VALUE))));
+    			seed[i] = Math.abs((int)(random.nextLong() % Integer.MAX_VALUE));
     		}
-    		setSlotValue(idx,seed);
+    		_seed.internValues(seed);
+    		setSlotValue(idx,_seed);
     	}
     }
     
@@ -229,14 +231,14 @@ public final class RandomStateObject
     {
     	random.setSeed(parseSeed());
     	
-        if (arg instanceof Fixnum) {
+        if (arg != null && arg.isFixnum()) {
             int limit = ((Fixnum)arg).value;
             if (limit > 0) {
                 int n = random.nextInt((int)limit);
                 nextSeed();
                 return Fixnum.getInstance(n);
             }
-        } else if (arg instanceof Bignum) {
+        } else if (arg != null && arg.isBignum()) {
             BigInteger limit = ((Bignum)arg).value;
             if (limit.signum() > 0) {
                 int bitLength = limit.bitLength();
@@ -246,14 +248,14 @@ public final class RandomStateObject
                 
                 return number(remainder);
             }
-        } else if (arg instanceof SingleFloat) {
+        } else if (arg != null && arg.isSingleFloat()) {
             float limit = ((SingleFloat)arg).value;
             if (limit > 0) {
                 float rand = random.nextFloat();
                 nextSeed();
                 return new SingleFloat(rand * limit);
             }
-        } else if (arg instanceof DoubleFloat) {
+        } else if (arg != null && arg.isDoubleFloat()) {
             double limit = ((DoubleFloat)arg).value;
             if (limit > 0) {
                 double rand = random.nextDouble();
@@ -281,7 +283,7 @@ public final class RandomStateObject
         public LispObject execute(LispObject first, LispObject second)
 
         {
-            if (second instanceof RandomStateObject) {
+            if (second != null && second.isRandomStateObject()) {
                 RandomStateObject randomState = (RandomStateObject) second;
                 return randomState.random(first);
             }
@@ -306,7 +308,7 @@ public final class RandomStateObject
                 return new RandomStateObject((RandomStateObject)Symbol._RANDOM_STATE_.symbolValue());
             if (arg == T)
                 return new RandomStateObject();
-            if (arg instanceof RandomStateObject)
+            if (arg != null && arg.isRandomStateObject())
                 return new RandomStateObject((RandomStateObject)arg);
             return type_error(arg, Symbol.RANDOM_STATE);
         }
@@ -319,7 +321,12 @@ public final class RandomStateObject
         @Override
         public LispObject execute(LispObject arg)
         {
-            return arg instanceof RandomStateObject ? T : NIL;
+            return arg != null && arg.isRandomStateObject() ? T : NIL;
         }
     };
+    
+    @Override
+    public final boolean isRandomStateObject() {
+    	return true;
+    }
 }
