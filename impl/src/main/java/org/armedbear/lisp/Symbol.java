@@ -431,6 +431,14 @@ public class Symbol extends LispObject implements java.io.Serializable
 
   public final void setSymbolFunction(LispObject obj)
   {
+	if (function != null && function != obj && obj != null) {
+	    if (isBuiltInFunction() || cold || disableClassloading) {
+		Function fun = checkFunction(obj);
+		if (is_interp && fun instanceof CompiledClosure) {
+		    type_error(this, obj);
+		}
+	    }
+	}
     this.function = obj;
   }
 
@@ -661,7 +669,7 @@ public class Symbol extends LispObject implements java.io.Serializable
     if (s.charAt(0) == '#')
       return true;
     int radix;
-    LispObject printBaseBinding = PRINT_BASE.symbolValue(thread); 
+    LispObject printBaseBinding = PRINT_BASE.symbolValue(thread);
     if (printBaseBinding instanceof Fixnum)
       {
         radix = ((Fixnum)printBaseBinding).value;
@@ -943,9 +951,9 @@ public class Symbol extends LispObject implements java.io.Serializable
 	    return this;
 	}
     }
-    
+
     @Override
-    public String toString() {
+    final public String toString() {
         StringBuilder sb = new StringBuilder();
         if (pkg instanceof Package) {
             sb.append(((Package)pkg).getName());
@@ -954,6 +962,15 @@ public class Symbol extends LispObject implements java.io.Serializable
             sb.append("#:");
         }
         sb.append(name);
+
+	try {
+	    LispObject value = getSymbolValue();
+	    if (value != Nil.NIL && value != null) {
+		sb.append(" #|" + value.toString() + "|#");
+	    }
+	} catch (Throwable t) {
+	}
+
         return sb.toString();
     }
 
@@ -3257,11 +3274,11 @@ public class Symbol extends LispObject implements java.io.Serializable
   public static final Symbol THREAD =
     PACKAGE_THREADS.addExternalSymbol("THREAD");
 
-  @Override 
+  @Override
   public final boolean isSymbol() {
 	  return true;
   }
-  
+
   @Override
   public LispObject evalImpl(
 		  final Environment env,
@@ -3293,5 +3310,5 @@ public class Symbol extends LispObject implements java.io.Serializable
         return eval(((SymbolMacro)result).getExpansion(), env, thread);
       return result;
   }
-  
+
 }

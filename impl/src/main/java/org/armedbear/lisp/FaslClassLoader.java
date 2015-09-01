@@ -127,8 +127,12 @@ public class FaslClassLoader extends JavaClassLoader {
         String name = baseName + "_" + (fnNumber + 1);
         try {
             Class clz = loadClass(name);
+            if (clz==null) {
+            	return null;
+            }
             Function f = (Function) clz.newInstance();
-            if (clz.getClassLoader() instanceof JavaClassLoader) {
+            ClassLoader fcl = clz.getClassLoader();
+            if (fcl instanceof JavaClassLoader) {
                 // Don't do this for system classes (though probably dont need this for other classes) 
                 f.setClassBytes(getFunctionClassBytes(name));
             }

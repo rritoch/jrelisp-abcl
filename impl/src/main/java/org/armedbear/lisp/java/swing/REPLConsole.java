@@ -34,6 +34,9 @@
 
 package org.armedbear.lisp.java.swing;
 
+import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -43,6 +46,7 @@ import java.lang.RuntimeException;
 import java.io.Reader;
 import java.io.Writer;
 
+import javax.print.attribute.AttributeSetUtilities;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -52,11 +56,17 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.DocumentFilter;
 import javax.swing.text.JTextComponent;
+import javax.swing.text.SimpleAttributeSet;
+
+import org.armedbear.lisp.Debug;
 import org.armedbear.lisp.Function;
 import org.armedbear.lisp.Interpreter;
+import org.armedbear.lisp.Lisp;
 import org.armedbear.lisp.LispObject;
 import org.armedbear.lisp.LispThread;
+import org.armedbear.lisp.SimpleString;
 import org.armedbear.lisp.SpecialBindingsMark;
 import org.armedbear.lisp.Stream;
 import org.armedbear.lisp.Symbol;
@@ -66,12 +76,15 @@ import static org.armedbear.lisp.Lisp.*;
 
 public class REPLConsole extends DefaultStyledDocument {
 
+    private static JTextArea txt;
+
   private StringBuffer inputBuffer = new StringBuffer();
 	
   private Reader reader = new Reader() {
 
       @Override
-      public void close() throws RuntimeException {}
+	public void close() throws RuntimeException {
+	}
 
       @Override
       public synchronized int read(char[] cbuf, int off, int len) throws RuntimeException {
@@ -93,10 +106,12 @@ public class REPLConsole extends DefaultStyledDocument {
   private Writer writer = new Writer() {
 	    
       @Override
-      public void close() throws RuntimeException {}
+	public void close() throws RuntimeException {
+	}
 
       @Override
-      public void flush() throws RuntimeException {}
+	public void flush() throws RuntimeException {
+	}
 
       @Override
       public void write(final char[] cbuf, final int off, final int len) throws RuntimeException {
@@ -114,9 +129,7 @@ public class REPLConsole extends DefaultStyledDocument {
               public void run() {
                 synchronized(reader) {
                   try {
-                    superInsertString(insertOffs,
-                                      new String(cbuf, off, len),
-                                      null);
+				superInsertString(insertOffs, new String(cbuf, off, len), null);
                   } catch(Exception e) {
                     assert(false); //BadLocationException should not happen here
                   }
@@ -133,10 +146,9 @@ public class REPLConsole extends DefaultStyledDocument {
   private boolean disposed = false;
   private final Thread replThread;
 	
-  public REPLConsole(LispObject replFunction) {
+    public REPLConsole(LispObject replFunction, boolean start) {
     final LispObject replWrapper = makeReplWrapper(new Stream(Symbol.SYSTEM_STREAM, new BufferedReader(reader)),
-                                                   new Stream(Symbol.SYSTEM_STREAM, new BufferedWriter(writer)),
-                                                   replFunction);
+		new Stream(Symbol.SYSTEM_STREAM, new BufferedWriter(writer)), replFunction);
     replThread = new Thread("REPL-thread-" + System.identityHashCode(this)) {
         public void run() {
           while(true) {
@@ -145,12 +157,12 @@ public class REPLConsole extends DefaultStyledDocument {
           }
         }
       };
+	if (start)
     replThread.start();
   }
 
   @Override
-  public void insertString(int offs, String str, AttributeSet a)
-    throws BadLocationException {
+    public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
     synchronized(reader) {
       int bufferStart = getLength() - inputBuffer.length();
       if(offs < bufferStart) {
@@ -164,13 +176,30 @@ public class REPLConsole extends DefaultStyledDocument {
     }
   }
 	
-  protected void superInsertString(int offs, String str, AttributeSet a)
-    throws BadLocationException {
+    private void insertString(String str) throws BadLocationException {
+	if (str == null || str.length() == 0)
+	    return;
+	synchronized (reader) {
+	    int bufferStart = getLength() - inputBuffer.length();
+	    int offs = bufferStart;
+	    SimpleAttributeSet attributes = new SimpleAttributeSet();
+	    superInsertString(offs, str, attributes);
+	    inputBuffer.insert(offs - bufferStart, str);
+	    if (processInputP(inputBuffer, str)) {
+		reader.notifyAll();
+	    }
+	}
+
+    }
+
+    protected void superInsertString(int offs, String str, AttributeSet a) throws BadLocationException {
     super.insertString(offs, str, a);
   }
 	
   /**
    * Guaranteed to run with exclusive access to the buffer.
+     *
+     * @param sb
    * @param sb NB sb MUST NOT be destructively modified!!
    * @return
    */
@@ -297,22 +326,63 @@ public class REPLConsole extends DefaultStyledDocument {
   }
 	
   public static void main(String[] args) {
+	if (args.length == 0)
+	    args = new String[] { "--load", "src/test/resources/org/armedbear/lisp/ansi-tests.lisp" };
     LispObject repl = null;
     try {		
-      repl = Interpreter.createInstance().eval("#'top-level::top-level-loop");
-    } catch (Throwable e) {
-      e.printStackTrace();
-      System.exit(1);  // Ok. We haven't done anything useful yet.
-    }
-    final REPLConsole d = new REPLConsole(repl);
-    final JTextComponent txt = new JTextArea(d);
+	    Interpreter.createInstance();
+	    final Interpreter interpreter = Interpreter.getInstance();
+	    Symbol.COMPILE_FILE.setSymbolFunction(Symbol.LOAD.getSymbolFunctionOrDie());
+	    Symbol.COMPILE_FILE.setBuiltInFunction(true);
+	    Lisp.is_running = true;
+	    repl = interpreter.eval("#'top-level::top-level-loop");
+
+	    //disableClassloading = true;
+	    final REPLConsole d = new REPLConsole(repl, false);
+
+	    // final JTextComponent
+	    txt = new JTextArea(d);
+
     d.setupTextComponent(txt);
     JFrame f = new JFrame();
     f.add(new JScrollPane(txt));
+	    centerWindow(f);
+	    f.setPreferredSize(new Dimension(500, 250));
+	    f.setMaximumSize(new Dimension(10000, 200));
     d.disposeOnClose(f);
     f.setDefaultCloseOperation(f.EXIT_ON_CLOSE);
     f.pack();
     f.setVisible(true);
+	    f.setResizable(true);
+	    f.setAlwaysOnTop(true);
+	    //    Thread.sleep(10000);
+	    d.replThread.start();
+	    is_testing = true;
+	    if (is_testing) {
+		Symbol s = checkSymbol(interpreter.eval("'sys:*compile-file-type*"));
+		LispObject prev = s.getSymbolValue();
+		Debug.assertTrue(prev.getStringValue().equals("abcl"));
+		s.setSymbolValue(new SimpleString("lsp"));
+		d.insertString("(load \"doit.lsp\")\n");
+	    }
+	} catch (Throwable e) {
+	    e.printStackTrace();
+	    System.exit(1); // Ok. We haven't done anything useful yet.
+	}
+
+    }
+
+    public static void centerWindow(JFrame frame) {
+
+	Insets insets = frame.getInsets();
+	frame.setSize(new Dimension(insets.left + insets.right + 500, insets.top + insets.bottom + 250));
+	frame.setVisible(true);
+	frame.setResizable(false);
+
+	Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+	int x = (int) ((dimension.getWidth() - frame.getWidth()) / 2);
+	int y = (int) ((dimension.getHeight() - frame.getHeight()) / 2);
+	frame.setLocation(x, y);
   }
 	
 }

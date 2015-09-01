@@ -39,6 +39,29 @@ public abstract class Operator extends LispObject
 {
     protected LispObject lambdaName;
 
+	@Override
+	public String toString() {
+		String cname = getClass().getName();
+		cname = cname.substring(1 + cname.indexOf("$"));
+		cname = cname.substring(1 + cname.lastIndexOf("."));
+		return toString2() + " #|" + cname.substring(1 + cname.indexOf("$")) + "|#";
+	}
+	public String toString2() {
+		// TODO Auto-generated method stub
+		LispObject ln = getLambdaName();
+		if (ln != null) {
+			LispObject ll = getLambdaList();
+			// cheaper than Nil check
+			if (ln != ll)
+				return "#'" + ln;
+		}
+		LispObject lo = printObject();
+		if (lo != null)
+			return lo.getStringValue();
+		return "(lambda " + getLambdaList() + " .......)";
+		
+	}
+
     private LispObject lambdaList;
 
     public final LispObject getLambdaName()

@@ -33,6 +33,8 @@
 
 package org.armedbear.lisp;
 
+import static org.armedbear.lisp.Lisp.cold;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,6 +56,14 @@ public final class Lisp
   public static boolean cold = true;
 
   public static boolean initialized;
+
+    public static boolean is_running;
+    public static boolean is_interp;
+    public static boolean is_testing;
+
+    public static final LispObject[] ZERO_LISP_OBJECTS = new LispObject[0];
+
+    public static boolean disableClassloading = false;
 
   // Packages.
   public static final Package PACKAGE_CL =
@@ -149,7 +159,7 @@ public final class Lisp
   //    (Denial of Service through hash table multi-collisions)
   public static final int randomStringHashBase =
           (int)(new java.util.Date().getTime());
-  
+
   public static boolean profiling;
 
   public static boolean sampling;
@@ -416,7 +426,7 @@ public final class Lisp
     error(condition);
     return new SimpleString(""); // Not reached
   }
-  
+
   public static final LispObject error(LispObject condition, LispObject message)
   {
     pushJavaStackFrames();
@@ -1028,13 +1038,13 @@ public final class Lisp
   }
 
   public static Symbol checkSymbol(LispObject obj)
-  {             
-          if (obj instanceof Symbol)      
-                  return (Symbol) obj;         
-          return (Symbol)// Not reached.       
+  {
+          if (obj instanceof Symbol)
+                  return (Symbol) obj;
+          return (Symbol)// Not reached.
               type_error(obj, Symbol.SYMBOL);
   }
-  
+
   public static final LispObject checkList(LispObject obj)
 
   {
@@ -1046,18 +1056,18 @@ public final class Lisp
   public static final AbstractArray checkArray(LispObject obj)
 
   {
-          if (obj instanceof AbstractArray)       
-                  return (AbstractArray) obj;         
-          return (AbstractArray)// Not reached.       
+          if (obj instanceof AbstractArray)
+                  return (AbstractArray) obj;
+          return (AbstractArray)// Not reached.
         type_error(obj, Symbol.ARRAY);
   }
 
   public static final AbstractVector checkVector(LispObject obj)
 
   {
-          if (obj instanceof AbstractVector)      
-                  return (AbstractVector) obj;         
-          return (AbstractVector)// Not reached.       
+          if (obj instanceof AbstractVector)
+                  return (AbstractVector) obj;
+          return (AbstractVector)// Not reached.
         type_error(obj, Symbol.VECTOR);
   }
 
@@ -1082,9 +1092,9 @@ public final class Lisp
   public static final StackFrame checkStackFrame(LispObject obj)
 
   {
-          if (obj instanceof StackFrame)      
-                  return (StackFrame) obj;         
-          return (StackFrame)// Not reached.       
+          if (obj instanceof StackFrame)
+                  return (StackFrame) obj;
+          return (StackFrame)// Not reached.
             type_error(obj, Symbol.STACK_FRAME);
   }
 
@@ -1131,7 +1141,7 @@ public final class Lisp
             }
         }
     }
-      
+
     // Decimal representation.
     if (oldValue instanceof Fixnum)
       sb.append(((Fixnum)oldValue).value);
@@ -1239,13 +1249,13 @@ public final class Lisp
   {
       return readObjectFromReader(new StringReader(s));
   }
-  
+
   final static Charset UTF8CHARSET = Charset.forName("UTF-8");
   public static LispObject readObjectFromStream(InputStream s)
   {
       return readObjectFromReader(new InputStreamReader(s));
   }
-  
+
   public static LispObject readObjectFromReader(Reader r)
   {
     LispThread thread = LispThread.currentThread();
@@ -1268,7 +1278,7 @@ public final class Lisp
         thread.resetSpecialBindings(mark);
     }
   }
-  
+
   @Deprecated
   public static final LispObject loadCompiledFunction(final String namestring)
   {
@@ -1299,7 +1309,7 @@ public final class Lisp
       InputStream input = null;
       if (load != null) {
           input = load.getInputStream();
-      } else { 
+      } else {
           // Make a last-ditch attempt to load from the boot classpath XXX OSGi hack
           URL url = null;
           try {
@@ -1609,35 +1619,35 @@ public final class Lisp
   public static final LispCharacter checkCharacter(LispObject obj)
 
   {
-          if (obj instanceof LispCharacter) 
-                  return (LispCharacter) obj;         
-          return (LispCharacter) // Not reached.       
+          if (obj instanceof LispCharacter)
+                  return (LispCharacter) obj;
+          return (LispCharacter) // Not reached.
         type_error(obj, Symbol.CHARACTER);
   }
 
   public static final Package checkPackage(LispObject obj)
 
   {
-          if (obj instanceof Package)     
-                  return (Package) obj;         
-          return (Package) // Not reached.       
+          if (obj instanceof Package)
+                  return (Package) obj;
+          return (Package) // Not reached.
         type_error(obj, Symbol.PACKAGE);
   }
 
   public static Pathname checkPathname(LispObject obj)
   {
-          if (obj instanceof Pathname)     
-                  return (Pathname) obj;         
-          return (Pathname) // Not reached.       
+          if (obj instanceof Pathname)
+                  return (Pathname) obj;
+          return (Pathname) // Not reached.
         type_error(obj, Symbol.PATHNAME);
   }
 
   public static final Function checkFunction(LispObject obj)
 
   {
-          if (obj instanceof Function)    
-                  return (Function) obj;         
-          return (Function) // Not reached.       
+          if (obj instanceof Function)
+                  return (Function) obj;
+          return (Function) // Not reached.
         type_error(obj, Symbol.FUNCTION);
   }
 
@@ -1654,9 +1664,9 @@ public final class Lisp
 
   {
           final Stream stream = checkStream(obj);
-          if (stream.isCharacterInputStream())      
-                  return stream;                        
-          return (Stream) // Not reached.                      
+          if (stream.isCharacterInputStream())
+                  return stream;
+          return (Stream) // Not reached.
           error(new TypeError("The value " + obj.princToString() +
                         " is not a character input stream."));
   }
@@ -1665,8 +1675,8 @@ public final class Lisp
 
   {
           final Stream stream = checkStream(obj);
-          if (stream.isCharacterOutputStream())      
-                  return stream;                        
+          if (stream.isCharacterOutputStream())
+                  return stream;
         return (Stream) // Not reached.
         error(new TypeError("The value " + obj.princToString() +
                             " is not a character output stream."));
@@ -1676,16 +1686,16 @@ public final class Lisp
 
   {
           final Stream stream = checkStream(obj);
-          if (stream.isBinaryInputStream())      
-                  return stream;                        
+          if (stream.isBinaryInputStream())
+                  return stream;
         return (Stream) // Not reached.
         error(new TypeError("The value " + obj.princToString() +
                              " is not a binary input stream."));
   }
-  
+
   public static final Stream outSynonymOf(LispObject obj)
 
-  {       
+  {
           if (obj instanceof Stream)
             return (Stream) obj;
           if (obj == T)
@@ -1720,27 +1730,27 @@ public final class Lisp
   public static final Readtable checkReadtable(LispObject obj)
 
   {
-          if (obj instanceof Readtable)   
-                  return (Readtable) obj;         
-          return (Readtable)// Not reached.       
+          if (obj instanceof Readtable)
+                  return (Readtable) obj;
+          return (Readtable)// Not reached.
           type_error(obj, Symbol.READTABLE);
   }
-  
-  public final static AbstractString checkString(LispObject obj) 
+
+  public final static AbstractString checkString(LispObject obj)
 
   {
-          if (obj instanceof AbstractString)            
-                  return (AbstractString) obj;                    
-          return (AbstractString)// Not reached.               
+          if (obj instanceof AbstractString)
+                  return (AbstractString) obj;
+          return (AbstractString)// Not reached.
               type_error(obj, Symbol.STRING);
   }
-  
-  public final static Layout checkLayout(LispObject obj) 
+
+  public final static Layout checkLayout(LispObject obj)
 
   {
-          if (obj instanceof Layout)            
-                  return (Layout) obj;                    
-          return (Layout)// Not reached.               
+          if (obj instanceof Layout)
+                  return (Layout) obj;
+          return (Layout)// Not reached.
                 type_error(obj, Symbol.LAYOUT);
   }
 
@@ -1757,9 +1767,9 @@ public final class Lisp
   public static final Environment checkEnvironment(LispObject obj)
 
   {
-          if (obj instanceof Environment)         
-                  return (Environment) obj;         
-          return (Environment)// Not reached.       
+          if (obj instanceof Environment)
+                  return (Environment) obj;
+          return (Environment)// Not reached.
         type_error(obj, Symbol.ENVIRONMENT);
   }
 
@@ -2419,11 +2429,11 @@ public final class Lisp
 
   // ### *compile-file-type*
   public static final Symbol _COMPILE_FILE_TYPE_ =
-   exportSpecial("*COMPILE-FILE-TYPE*", PACKAGE_SYS, new SimpleString("abcl"));    
-  
+   exportSpecial("*COMPILE-FILE-TYPE*", PACKAGE_SYS, new SimpleString("abcl"));
+
   // ### *compile-file-class-extension*
-  public static final Symbol _COMPILE_FILE_CLASS_EXTENSION_ =
-   exportSpecial("*COMPILE-FILE-CLASS-EXTENSION*", PACKAGE_SYS, new SimpleString("cls"));
+    public static final Symbol _COMPILE_FILE_CLASS_EXTENSION_ = exportSpecial("*COMPILE-FILE-CLASS-EXTENSION*",
+	    PACKAGE_SYS, new SimpleString("class"));
 
   // ### *compile-file-zip*
   public static final Symbol _COMPILE_FILE_ZIP_ =
@@ -2758,7 +2768,7 @@ public final class Lisp
   {
     Symbol._RANDOM_STATE_.initializeSpecial(new RandomStateObject());
   }
-  
+
     private static Stream stdin = new Stream(Symbol.SYSTEM_STREAM, System.in, Symbol.CHARACTER, true);
 
     private static Stream stdout = new Stream(Symbol.SYSTEM_STREAM,System.out, Symbol.CHARACTER, true);
@@ -2785,5 +2795,20 @@ public final class Lisp
 	return error(new SimpleError("This is a placeholder. It should only be called in compiled code, and tranformed by the compiler using special form handlers."));
     }
   }
+
+    public static String princNonNull(LispObject first) {
+	if (first == null) {
+	    systemBreak();
+	    return "#|princNonNull|#";
+	}
+	return first.princToString();
+    }
+
+    public static void systemBreak() {
+	// just code to set a breakpoint at
+	if(false) {
+	    System.err.flush();
+	}
+    }
 
 }

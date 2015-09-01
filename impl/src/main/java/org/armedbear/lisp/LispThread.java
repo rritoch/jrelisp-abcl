@@ -250,7 +250,7 @@ public final class LispThread extends LispObject
 
     public final LispObject setValues()
     {
-        _values = new LispObject[0];
+        _values = ZERO_LISP_OBJECTS;
         return NIL;
     }
 
@@ -311,7 +311,7 @@ public final class LispThread extends LispObject
 
     public final LispObject nothing()
     {
-        _values = new LispObject[0];
+        _values = ZERO_LISP_OBJECTS;
         return NIL;
     }
 
@@ -371,7 +371,7 @@ public final class LispThread extends LispObject
      * special bindings. Its main purpose is to allow a mark/reset
      * interface to special binding and unbinding.
      */
-    private SpecialBindingsMark savedSpecials = null;
+    SpecialBindingsMark savedSpecials = null;
 
     /** Marks the state of the special bindings,
      * for later rewinding by resetSpecialBindings().

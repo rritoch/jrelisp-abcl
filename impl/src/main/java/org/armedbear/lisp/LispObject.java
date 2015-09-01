@@ -745,16 +745,16 @@ public class LispObject //extends Lisp
       try {
           thread.bindSpecial(Symbol.PRINT_READABLY, NIL);
           thread.bindSpecial(Symbol.PRINT_ESCAPE, NIL);
-          return unreadableString(toString(), false);
+			return unreadableString(super.toString(), false);
       }
       finally {
           thread.resetSpecialBindings(mark);
       }
   }
 
-  public LispObject printObject()
-  {
-      return new SimpleString(unreadableString(toString(), false));
+    // make Sybmol always overrides
+	public LispObject printObject() {
+		return new SimpleString(unreadableString(super.toString(), false));
   }
 
   /** Calls unreadableString(String s, boolean identity) with a default
@@ -1461,4 +1461,11 @@ public class LispObject //extends Lisp
   public boolean isRandomStateObject() {
   	return false;
   }
+
+	public String toString() {
+		LispObject lo = printObject();
+		if (lo != null)
+			return lo.getStringValue();
+		return super.toString();
+	}
 }
