@@ -118,9 +118,13 @@ public abstract class AbstractString extends AbstractVector
     public String toString() {
 	    int length = length();
 	    StringBuilder sb = new StringBuilder(length);
+	    sb.append("\"");
 	    for(int i = 0; i < length; ++i) {
-			sb.append(charAt(i));
+            char c = charAt(i);
+            if (c=='"' || c=='\\') sb.append('"');
+			sb.append(c);
 	    }
+	    sb.append("\"");
 	    return sb.toString();
     }
 

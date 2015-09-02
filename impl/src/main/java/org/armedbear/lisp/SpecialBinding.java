@@ -76,7 +76,7 @@ final public class SpecialBinding implements IBinding
         this.value = value;
     }
     
-    @Override
+ // missing from several impls@Override
     public final boolean isSpecialBinding() {
   	  return true;
     }

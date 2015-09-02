@@ -44,6 +44,10 @@ public final class MacroObject extends Function
   {
     this.name = name;
     this.expander = expander;
+    setExpanderName(name, expander);
+  }
+
+ private void setExpanderName(LispObject name, LispObject expander) {
     if (name instanceof Symbol && name != NIL && expander instanceof Function)
       ((Function)expander).setLambdaName(list(Symbol.MACRO_FUNCTION,
                                                name));

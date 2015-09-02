@@ -42,10 +42,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 
-public final class Interpreter
+public final class Interpreter 
 {
     // There can only be one interpreter.
     public static Interpreter interpreter;
+    final public static Object INIT_LOCK = new Object();
 
     private final boolean jlisp;
     private final InputStream inputStream;
@@ -57,14 +58,15 @@ public final class Interpreter
     private static boolean help = false;
     private static boolean doubledash = false;
 
-    public static synchronized Interpreter getInstance()
-    {
+    public static Interpreter getInstance() {
+	synchronized (INIT_LOCK) {
         return interpreter;
+    }
     }
 
     // Interface.
-    public static synchronized Interpreter createInstance()
-    {
+    public static Interpreter createInstance() {
+	synchronized (INIT_LOCK) {
         if (interpreter != null)
             return null;
         interpreter = new Interpreter();
@@ -72,9 +74,10 @@ public final class Interpreter
         initializeLisp();
         return interpreter;
     }
+    }
 
-    public static synchronized Interpreter createDefaultInstance(String[] args)
-    {
+    public static Interpreter createDefaultInstance(String[] args) {
+	synchronized (INIT_LOCK) {
         if (interpreter != null)
             return null;
         interpreter = new Interpreter();
@@ -96,8 +99,7 @@ public final class Interpreter
             _NOINFORM_.setSymbolValue(T);
         else {
             double uptime = (System.currentTimeMillis() - Main.startTimeMillis) / 1000.0;
-            getStandardOutput()._writeString("Low-level initialization completed in " +
-                                             uptime + " seconds.\n");
+		getStandardOutput()._writeString("Low-level initialization completed in " + uptime + " seconds.\n");
         }
         initializeLisp();
         initializeTopLevel();
@@ -111,16 +113,23 @@ public final class Interpreter
 
         return interpreter;
     }
+    }
 
-    public static synchronized Interpreter createJLispInstance(
-        InputStream in,
-        OutputStream out,
-        String initialDirectory,
-        String version)
-    {
+    public static Interpreter createJLispInstance(InputStream in, OutputStream out, String initialDirectory,
+	    String version) {
+	synchronized (INIT_LOCK) {
         if (interpreter != null)
             return null;
-        interpreter = new Interpreter(in, out, initialDirectory);
+	    interpreter = createNewJLispInstance(in, out, initialDirectory, version);
+	    return interpreter;
+	}
+    }
+
+    public static Interpreter createNewJLispInstance(InputStream in, OutputStream out, String initialDirectory,
+	    String version) {
+	synchronized (INIT_LOCK) {
+
+	    Interpreter interpreter = new Interpreter(in, out, initialDirectory);
 
         Stream stdout = getStandardOutput();
         stdout._writeLine(version);
@@ -132,6 +141,8 @@ public final class Interpreter
         initializeSystem();
         processInitializationFile();
         return interpreter;
+    }
+
     }
 
     public static boolean initialized() {
@@ -159,26 +170,24 @@ public final class Interpreter
     }
 
     // Interface.
-    public LispObject eval(String s)
-    {
-        return Lisp.eval(new StringInputStream(s).read(true, NIL, false,
-                                                  LispThread.currentThread(),
-                                                  Stream.currentReadtable));
+    public LispObject eval(String s) {
+	return Lisp.eval(
+		new StringInputStream(s).read(true, NIL, false, LispThread.currentThread(), Stream.currentReadtable));
     }
 
-    public static synchronized void initializeLisp()
-    {
+    public static void initializeLisp() {
+	synchronized (INIT_LOCK) {
         if (!initialized) {
             Load.loadSystemFile("boot.lisp", false, false, false);
             initialized = true;
         }
     }
+    }
 
-    public static synchronized void initializeJLisp()
-    {
+    public static void initializeJLisp() {
+	synchronized (INIT_LOCK) {
         if (!initialized) {
-            Symbol.FEATURES.setSymbolValue(new Cons(Keyword.J,
-                                               Symbol.FEATURES.getSymbolValue()));
+		Symbol.FEATURES.setSymbolValue(new Cons(Keyword.J, Symbol.FEATURES.getSymbolValue()));
             Load.loadSystemFile("boot.lisp", false, false, false);
 
             try {
@@ -190,6 +199,7 @@ public final class Interpreter
 
             initialized = true;
         }
+    }
     }
 
     private static boolean topLevelInitialized;

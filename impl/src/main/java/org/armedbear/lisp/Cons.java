@@ -613,39 +613,66 @@ public final class Cons extends LispObject implements java.io.Serializable
   public LispObject evalImpl(
 		  final Environment env,
           final LispThread thread) {
-      LispObject first = car;
-      if (first.isSymbol()) {
-          LispObject fun = env.lookupFunction(first);
-          if (fun != null && fun.isASpecialOperator())
+	  if (false && car.isOperator()){
+		  LispObject fun = car;//env.lookupFunction(car);
+		  if (fun!=null) return evalCall(fun, cdr, env, thread);
+      } 
+      if (car.isSymbol()) {    	  
+    	  final Symbol first = (Symbol)car;
+    	  LispObject fun = env.lookupFunction(car);
+          if (fun instanceof SpecialOperator)
             {
               if (profiling)
                 if (!sampling)
                   fun.incrementCallCount();
               // Don't eval args!
+              maybeSaveSymbolFunction(first,fun);
               return fun.execute(cdr, env);
             }
-          if (fun != null && fun.isMacroObject())
-            return eval(macroexpand(this, env, thread), env, thread);
+          if (fun != null && fun.isMacroObject()) {
+        	  maybeSaveSymbolFunction(first,fun);
+        	  LispObject lo = macroexpand(this, env, thread);
+            return eval(lo, env, thread);
+          }
           if (fun != null && fun.isAutoload())
             {
               Autoload autoload = (Autoload) fun;
               autoload.load();
+              maybeSaveSymbolFunction(first,autoload);
               return eval(this, env, thread);
             }
+          maybeSaveSymbolFunction(first,fun);
           return evalCall(fun != null ? fun : first,
                           cdr, env, thread);
         }
       else
         {
+    	  final LispObject first = car;
           if (first != null && first.isCons() && first.car() == Symbol.LAMBDA)
             {
               Closure closure = new Closure(first, env);
+              maybeSaveSymbolFunction(first,closure);
               return evalCall(closure, cdr, env, thread);
             }
           else
             return program_error("Illegal function object: "
-                                 + first.princToString() + ".");
+                                 + Lisp.princNonNull(first) + ".");          
         }
+  }
+  
+  static void maybeSaveSymbolFunction(LispObject first, LispObject fun) {
+	  if (first instanceof Symbol) {
+		  Symbol symbol = (Symbol)first;
+		  LispObject sfun = symbol.getSymbolFunction();
+		  if (sfun!=fun){
+			  if (sfun==null) {
+				  symbol.setSymbolFunction(sfun);
+				  return;
+        }
+			 // symbol.setSymbolFunction(fun);
+		  }  
+	  }
+	
   }
   
   @Override

@@ -35,11 +35,13 @@ package org.armedbear.lisp;
 
 import static org.armedbear.lisp.Lisp.*;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 
-
-public final class Site
-{
+public final class Site {
     private static LispObject LISP_HOME;
 
     private static void init() {
@@ -52,9 +54,32 @@ public final class Site
             LISP_HOME = new Pathname(s);
             return;
         }
-        URL url = Lisp.class.getResource("boot.lisp");
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		Class lispClass = Lisp.class;
+		String path = lispClass.getResource("/org/armedbear/lisp/").getPath();
+		URL url = lispClass.getResource("boot.lisp");
+		if (url == null) {
+
+			classLoader = lispClass.getClassLoader();
+			url = classLoader.getResource("/org/armedbear/lisp/boot.lisp");
+		}
+		if (url == null) {
+			url = ClassLoader.getSystemResource("/org/armedbear/lisp/boot.lisp");
+		}
+		if (url == null) {
+
+			File f = new File(path,"boot.lisp");
+			try {
+				url = f.toURL();
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
         if (url != null) {
             if (!Pathname.isSupportedProtocol(url.getProtocol())) {
+				Debug.trace("unSupportedProtocol: " + url);
                 LISP_HOME = NIL;
             } else {
                 Pathname p = new Pathname(url);
@@ -68,8 +93,7 @@ public final class Site
         Debug.trace("Unable to determine LISP_HOME.");
     }
 
-    public static final LispObject getLispHome()
-    {
+	public static final LispObject getLispHome() {
       if (LISP_HOME == null) {
         init();
       }
@@ -77,11 +101,10 @@ public final class Site
     }
 
     // ### *lisp-home*
-    private static final Symbol _LISP_HOME_ =
-        exportSpecial("*LISP-HOME*", PACKAGE_EXT, NIL);
+	private static final Symbol _LISP_HOME_ = exportSpecial("*LISP-HOME*", PACKAGE_EXT, NIL);
 
     static {
-        LispObject p  = Site.getLispHome();
+		LispObject p = getLispHome();
         if (p != null)
             _LISP_HOME_.setSymbolValue(p);
     }
