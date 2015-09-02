@@ -1,6 +1,7 @@
 /bin/
 .classpath
 .project
+.settings/
 /target/
 /dist/
 ansi-test/**/*.abcl
