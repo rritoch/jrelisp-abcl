@@ -117,7 +117,7 @@ public class Packages
 	// Finds package named `name'.	Returns null if package doesn't exist.
 	// Called by Package.findPackage after checking package-local package
 	// nicknames.
-	static final synchronized Package findPackageGlobally(String name)
+	public static final synchronized Package findPackageGlobally(String name)
 	{
 		return (Package) map.get(name);
 	}

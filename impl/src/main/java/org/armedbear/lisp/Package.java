@@ -842,10 +842,34 @@ public final class Package extends LispObject implements java.io.Serializable
         return list;
     }
 
+    public Map<String,Symbol> getInternSymbols() {
+    	Map<String,Symbol> syms = new HashMap();
+    	for(String k : internalSymbols.keySet()) {
+    		syms.put(k, internalSymbols.get(k));
+    	}
+    	return syms;
+    }
+    
+    public void acceptInternSymbols(Map<String,Symbol> syms) {
+    	internalSymbols.putAll(syms);
+    }
+    
+    public Map<String,Symbol> getExternSymbols() {
+    	Map<String,Symbol> syms = new HashMap();
+    	for(String k : externalSymbols.keySet()) {
+    		syms.put(k, externalSymbols.get(k));
+    	}
+    	return syms;
+    }
+    
+    public void acceptExternSymbols(Map<String,Symbol> syms) {
+    	externalSymbols.putAll(syms);
+    }
+    
     public synchronized LispObject PACKAGE_INTERNAL_SYMBOLS()
     {
         LispObject list = NIL;
-        Collection symbols = internalSymbols.values();
+        Collection<Symbol> symbols = internalSymbols.values();
         for (Iterator<Symbol> i = symbols.iterator(); i.hasNext();)
             list = new Cons(i.next(), list);
         return list;

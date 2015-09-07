@@ -16,9 +16,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 
+import org.armedbear.lisp.JavaObject;
+import org.armedbear.lisp.Load;
 import org.armedbear.lisp.Package;
 import org.armedbear.lisp.Packages;
-
+import org.armedbear.lisp.Symbol;
+import org.armedbear.lisp.Function;
+import org.armedbear.lisp.JavaClassLoader;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -47,7 +51,7 @@ public class DeligatingPackagesRegistry extends ConcurrentHashMap<String, Packag
 	protected Map<OSGIDependency,Package>  provided = new HashMap<OSGIDependency,Package>();
 	protected Map<ClassLoader,List<OSGIDependency>> providers = new HashMap<ClassLoader,List<OSGIDependency>>();
 	
-	
+	protected static final PackagesWrapper packagesWrapper = new PackagesWrapper();
 	
 	protected  ConcurrentHashMap<String, Package> getActivePackages() 
 	{
@@ -62,8 +66,8 @@ public class DeligatingPackagesRegistry extends ConcurrentHashMap<String, Packag
 		ClassLoader cl = PackageClassLoader.get(); 
 		
 		if (cl == null) {
-			//TODO: Set to ThreadLocal Classloader?
-			//cl = RT.baseLoader();
+
+			cl = JavaClassLoader.getCurrentClassLoader();
 		}
 		while (ret == null && cl != null && cl != scl) {
 			ret = registrations.get(cl);
@@ -258,7 +262,8 @@ public class DeligatingPackagesRegistry extends ConcurrentHashMap<String, Packag
 				}
 				reg.put(myImport.getName(), nsin);
 			} else {
-				//TODO: Copy symbols & functions into package
+				ns.acceptExternSymbols(nsin.getExternSymbols());
+				ns.acceptInternSymbols(nsin.getInternSymbols());
 			}
 		}
 		
@@ -283,7 +288,7 @@ public class DeligatingPackagesRegistry extends ConcurrentHashMap<String, Packag
 					@Override
 					public void run() {
 						for (OSGIDependency export : preloadExports) {
-							//TODO: Load named export
+							PackageUtil.loadPackageByName(export.getName(),bcl);
 						}
 					}
 				});
@@ -323,30 +328,7 @@ public class DeligatingPackagesRegistry extends ConcurrentHashMap<String, Packag
 		active = true;
 		DeligatingPackagesRegistry r = new DeligatingPackagesRegistry();
 		r.register(ClassLoader.getSystemClassLoader(), exports, null);
-		
-		Field Packages;
-		try {
-			Packages = Package.class.getDeclaredField("Packages");
-			Packages.setAccessible(true);
-			Field modifiersField = Field.class.getDeclaredField("modifiers");
-			modifiersField.setAccessible(true);
-			modifiersField.setInt(Packages, Packages.getModifiers() & ~Modifier.FINAL);
-			origPackages = Packages.get(null);
-			Packages.set(null, r);
-		} catch (NoSuchFieldException e) {
-			active = false;
-			throw new RuntimeException(e);
-		} catch (SecurityException e) {
-			active = false;
-			throw new RuntimeException(e);
-		} catch (IllegalArgumentException e) {
-			active = false;
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			active = false;
-			throw new RuntimeException(e);
-		}
-		
+		packagesWrapper.set(r);
 		r.start(bundleContext);
 		INSTANCE = r;
 		return true;
@@ -360,28 +342,7 @@ public class DeligatingPackagesRegistry extends ConcurrentHashMap<String, Packag
 
 		//OSGI Framework SHOULD stop dependencies before us, so we shouldn't need to stop bundles 
 		
-		Field Packages;
-		try {
-			Packages = Package.class.getDeclaredField("Packages");
-			Packages.setAccessible(true);
-			Field modifiersField = Field.class.getDeclaredField("modifiers");
-			modifiersField.setAccessible(true);
-			modifiersField.setInt(Packages, Packages.getModifiers() & ~Modifier.FINAL);
-			Packages.set(null, origPackages);
-		} catch (NoSuchFieldException e) {
-			active = false;
-			throw new RuntimeException(e);
-		} catch (SecurityException e) {
-			active = false;
-			throw new RuntimeException(e);
-		} catch (IllegalArgumentException e) {
-			active = false;
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			active = false;
-			throw new RuntimeException(e);
-		}
-
+		packagesWrapper.unset();
 		origPackages = null;
 		active = false;
 		INSTANCE = null;
@@ -539,8 +500,13 @@ public class DeligatingPackagesRegistry extends ConcurrentHashMap<String, Packag
 					withVoidPackageClassLoader(bcl,new Runnable() {
 						@Override
 						public void run() {
-							//TODO: Load lisp_activator_Package (if not loaded?)
-							//TODO: Call start function with arg0=bnd.getBundleContext() 
+							
+							PackageUtil.maybeLoadPackageByName(lisp_activator_Package,bnd);
+							Package pkg = Packages.findPackageGlobally(lisp_activator_Package);
+							Symbol startSym = (Symbol)pkg.findSymbol("START");
+							Function startFun = (Function)startSym.getSymbolFunction();
+							
+							startFun.execute(new JavaObject(bnd.getBundleContext()));
 						}
 					});
 				} finally {
@@ -565,7 +531,11 @@ public class DeligatingPackagesRegistry extends ConcurrentHashMap<String, Packag
 					withVoidPackageClassLoader(bcl,new Runnable() {
 						@Override
 						public void run() {
-							//TODO: Invoke stop method with bundle as argument
+							PackageUtil.maybeLoadPackageByName(lisp_activator_Package,bnd);
+							Package pkg = Packages.findPackageGlobally(lisp_activator_Package);
+							Symbol stopSym = (Symbol)pkg.findSymbol("STOP");
+							Function stopFun = (Function)stopSym.getSymbolFunction();
+							stopFun.execute(new JavaObject(bnd.getBundleContext()));
 						}
 					});
 				} finally {

@@ -1,11 +1,17 @@
 package com.vnetpublishing.jrelisp.osgi;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.armedbear.lisp.Packages;
+import org.armedbear.lisp.Package;
+import org.armedbear.lisp.Load;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
@@ -184,6 +190,35 @@ public class PackageUtil {
 	{
 		// Bundle listener will handle the callStart on STOPPING
 		bundle.stop();
+	}
+	
+	public static void loadPackageByName(String pkgName,ClassLoader cl) {
+		Load.load(cl.getResourceAsStream(String.format("/META-INF/lisp/%s.lisp",pkgName)));
+	}
+	
+	public static void maybeLoadPackageByName(String pkgName,Bundle bnd) {
+		
+		Package pkg = Packages.findPackageGlobally(pkgName);
+		
+		if (pkg == null) {
+			URL r = bnd.getResource(String.format("/META-INF/lisp/%s.lisp",pkgName));
+			
+			InputStream is = null;
+			try {
+				is = r.openStream();
+				Load.load(is);
+			} catch (IOException ex) {
+				throw new RuntimeException(ex); // Rethrow unchecked!
+			} finally {
+				if (is != null) {
+					try {
+						is.close();
+					} catch(IOException ex) {
+						ex.printStackTrace(); // just be annoying..
+					}
+				}
+			}
+		}
 	}
 	
 }
